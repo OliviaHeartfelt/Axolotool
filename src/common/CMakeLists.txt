@@ -1,0 +1,1 @@
+add_library(axo_common INTERFACE)
