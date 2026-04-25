@@ -4,13 +4,11 @@ project(AxoEditor)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Enable Qt Auto-tools
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
-# Glob all files
 file(GLOB EDITOR_FILES 
     "*.cpp" 
     "*.h" 
@@ -18,10 +16,20 @@ file(GLOB EDITOR_FILES
     "*.ui"
 )
 
-# Create the executable
-add_executable(axo_editor ${EDITOR_FILES})
+add_executable(axo_editor 
+    main.cpp
+)
 
-#
+find_package(Qt6 REQUIRED COMPONENTS Core)
+get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+add_custom_command(TARGET axo_editor POST_BUILD
+    COMMAND "${_qt_bin_dir}/windeployqt.exe" 
+            --debug 
+            "$<TARGET_FILE:axo_editor>"
+    COMMENT "Deploying Qt dependencies..."
+)
+
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${EDITOR_FILES})
 set_source_files_properties(${EDITOR_FILES} PROPERTIES LANGUAGE CXX)
 
