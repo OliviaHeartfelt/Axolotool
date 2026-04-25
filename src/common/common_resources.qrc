@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>AxoButton/AxoButton.qss</file>
+    </qresource>
+</RCC>
