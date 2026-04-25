@@ -1,0 +1,26 @@
+QPushButton {
+    border: 1px solid #333;
+    border-radius: 16px;
+    background-color: #131314;
+    color: #eee;
+}
+
+QPushButton[axoStyle="secondary"] {
+    background-color: #1E1F20;
+}
+QPushButton[axoStyle="primary"] {
+    border: 1px solid #00ffcc00;
+    color: #00ffcc;
+}
+QPushButton[axoStyle="primary"]:pressed {
+    background-color: #333;
+}
+
+QPushButton[axoStyle="danger"] {
+    background-color: #441111;
+    border: 1px solid #ff4444;
+}
+
+QPushButton:hover {
+    background-color: #222;
+}
