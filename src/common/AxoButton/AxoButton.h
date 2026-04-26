@@ -1,13 +1,14 @@
 #pragma once
 #include <QPushButton>
-#include <QWidget>
-#include <QFile>
-#include <QApplication>
+#include <QEnterEvent>
+#include <QWheelEvent>
 
 class AxoButton : public QPushButton {
     Q_OBJECT
 public:
     using QPushButton::QPushButton;
+
+    using mousePressFunction = std::function<void(QMouseEvent*)>;
 
 protected:
 
@@ -15,6 +16,10 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+
+#if QT_CONFIG(wheelevent)
+    void wheelEvent(QWheelEvent* event) override;
+#endif
 
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
@@ -25,10 +30,5 @@ protected:
     void enterEvent(QEnterEvent* event) override;
     void leaveEvent(QEvent* event) override;
 
-    //void paintEvent(QPaintEvent* event) override;
-    //void moveEvent(QMoveEvent* event) override;
-    //void resizeEvent(QResizeEvent* event) override;
-    //void closeEvent(QCloseEvent* event) override;
-
-
+    //other members: https://code.qt.io/cgit/qt/qtbase.git/tree/src/widgets/kernel/qwidget.h?h=6.11#n663
 };

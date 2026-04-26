@@ -1,0 +1,16 @@
+QPropertyAnimation* anim = new QPropertyAnimation(this, "geometry");
+anim->setDuration(100); // 100 milliseconds
+anim->setStartValue(geometry());
+anim->setEndValue(geometry().adjusted(-2, -2, 2, 2)); // Slightly "pop" out
+anim->start(QAbstractAnimation::DeleteWhenStopped);
+
+// Create a color using HSV: Hue (0-359), Saturation (0-255), Value (0-255)
+QColor hoverColor = QColor::fromHsv(180, 200, 255);
+
+// Convert it to an RGBA string for the Style Sheet
+QString style = QString("background-color: %1;").arg(hoverColor.name(QColor::HexArgb));
+setStyleSheet(style);
+
+setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #444, stop:1 #222); ");
+setStyleSheet(":hover { background-color: #333; }");
+setStyleSheet(":pressed { background-color: #333; }");
