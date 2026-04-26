@@ -1,90 +1,154 @@
 module;
 
+#include <QEvent>
+
+#include <map>
 #include <vector>
-#include <optional>
 #include <utility>
 #include <functional>
 #include <ranges>
 #include <concepts>
+#include <cstdint>
+#include <iterator>
 
-export module EventDelegates;
+export module UIEventDelegates;
 
 
-template<typename T>
-concept range_t = requires(T & t) {
-    std::ranges::begin(t);
-    std::ranges::end(t);
-};
+export template<typename T>
+concept EventType = std::convertible_to<T, QEvent>;
 
-template<typename EventType>
+export template<typename EventType>
 class EventDelegates {
     using Callback = std::function<void(EventType)>;
-    std::vector<Callback> delegates;
+    using Key = std::pair<uint8_t, uint8_t>;
+    std::multimap<Key, Callback, std::less<>> registry;
+
+    using NodeHandle = decltype(registry)::node_type;
+
+    class Modify {
+        EventDelegates* owner = nullptr;
+        NodeHandle handle{};
+
+    public:
+        Modify(EventDelegates* _owner, uint8_t _event_id, uint8_t _priority) : owner(_owner) {
+            if (owner) {
+                auto it = registry.find({ _event_id, _priority });
+                if (it != registry.end());
+                    handle = registry.extract(it);
+                else
+                    handle = {};
+            }
+        }
+
+        Modify& id(uint8_t event_id) {
+            if (!handle.empty()) {
+                handle.key().first = event_id;
+            }
+            return *this;
+        }
+        Modify& priority(uint8_t priority) {
+            if (!handle.empty()) {
+                handle.key().second = priority;
+            }
+            return *this;
+        }
+        Modify& callback(Callback fn) {
+            if (!handle.empty()) {
+                handle.mapped() = std::move(fn);
+            }
+            return *this;
+        }
+        void insert() {
+            if (owner && !handle.empty()) {
+                owner->registry.insert(std::move(handle));
+            }
+        }
+        bool isValid() const { return !handle.empty(); }
+    };
+
 public:
     // Basic info
-    Callback& at(std::size_t pos) { return delegates.at(pos); }
-    bool empty() { return delegates.empty(); }
-    std::size_t size() { return delegates.size(); }
+    bool empty() { return registry.empty(); }
+    std::size_t size() { return registry.size(); }
+    std::size_t count(uint8_t event_id) { 
+        if (registry.empty()) return 0;
+
+        auto begin = registry.lower_bound(std::pair{ event_id, 0 });
+        if (begin == registry.end()) return 0;
+        auto end = registry.upper_bound(std::pair{ event_id, 255 });
+
+        return std::distance(begin, end);
+    }
+    bool exists(uint8_t event_id, uint8_t priority) {
+        if (registry.empty()) return false;
+        if (registry.find(std::pair{ event_id, priority }) == registry.end()) return false;
+        return true;
+    }
 
     // Memory management
-    void reserve(std::size_t n) { delegates.reserve(n); }
-    void shink_to_fit() { delegates.shrink_to_fit(); }
-    void clear() { delegates.clear(); }
+    void clear() { registry.clear(); }
 
     // Logic
-    std::optional<std::size_t> insert(std::size_t pos, Callback function) {
-        if (pos > delegates.size()) return std::nullopt;
-        delegates.insert(delegates.begin() + pos, std::move(function));
-        return pos;
+    void insert(uint8_t event_id, uint8_t priority, Callback fn) {
+        registry.emplace(Key{event_id, priority}, std::move(fn));
     }
-    std::optional<std::size_t> erase(std::size_t pos) {
-        if (pos >= delegates.size()) return std::nullopt;
-        delegates.erase(delegates.begin() + pos);
-        return pos;
-    }
-    bool erase(std::size_t pos_first, std::size_t pos_last) {
-        if (pos_first >= delegates.size() || pos_last >= delegates.size() || pos_first > pos_last)
-            return false;
-        delegates.erase(delegates.begin() + pos_first, delegates.begin() + pos_last);
-        return true;
-    }
-    void push_back(Callback function) {
-        delegates.push_back(std::move(function));
-    }
-    void pop_back() {
-        delegates.pop_back();
-    }
-    bool swap(std::size_t pos_one, std::size_t pos_two) {
-        if (pos_one >= delegates.size() || pos_two >= delegates.size())
-            return std::nullopt;
-        std::swap(delegates[pos_one], delegates[pos_two]);
-        return true;
-    }
+    bool erase(uint8_t event_id) {
+        if (registry.empty()) return false;
 
-    // Ranges
-    template<typename range_t>
-    void insert_range(std::size_t pos, range_t&& function_range) {
-        if (pos >= delegates.size())
-            return false;
-        delegates.insert_range(0, function_range);
+        auto begin = registry.lower_bound(Key{ event_id, 0 });
+        if (begin == registry.end()) return false;
+
+        auto end = registry.upper_bound(Key{ event_id, 255 });
+
+        registry.erase(begin, end);
         return true;
     }
-    template<typename range_t>
-    void append_range(range_t&& function_range) {
-        for (auto& func : function_range) {
-            delegates.push_back(std::move(func));
+    bool erase(uint8_t event_id, uint8_t priority) {
+        if (registry.empty()) return false;
+
+        auto it = registry.find(std::pair{ event_id, priority });
+        if (it == registry.end()) return false;
+
+        registry.erase(it);
+        return true;
+    }
+    NodeHandle extract(uint8_t event_id, uint8_t priority) {
+        if (registry.empty()) return {};
+
+        auto it = registry.find(std::pair{ event_id, priority });
+        return  registry.extract(it);
+    }
+    std::vector<NodeHandle> extract(uint8_t event_id) {
+        if (registry.empty()) return {};
+
+        auto it = registry.lower_bound(std::pair{ event_id, 0 });
+        if (it == registry.end() || it->first.first != event_id) return {};
+        auto end = registry.upper_bound(std::pair{ event_id, 255 });
+
+        std::vector<NodeHandle> vec{};
+        while (it != end) {
+            vec.push_back(registry.extract(it++));
         }
+        return vec;
+    }
+    Modify modify(uint8_t event_id, uint8_t priority) {
+        return Modify(this, event_id, priority);
     }
 
     // Dispatcher
-    void invoke(EventType event) {
-        for (const auto& callback : delegates) {
-            if (callback) callback(event);
+    bool invoke(uint8_t event_id, EventType eventData) {
+        if (registry.empty()) return false;
+
+        auto it = registry.lower_bound(std::pair{ event_id, 0 });
+        if (it == registry.end()) return false;
+        auto end = registry.upper_bound(std::pair{ event_id, 255 });
+
+        for (; it != end; ++it) {
+            if (eventData->isAccepted()) break;
+
+            it->second(eventData);
         }
-    }
-    void invoke_all(EventType event) {
-        for (const auto& callback : delegates) {
-            callback(event);
-        }
+        return true;
     }
 };
+
