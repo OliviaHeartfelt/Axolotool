@@ -33,7 +33,7 @@ class EventDelegates {
         Modify(EventDelegates* _owner, uint8_t _event_id, uint8_t _priority) : owner(_owner) {
             if (owner) {
                 auto it = registry.find({ _event_id, _priority });
-                if (it != registry.end());
+                if (it != registry.end())
                     handle = registry.extract(it);
                 else
                     handle = {};
