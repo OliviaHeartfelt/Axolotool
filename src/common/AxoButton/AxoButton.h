@@ -1,4 +1,7 @@
 #pragma once
+
+import UIEventDelegates;
+
 #include <QPushButton>
 #include <QEnterEvent>
 #include <QWheelEvent>
@@ -8,10 +11,9 @@ class AxoButton : public QPushButton {
 public:
     using QPushButton::QPushButton;
 
-    using mousePressFunction = std::function<void(QMouseEvent*)>;
+    UIEventDelegates::EventDelegates<QEvent*> delegates;
 
 protected:
-
     void mousePressEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
