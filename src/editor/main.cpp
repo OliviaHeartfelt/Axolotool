@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
     AxoButton* mainBtn = new AxoButton("Launch Engine");
     mainBtn->setMinimumSize(200, 60);
     mainBtn->setProperty("axoStyle", "primary");
+    mainBtn->delegates.insert(0, 0, [](QEvent*) {});
 
     // Force a style refresh
     mainBtn->style()->unpolish(mainBtn);
