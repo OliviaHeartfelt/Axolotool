@@ -9,17 +9,20 @@ module;
 #include <concepts>
 #include <functional>
 
-import AxoButton;
+export module ACommonStyles;
 
-export module AxoCommonStyles;
-
-
-std::function<void(QString& style, const QString path)> addNewStyle = [](QString& const style, const QString path) {
+std::function<void(QString& style, const QString path)> addNewStyle = [](QString& style, const QString path) {
     QFile file(path);
-    if (!file.open(QIODevice::ReadOnly)) return;
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "addNewStyle: \"Could not open file\" path: " << path;
+        return;
+    }
 
     QByteArray data = file.readAll();
-    if (data.isEmpty()) return;
+    if (data.isEmpty()) {
+        qWarning() << "addNewStyle: \"File is empty\" path: " << path;
+        return;
+    }
 
     style += "\n/* Source: " + path + " */\n";
     style += "\n" + QLatin1String(data);
@@ -32,16 +35,16 @@ template<typename... Args>
 concept QFilePaths = (IsQString<Args> && ...);
 
 template<typename... QFilePaths>
-void addStyles(QString& const style, QFilePaths... path) {
+void addStyles(QString& style, QFilePaths... path) {
     (addNewStyle(style, path), ...);
 }
 
-export namespace AxoCommonStyles {
+export namespace ACommonStyles {
     void loadStyles(QApplication& app) {
         QString combinedStyle = app.styleSheet();
 
         addStyles(combinedStyle, 
-            ":/AxoButton/AxoButton.qss"
+            ":/APushButton/APushButton.qss"
         );
 
         app.setStyleSheet(combinedStyle);

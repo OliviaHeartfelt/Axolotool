@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>AxoButton/AxoButton.qss</file>
+        <file>APushButton/APushButton.qss</file>
     </qresource>
 </RCC>

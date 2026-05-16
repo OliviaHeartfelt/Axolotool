@@ -1,6 +1,7 @@
 # CMake build output
 out/
 build/
+old/
 
 # Personal Presets
 CMakeUserPresets.json

@@ -4,13 +4,13 @@
 #include <QStyle>
 #include <QDebug>
 
-import AxoButton;
-import AxoCommonStyles;
+import APushButton;
+import ACommonStyles;
 
 
 void initCommonResources(QApplication& app) {
-    Q_INIT_RESOURCE(common_resources);
-    AxoCommonStyles::loadStyles(app);
+    Q_INIT_RESOURCE(ACommonResources);
+    ACommonStyles::loadStyles(app);
 }
 
 int main(int argc, char* argv[]) {
@@ -19,10 +19,23 @@ int main(int argc, char* argv[]) {
     initCommonResources(a);
 
 
-    AxoButton* mainBtn = new AxoButton("Launch Engine");
+    APushButton* mainBtn = new APushButton("Launch Engine");
     mainBtn->setMinimumSize(200, 60);
     mainBtn->setProperty("axoStyle", "primary");
-    mainBtn->delegates.insert(0, 0, [](QEvent*) {});
+    
+    using EventT = decltype(mainBtn->onLeave)::event_type;
+    mainBtn->onLeave.set([](EventT event) {
+        if (event) {
+            qInfo() << "valid event, Event received: " << event->type();
+        }
+        else {
+            qInfo() << "not valid event";
+        }
+    });
+    mainBtn->onHold.set([]() {
+        qInfo() << "holding the button";
+    });
+
 
     // Force a style refresh
     mainBtn->style()->unpolish(mainBtn);
