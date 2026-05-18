@@ -21,8 +21,8 @@ namespace ACallbackBase {
         };
 
         bool set(std::move_only_function<void(Args...)> newCallback) noexcept {
-            if (this->hasFunction()) return false;
-
+            if (this->hasFunction()) 
+                return false;
             this->callback = std::move(newCallback);
             return true;
         }
@@ -32,8 +32,8 @@ namespace ACallbackBase {
         };
 
         bool operator() (Args&... args) noexcept {
-            if (not this->hasFunction()) return false;
-
+            if (not this->hasFunction())
+                return false;
             try {
                 this->callback(std::forward<Args>(args)...);
                 return true;

@@ -3,65 +3,67 @@
 #include <QWheelEvent>
 #include <QWidget>
 
-void APushButton::setupConnections() {
-	holdTimer.setSingleShot(true);
+#include <QApplication>
 
-	connect(&holdTimer, &QTimer::timeout, this, [this]() {
+void APushButton::setupTimers() {
+	holdTimer = new QTimer(this);
+	holdTimer->setSingleShot(true);
+
+	connect(holdTimer, &QTimer::timeout, this, [this]() {
 		onHold();
-		});
+	});
 }
+
 
 APushButton::APushButton(QWidget* parent) {
 	this->parent = parent;
-
-	setupConnections();
+	setupTimers();
 }
-
 APushButton::APushButton(const QString& text, QWidget* parent) {
 	this->setText(text);
 	this->parent = parent;
-
-	setupConnections();
+	setupTimers();
 }
-
 APushButton::APushButton(const QIcon& icon, const QString& text, QWidget* parent) {
 	this->setIcon(icon);
 	this->setText(text);
 	this->parent = parent;
-
-	setupConnections();
+	setupTimers();
 }
+
 
 void APushButton::mousePressEvent(QMouseEvent* event) {
 	onPress(event);
-	holdTimer.start(500);
-
+	if (holdTimer) 
+		holdTimer->start(500);
 	QPushButton::mousePressEvent(event);
 }
 
 void APushButton::mouseReleaseEvent(QMouseEvent* event) {
-	holdTimer.stop();
+	if (holdTimer && holdTimer->isActive()) 
+		holdTimer->stop();
 	onRelease(event);
-
 	QPushButton::mouseReleaseEvent(event);
 }
 
 void APushButton::mouseDoubleClickEvent(QMouseEvent* event) {
-	onDoubleClick(event);
-
+	if (onDoubleClick.hasFunction()) {
+		onDoubleClick(event);
+		return;
+	}
 	QPushButton::mouseDoubleClickEvent(event);
 }
 
+
 void APushButton::enterEvent(QEnterEvent* event) {
 	onEnter(event);
-
 	QPushButton::enterEvent(event);
 }
 
 void APushButton::leaveEvent(QEvent* event) {
-	holdTimer.stop();
+	if (holdTimer && holdTimer->isActive()) 
+		holdTimer->stop();
 	onLeave(event);
-
 	QPushButton::leaveEvent(event);
 }
 

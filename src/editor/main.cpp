@@ -23,8 +23,7 @@ int main(int argc, char* argv[]) {
     mainBtn->setMinimumSize(200, 60);
     mainBtn->setProperty("axoStyle", "primary");
     
-    using EventT = decltype(mainBtn->onLeave)::event_type;
-    mainBtn->onLeave.set([](EventT event) {
+    mainBtn->onPress.set([](decltype(mainBtn->onPress)::event_type event) {
         if (event) {
             qInfo() << "valid event, Event received: " << event->type();
         }
@@ -32,6 +31,14 @@ int main(int argc, char* argv[]) {
             qInfo() << "not valid event";
         }
     });
+    mainBtn->onDoubleClick.set([](decltype(mainBtn->onDoubleClick)::event_type event) {
+        if (event) {
+            qInfo() << "valid event, Event received: " << event->type() << event->button();
+        }
+        else {
+            qInfo() << "not valid event";
+        }
+        });
     mainBtn->onHold.set([]() {
         qInfo() << "holding the button";
     });

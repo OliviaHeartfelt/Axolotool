@@ -10,12 +10,8 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
-file(GLOB EDITOR_FILES 
-    "*.cpp" 
-    "*.h" 
-    "*.ixx"
-    "*.ui"
-)
+
+file(GLOB_RECURSE EDITOR_FILES CONFIGURE_DEPENDS "*.cpp" "*.h" "*.ui" "*.qss" "*.ixx")
 
 add_executable(axo_editor 
     main.cpp
@@ -32,7 +28,9 @@ add_custom_command(TARGET axo_editor POST_BUILD
 )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${EDITOR_FILES})
-set_source_files_properties(${EDITOR_FILES} PROPERTIES LANGUAGE CXX)
+set_source_files_properties(${EDITOR_FILES} PROPERTIES
+    LANGUAGE CXX
+)
 
 target_link_libraries(axo_editor PRIVATE 
     Qt6::Widgets

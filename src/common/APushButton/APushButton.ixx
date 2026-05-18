@@ -1,5 +1,5 @@
 module;
-#include "APushButton.h"
+#include "detail/APushButton.h"
 
 export module APushButton;
 

@@ -37,9 +37,9 @@ protected:
     void leaveEvent(QEvent* event) override;
 
 private:
-    QTimer holdTimer;
+    QTimer* holdTimer = nullptr;
 
-    void setupConnections();
+    void setupTimers();
 };
 
 //other members: https://code.qt.io/cgit/qt/qtbase.git/tree/src/widgets/kernel/qwidget.h?h=6.11#n663
