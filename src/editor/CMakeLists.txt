@@ -9,6 +9,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Svg)
 
 file(GLOB_RECURSE EDITOR_SOURCES CONFIGURE_DEPENDS 
     "*.cpp" 
@@ -37,6 +38,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${EDITOR_SOURCES} ${EDITOR
 
 target_link_libraries(axo_editor PRIVATE 
     Qt6::Widgets
+    Qt6::Svg
     axo_common
 )
 

@@ -9,6 +9,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Svg)
 
 file(GLOB_RECURSE COMMON_FILES CONFIGURE_DEPENDS "*.cpp" "*.h" "*.ui" "*.qss")
 file(GLOB_RECURSE COMMON_MODULES CONFIGURE_DEPENDS "*.ixx")
@@ -37,4 +38,9 @@ target_include_directories(axo_common PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/ACallback
 )
 
-target_link_libraries(axo_common PUBLIC Qt6::Widgets)
+target_link_libraries(axo_common 
+    PRIVATE
+        Qt6::Svg
+    PUBLIC 
+        Qt6::Widgets
+)

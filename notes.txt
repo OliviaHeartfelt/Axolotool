@@ -14,3 +14,8 @@ setStyleSheet(style);
 setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #444, stop:1 #222); ");
 setStyleSheet(":hover { background-color: #333; }");
 setStyleSheet(":pressed { background-color: #333; }");
+
+
+icons:
+https://lucide.dev/icons/
+https://tabler.io/icons
