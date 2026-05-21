@@ -5,14 +5,14 @@
 #include <QString>
 #include <QLabel>
 
-class AHeader : public QWidget {
+class NodeHeader : public QWidget {
     Q_OBJECT;
 
 private:
     QHBoxLayout* headerLayout = nullptr;
 
 public:
-    explicit AHeader(const QString& title, QWidget* parent = nullptr) : QWidget(parent) {
+    explicit NodeHeader(const QString& title, QWidget* parent = nullptr) : QWidget(parent) {
         headerLayout = new QHBoxLayout(parent);
         
     }

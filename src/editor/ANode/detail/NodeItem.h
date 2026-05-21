@@ -7,14 +7,14 @@
 #include <QString>
 #include <QLabel>
 
-class ABodyRowItem : public QWidget {
+class NodeItem : public QWidget {
     Q_OBJECT;
 
 private:
     QHBoxLayout* mainHBox = nullptr;
 
 public:
-    explicit ABodyRowItem(QWidget* parent = nullptr) : QWidget(parent) {
+    explicit NodeItem(QWidget* parent = nullptr) : QWidget(parent) {
         mainHBox = new QHBoxLayout(parent);
         mainHBox->setContentsMargins(0, 0, 0, 0);
         mainHBox->setSpacing(4);
