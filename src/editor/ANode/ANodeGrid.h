@@ -58,27 +58,20 @@ private:
     }
 
     void addWidgetHelper(QWidget* widget, CInt fromRow, CInt fromColumn, CInt rowSpan = 1, CInt colSpan = 1, const bool isDestructive = true, Qt::Alignment alignment = Qt::Alignment()) {
-        qDebug() << "addWidgetHelper(), before 1st check, widget: " << (static_cast<bool>(widget) ? "true" : "false") << " mainGrid: " << (static_cast<bool>(mainGrid) ? "true" : "false");
         if (!mainGrid || !widget || fromRow < 0 || fromColumn < 0 || rowSpan <= 0 || colSpan <= 0) return;
 
-        qDebug() << "addWidgetHelper(), before isDestructive check";
         if (isDestructive)
             deleteCell(fromRow, fromColumn);
         else if (existsCell(fromRow, fromColumn))
             return;
 
-        qDebug() << "addWidgetHelper(), before \"widget ? widget : new QWidget();\", widget is: " << (static_cast<bool>(widget) ? "true" : "false");
         QWidget* w = widget ? widget : new QWidget();
 
-        qDebug() << "addWidgetHelper(), before final addWidget()";
         mainGrid->addWidget(w, fromRow, fromColumn, rowSpan, colSpan, alignment);
     }
 
 public:
     ANodeGrid(QGridLayout* mainGrid) : mainGrid(mainGrid) {}
-    ANodeGrid(QWidget* parent = nullptr) {
-        mainGrid = new QGridLayout(parent);
-    }
 
     struct GridCell {
         QWidget* widget = nullptr;

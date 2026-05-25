@@ -35,11 +35,6 @@ public:
         move(static_cast<int>(normX * newSize.width()),
             static_cast<int>(normY * newSize.height()));
     }
-    //void setNodePos(float x, float y) {
-    //    normX = x;
-    //    normY = y;
-    //    move(normX, normY);
-    //}
 
 protected:
     void mousePressEvent(QMouseEvent* event) override {
@@ -51,17 +46,4 @@ protected:
             move(mapToParent(event->pos() - dragPosition));
         }
     }
-    //void mouseMoveEvent(QMouseEvent* event) override {
-    //    if (event->buttons() & Qt::LeftButton) {
-    //        QPoint newPos = pos() + (event->pos() - dragPosition);
-
-    //        move(newPos);
-
-    //        posX = newPos.x();
-    //        posY = newPos.y();
-
-    //        event->accept();
-    //    }
-    //}
-
 };

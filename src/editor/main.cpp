@@ -6,8 +6,6 @@
 #include <QLabel>
 #include <QRandomGenerator>
 
-
-import APushButton;
 import ACommonStyles;
 import AWindow;
 
