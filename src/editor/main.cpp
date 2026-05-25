@@ -1,16 +1,52 @@
 #include <QApplication>
-#include <QFile>
-#include <QDirIterator>
-#include <QStyle>
-#include <QDebug>
-#include <QLabel>
+#include <QMainWindow>
 #include <QPushButton>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QLabel>
+#include <QRandomGenerator>
+
 
 import APushButton;
 import ACommonStyles;
 import ANode;
 
 import Debug;
+
+class Canvas : public QWidget {
+public:
+    Canvas(QWidget* parent) : QWidget(parent) {
+        setStyleSheet("background-color: #ecf0f1;");
+        setLayout(nullptr);
+    }
+
+    void addNode(int x, int y) {
+        ANode* node = new ANode(this);
+        node->move(x, y);
+        node->show();
+    }
+};
+
+class MainWindow : public QMainWindow {
+public:
+    MainWindow() {
+        setMinimumSize(600, 400);
+
+        auto* central = new QWidget(this);
+        auto* mainLayout = new QVBoxLayout(central);
+
+        auto* spawnBtn = new QPushButton("Spawn Node");
+        auto* canvas = new Canvas(this);
+
+        mainLayout->addWidget(spawnBtn);
+        mainLayout->addWidget(canvas, 1); // Canvas takes remaining space
+        setCentralWidget(central);
+
+        connect(spawnBtn, &QPushButton::clicked, [canvas]() {
+            canvas->addNode(20, 20); // Spawns at 20,20 on the canvas
+        });
+    }
+};
 
 
 void initCommonResources(QApplication& app) {
@@ -20,62 +56,11 @@ void initCommonResources(QApplication& app) {
 
 int main(int argc, char* argv[]) {
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication a(argc, argv);
-    initCommonResources(a);
+    QApplication app(argc, argv);
+    initCommonResources(app);
 
-    /*
-    APushButton* mainBtn = new APushButton("Launch Engine");
-    mainBtn->setMinimumSize(200, 60);
-    mainBtn->setProperty("axoStyle", "primary");
-    
-    mainBtn->onPress.set([](decltype(mainBtn->onPress)::event_type event) {
-        if (event) {
-            qInfo() << "valid event, Event received: " << event->type();
-        }
-        else {
-            qInfo() << "not valid event";
-        }
-    });
-    mainBtn->onDoubleClick.set([](decltype(mainBtn->onDoubleClick)::event_type event) {
-        if (event) {
-            qInfo() << "valid event, Event received: " << event->type() << event->button();
-        }
-        else {
-            qInfo() << "not valid event";
-        }
-        });
-    mainBtn->onHold.set([]() {
-        qInfo() << "holding the button";
-    });
+    MainWindow win;
+    win.show();
 
-
-    // Force a style refresh
-    mainBtn->style()->unpolish(mainBtn);
-    mainBtn->style()->polish(mainBtn);
-
-    mainBtn->show();
-    */
-
-    ANode* node = new ANode();
-    node->setWindowTitle("ANode Test Window");
-    node->setMinimumSize(300, 200);
-
-    QLabel* label = new QLabel("Hello, ANode!");
-    QPushButton* button = new QPushButton("Click Me");
-
-    node->body->addWidget(label, 0, 0);
-    node->body->addWidget(button, 1, 0);
-
-    node->show();
-
-    int rows = 5;
-    int cols = 10;
-    enum class GridStatus { Success, Error, NullPointer };
-    Debug::Debug(
-        GridStatus::Success,
-        "GridSystem",
-        "Initialization complete"
-    );
-
-    return a.exec();
+    return app.exec();
 }

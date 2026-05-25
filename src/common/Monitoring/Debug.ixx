@@ -26,13 +26,12 @@ void DebugingHelper(const std::string& label, const std::string& message, const 
 }
 
 export namespace Debug {
-
 	template<typename T>
-	[[nodiscard]] T Debug(T returnValue, const std::string& label = "", const std::string& message = "", const std::source_location& location = std::source_location::current()) {
+	[[nodiscard]] T Debug(T returnValue, const std::string& label, const std::string& message, const std::source_location& location = std::source_location::current()) {
 		DebugingHelper(label, message, location);
 		return returnValue;
 	}
-	[[nodiscard]] void Debug(const std::string& label = "", const std::string& message = "", const std::source_location& location = std::source_location::current()) {
+	[[nodiscard]] void Debug(const std::string& label, const std::string& message, const std::source_location& location = std::source_location::current()) {
 		DebugingHelper(label, message, location);
 	}
 }
