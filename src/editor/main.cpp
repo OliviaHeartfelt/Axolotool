@@ -10,7 +10,7 @@ import APushButton;
 import ACommonStyles;
 import ANode;
 
-import Monitoring;
+import Debug;
 
 
 void initCommonResources(QApplication& app) {
@@ -71,12 +71,10 @@ int main(int argc, char* argv[]) {
     int rows = 5;
     int cols = 10;
     enum class GridStatus { Success, Error, NullPointer };
-    Monitoring::log(
+    Debug::Debug(
         GridStatus::Success,
         "GridSystem",
         "Initialization complete"
-        //{ "Rows", rows },
-        //{ "Cols", cols }
     );
 
     return a.exec();
