@@ -2,7 +2,8 @@
 out/
 build/
 old/
-assets/tabler/icons
+assets/tabler/icons/filled
+assets/tabler/icons/outline
 
 # Personal Presets
 CMakeUserPresets.json

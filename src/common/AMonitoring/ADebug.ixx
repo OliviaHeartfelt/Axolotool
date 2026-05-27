@@ -10,7 +10,7 @@ module;
 #include <QDebug>
 #include <QString>
 
-export module Debug;
+export module ADebug;
 
 
 
@@ -25,7 +25,7 @@ void DebugingHelper(const std::string& label, const std::string& message, const 
 		<< "Message: " << QString::fromStdString(message) << ". ";
 }
 
-export namespace Debug {
+export namespace ADebug {
 	template<typename T>
 	[[nodiscard]] T Debug(T returnValue, const std::string& label, const std::string& message, const std::source_location& location = std::source_location::current()) {
 		DebugingHelper(label, message, location);

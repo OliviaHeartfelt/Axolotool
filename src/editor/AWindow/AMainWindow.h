@@ -3,7 +3,7 @@
 #include "ACanvas.h"
 #include <QMainWindow>
 #include <QWidget>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QPushButton>
 
 class AMainWindow : public QMainWindow {
@@ -12,17 +12,17 @@ public:
         setMinimumSize(600, 400);
 
         auto* central = new QWidget(this);
-        auto* mainLayout = new QVBoxLayout(central);
-
-        auto* spawnBtn = new QPushButton("Spawn Node");
-        auto* canvas = new Canvas(this);
-
-        mainLayout->addWidget(spawnBtn);
-        mainLayout->addWidget(canvas, 1); // Canvas takes remaining space
+        auto* mainLayout = new QHBoxLayout(central);
         setCentralWidget(central);
 
-        connect(spawnBtn, &QPushButton::clicked, [canvas]() {
-            canvas->addNode(20, 20); // Spawns at 20,20 on the canvas
-        });
+        auto* sidebar = new QFrame();
+        sidebar->setFixedWidth(200);
+        sidebar->setStyleSheet("background-color: #2c3e50;");
+
+        Canvas* scene = new Canvas();
+
+        mainLayout->addWidget(sidebar);
+        mainLayout->addWidget(scene->getView(), 1);
+
     }
 };

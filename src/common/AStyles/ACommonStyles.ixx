@@ -44,7 +44,7 @@ export namespace ACommonStyles {
         QString combinedStyle = app.styleSheet();
 
         addStyles(combinedStyle, 
-            ":/APushButton/APushButton.qss"
+            ":/common/APushButton/APushButton.qss"
         );
 
         app.setStyleSheet(combinedStyle);

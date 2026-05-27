@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>outline/alien.svg</file>
+        <file>outline/point.svg</file>
+    </qresource>
+</RCC>

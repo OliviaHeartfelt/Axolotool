@@ -1,18 +1,36 @@
 #pragma once
 
 #include "../ANode/ANode.h"
-#include <QWidget>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsRectItem>
 
-class Canvas : public QWidget {
+class ANodeItem : public QGraphicsRectItem {
 public:
-    Canvas(QWidget* parent) : QWidget(parent) {
-        setStyleSheet("background-color: #ecf0f1;");
-        setLayout(nullptr);
+    ANodeItem() {
+        setRect(0, 0, 80, 40);
+        setBrush(QBrush(Qt::blue));
+        setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
     }
+};
 
-    void addNode(int x, int y) {
-        ANode* node = new ANode(this);
-        node->move(x, y);
-        node->show();
+class Canvas {
+    QGraphicsScene* scene = nullptr;
+    QGraphicsView* view = nullptr;
+
+public:
+    Canvas() {
+        scene = new QGraphicsScene();
+        view = new QGraphicsView(scene);
+
+        scene->setSceneRect(-10000, -10000, 20000, 20000);
+
+        scene->addItem(new ANode());
+        scene->addItem(new ANode());
+
+        view->show();
+    }
+    QGraphicsView* getView() {
+        return view;
     }
 };

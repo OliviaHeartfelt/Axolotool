@@ -9,9 +9,14 @@
 import ACommonStyles;
 import AWindow;
 
+import ACombineStyles;
+
 void initCommonResources(QApplication& app) {
-    Q_INIT_RESOURCE(ACommonResources);
-    ACommonStyles::loadStyles(app);
+    //Q_INIT_RESOURCE(ACommonResources);
+    Q_INIT_RESOURCE(TablerIconsResources);
+
+    //ACommonStyles::loadStyles(app);
+    ACombineStyles::combineStyles(app, ":/icons", { "*.svg" });
 }
 
 int main(int argc, char* argv[]) {
