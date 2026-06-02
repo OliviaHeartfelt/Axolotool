@@ -1,6 +1,6 @@
 #pragma once
 
-#include "APinItem.h"
+#include "./pin/APinItem.h"
 
 #include <QGraphicsRectItem>
 #include <QGraphicsSimpleTextItem>

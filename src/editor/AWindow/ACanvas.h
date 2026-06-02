@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../ANode/ANode.h"
+#include "../ANode/scene/ANodeScene.h"
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
@@ -20,10 +21,14 @@ class Canvas {
 
 public:
     Canvas() {
-        scene = new QGraphicsScene();
+        scene = new ANodeScene();
         view = new QGraphicsView(scene);
 
         scene->setSceneRect(-10000, -10000, 20000, 20000);
+
+        view->setRenderHint(QPainter::Antialiasing);
+        view->setAcceptDrops(true);
+        view->setDragMode(QGraphicsView::RubberBandDrag);
 
         scene->addItem(new ANode());
         scene->addItem(new ANode());
