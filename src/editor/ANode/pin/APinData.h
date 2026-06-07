@@ -1,32 +1,32 @@
 #pragma once
 
+#include "../registry/IRegistry.h"
+
+#include <QString>
 #include <QDataStream>
 #include <QDebug>
 
 namespace APinData {
     struct PinData {
-        qint32 originID = -10; // Unique identifier for the source node
-        qint16 pinID = -1;    // Index or ID of the specific pin on that node
-        QString flow = "";    // Flow direction ("in", "out", "up", "down", "dgr45", etc.)
-        QString type = "";    // Data type ("float", "int", "generic", etc.)
-        QByteArray payload;
+        IRegistry::FRegistryKey flow{ "", "" };
+        IRegistry::FRegistryKey type{ "", "" };
+        size_t typeSize = 0;
+        QByteArray body;
 
         void debug() {
             qDebug().nospace()
-                << "originID: " << originID << "\n"
-                << "pinID:    " << pinID << "\n"
-                << "flow:     " << flow << "\n"
-                << "type:     " << type << "\n";
+                << "flow: { source: " << flow.source << ", ID: " << flow.ID << "}" << "\n"
+                << "flow: { source: " << type.source << ", ID: " << type.ID << "}" << "\n";
         }
     };
 
     inline QDataStream& operator<<(QDataStream& out, const PinData& data) {
-        out << data.originID << data.pinID << data.flow << data.type << data.payload;
+        out << data.flow << data.type << data.body;
         return out;
     }
 
     inline QDataStream& operator>>(QDataStream& in, PinData& data) {
-        in >> data.originID >> data.pinID >> data.flow >> data.type >> data.payload;
+        in >> data.flow >> data.type >> data.body;
         return in;
     }
 }

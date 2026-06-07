@@ -8,15 +8,12 @@ namespace AWireData {
     struct WireData {
         QPointF pos{};
         qreal dgrOrigin = 0;
-        qreal dgrTarget = 180;
         qreal dgrTargetDefault = 180;
-
 
         void debug() {
             qDebug().nospace()
                 << "pos: " << pos << "\n"
                 << "dgrOrigin: " << dgrOrigin << "\n"
-                << "dgrTarget: " << dgrTarget << "\n"
                 << "dgrTargetDefault: " << dgrTargetDefault << "\n";
         }
     };

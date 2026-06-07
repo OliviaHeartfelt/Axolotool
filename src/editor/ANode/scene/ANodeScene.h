@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../wire/AWire.h"
+#include "../wire/AWireTemp.h"
 #include "../wire/AWireData.h"
 
 #include <QDataStream>
@@ -16,7 +16,7 @@ class ANodeScene : public QGraphicsScene {
     bool m_runtimeHasTarget = false;
 
     void setWireStartPos(QGraphicsSceneDragDropEvent* event) {
-        QByteArray posBlock = event->mimeData()->data(AWire::mimeType());
+        QByteArray posBlock = event->mimeData()->data(AWireTemp::mimeType());
         QDataStream posIn(&posBlock, QIODevice::ReadOnly);
         posIn.setVersion(QDataStream::Qt_6_11);
 
@@ -41,7 +41,7 @@ class ANodeScene : public QGraphicsScene {
 
 protected:
     void dragEnterEvent(QGraphicsSceneDragDropEvent* event) override {
-        if (event->mimeData()->hasFormat(AWire::mimeType()) ) {
+        if (event->mimeData()->hasFormat(AWireTemp::mimeType()) ) {
             event->acceptProposedAction();
             setWireStartPos(event);
             addTempWire();
@@ -54,7 +54,7 @@ protected:
     void dragMoveEvent(QGraphicsSceneDragDropEvent* event) override {
         if (m_temporaryWire) {
             event->acceptProposedAction();
-            AWire::draw(event, wireData, m_temporaryWire, m_runtimeHasTarget);
+            AWireTemp::draw(event, wireData, m_temporaryWire, m_runtimeHasTarget);
         }
 
         QGraphicsScene::dragMoveEvent(event);

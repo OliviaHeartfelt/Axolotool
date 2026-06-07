@@ -1,7 +1,7 @@
 #pragma once
 
 #include "APinData.h"
-#include "../wire/AWire.h"
+#include "../wire/AWireTemp.h"
 
 #include <QDataStream>
 #include <QDebug>
@@ -12,9 +12,11 @@
 #include <QDrag>
 #include <QIODevice>
 #include <QWidget>
+#include <QVariant>
 
 namespace APinDrag {
     class Drag {
+    private:
         static void setDragData(QMimeData* mimeData, APinData::PinData& pinData) {
             QByteArray block;
             QDataStream out(&block, QIODevice::WriteOnly);
@@ -24,35 +26,40 @@ namespace APinDrag {
             mimeData->setData(mimeType(), block);
         }
 
-    public:
-        static const QString mimeType() {
-            return "application/x-anode-data";
-        }
 
-        static void useDrag(QGraphicsSceneMouseEvent* event, APinData::PinData& pinData, QPointF&& scenePos) {
+    public:
+        static const QString mimeType() { return "application/x-anode-data"; }
+        struct mimeProperty {
+            static const char* sourcePinItemPtr() { return "sourcePinItemPtr"; }
+        };
+
+        static void useDrag(QGraphicsSceneMouseEvent* event, QGraphicsItem* sourcePin, APinData::PinData& pinData, QPointF&& scenePos) {
             qDebug() << "drag started!";
 
             QDrag* drag = new QDrag(event->widget());
             QMimeData* mimeData = new QMimeData();
 
             setDragData(mimeData, pinData);
-            AWire::setMimeData(mimeData, scenePos);
+            AWireTemp::setMimeData(mimeData, scenePos);
+            mimeData->setProperty(mimeProperty::sourcePinItemPtr(), reinterpret_cast<quintptr>(sourcePin));
             drag->setMimeData(mimeData);
 
             drag->exec(Qt::CopyAction | Qt::MoveAction);
         }
-        static void finishDrag(QGraphicsSceneDragDropEvent* event) {
-            if (!event->mimeData()->hasFormat(mimeType())) return;
+
+        static APinData::PinData finishDrag(QGraphicsSceneDragDropEvent* event) {
+            APinData::PinData data;
+            if (!event->mimeData()->hasFormat(mimeType())) return data;
 
             QByteArray block = event->mimeData()->data(mimeType());
             QDataStream in(&block, QIODevice::ReadOnly);
             in.setVersion(QDataStream::Qt_6_11);
-
-            APinData::PinData data;
+            
             in >> data;
 
             qDebug() << "A wire was successfully dropped onto this specific pin!" << " Mime data:";
             data.debug();
+            return data;
         }
     };
 }

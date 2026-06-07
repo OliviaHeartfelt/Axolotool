@@ -12,12 +12,13 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <QtMath>
 
-class AWire {
+class AWireTemp {
     
 public:
     static const QString mimeType() { 
         return "application/x-anode-wire-data"; 
     }
+
 	static void setMimeData(QMimeData* mimeData, AWireData::WireData& wireData) {
         QByteArray posBlock;
         QDataStream posOut(&posBlock, QIODevice::WriteOnly);
@@ -35,6 +36,7 @@ public:
         posOut << wireData;
         mimeData->setData(mimeType(), posBlock);
     }
+
     static void draw(QGraphicsSceneDragDropEvent* event, AWireData::WireData& wireData, QGraphicsPathItem* wire, const bool hasTarget) {
         QPointF currentMousePos = event->scenePos();
         QPainterPath path;
@@ -45,8 +47,7 @@ public:
         qreal tension = qMax(distance * 0.35, 40.0);
 
         qreal radOrigin = qDegreesToRadians(wireData.dgrOrigin);
-        qreal targetDeg = (hasTarget) ? wireData.dgrTarget : wireData.dgrTargetDefault;
-        qreal radTarget = qDegreesToRadians(targetDeg);
+        qreal radTarget = qDegreesToRadians(wireData.dgrTargetDefault);
 
         // 3. Project control points along their exact directional vectors
         QPointF ctrlPoint1(
