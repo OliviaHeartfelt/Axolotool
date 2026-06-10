@@ -1,32 +1,38 @@
 #pragma once
 
 #include "../registry/IRegistry.h"
+#include <format>
 
 #include <QString>
 #include <QDataStream>
 #include <QDebug>
 
 namespace APinData {
-    struct PinData {
-        IRegistry::FRegistryKey flow{ "", "" };
-        IRegistry::FRegistryKey type{ "", "" };
-        size_t typeSize = 0;
-        QByteArray body;
+    class PinData {
+        IRegistry::FRegistryKey pFlow{};
+        IRegistry::FRegistryKey pType{};
+        IRegistry::FRegistryKey pStyle{};
+        QByteArray pBody;
+
+    public:
+        const IRegistry::FRegistryKey& flow() const  { return pFlow; }
+        const IRegistry::FRegistryKey& type() const  { return pType; }
+        const IRegistry::FRegistryKey& style() const { return pStyle; }
+        const QByteArray& body() const { return pBody; }
+
+        IRegistry::FRegistryKey& flow()  { return pFlow; }
+        IRegistry::FRegistryKey& type()  { return pType; }
+        IRegistry::FRegistryKey& style() { return pStyle; }
+        QByteArray& body() { return pBody; }
 
         void debug() {
-            qDebug().nospace()
-                << "flow: { source: " << flow.source << ", ID: " << flow.ID << "}" << "\n"
-                << "flow: { source: " << type.source << ", ID: " << type.ID << "}" << "\n";
+            qDebug() << std::format("{{\n\tflow: {},\n\ttype: {} \n}}", pFlow.debug(), pType.debug()).c_str();
         }
+
+        bool operator==(const PinData& other) const {
+            return this->pFlow == other.pFlow && this->pType == other.pType;
+        }
+        friend QDataStream& operator<<(QDataStream& out, const PinData& data) { return out << data.pFlow << data.pType << data.pBody; }
+        friend QDataStream& operator>>(QDataStream& in, PinData& data) {        return in  >> data.pFlow >> data.pType >> data.pBody; }
     };
-
-    inline QDataStream& operator<<(QDataStream& out, const PinData& data) {
-        out << data.flow << data.type << data.body;
-        return out;
-    }
-
-    inline QDataStream& operator>>(QDataStream& in, PinData& data) {
-        in >> data.flow >> data.type >> data.body;
-        return in;
-    }
 }

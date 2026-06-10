@@ -26,6 +26,12 @@ public:
 
         // Add pin relative to this cell's (0,0)
         pinItem = new PinItem(this);
+
+        //test:
+        auto data = pinItem->pinData();
+        pinItem->pinData().flow() = { "Standard", "In" };
+        pinItem->pinData().style() = { "Standard", "Int" };
+
         pinItem->setPos(70, 2); // Placed on the right side of the cell
     }
 };

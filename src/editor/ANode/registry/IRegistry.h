@@ -3,6 +3,9 @@
 #include <utility>
 #include <concepts>
 #include <optional>
+#include <string>
+#include <format>
+#include <initializer_list>
 
 #include <QtTypes>
 #include <QList>
@@ -10,31 +13,37 @@
 #include <QReadWriteLock>
 #include <QtAlgorithms>
 #include <QDataStream>
+#include <QDebug>
 
 namespace IRegistry {
-	struct FRegistryKey {
-		QString source;
-		QString ID;
+	class FRegistryKey {
+		QString privateSource = "";
+		QString privateID = "";
+
+	public:
+		FRegistryKey() {}
+		FRegistryKey(const QString& source, const QString& ID) : privateSource(source), privateID(ID) {}
+
+		QString source() const { return privateSource; }
+		void source(const QString& newSource) { privateSource = newSource; }
+		QString id() const { return privateID; }
+		void id(const QString& newID) { privateID = newID; }
+
+		std::string debug() { return std::format("{{ source: {}, ID: {} }}", privateSource.toStdString(), privateID.toStdString()); }
 
 		bool operator==(const FRegistryKey& other) const {
-			return source == other.source && ID == other.ID;
+			return privateSource == other.privateSource && privateID == other.privateID;
 		}
+		friend QDataStream& operator<<(QDataStream& out, const FRegistryKey& data) { return out << data.privateSource << data.privateID;}
+		friend QDataStream& operator>>(QDataStream& in, FRegistryKey& data) {        return in  >> data.privateSource >> data.privateID; }
 	};
-	inline QDataStream& operator<<(QDataStream& out, const FRegistryKey& data) {
-		out << data.source << data.ID;
-		return out;
-	}
-	inline QDataStream& operator>>(QDataStream& in, FRegistryKey& data) {
-		in >> data.source >> data.ID;
-		return in;
-	}
 
 	template<typename T>
 	concept DescriptorType = requires(const T t, const T u, QDataStream& stream, FRegistryKey mutableKey) {
 		{ t.key() } -> std::same_as<FRegistryKey>;
-		{ t == u }  -> std::same_as<bool>;
+		{ t == u } -> std::same_as<bool>;
 		{ stream << t.key() } -> std::same_as<QDataStream&>;
-		{ stream >> mutableKey} -> std::same_as<QDataStream&>;
+		{ stream >> mutableKey } -> std::same_as<QDataStream&>;
 	};
 
 	template<DescriptorType T>
@@ -44,7 +53,7 @@ namespace IRegistry {
 
 		static const bool existsSource(const QString& source) {
 			for (const auto& flow : registry)
-				if (flow.key().source == source) return true;
+				if (flow.key().source() == source) return true;
 
 			return false;
 		}
@@ -71,18 +80,18 @@ namespace IRegistry {
 		static const bool remove(const QString& source, const QString& id) {
 			QWriteLocker locker(&lock);
 			qsizetype removed = registry.removeIf([&source, &id](const T& item) {
-				return item.key().source == source && item.key().ID == id;
+				return item.key().source() == source && item.key().id() == id;
 			});
 			return removed > 0;
 		}
 
 		// Bulk Load / Unload
-		static bool load(const QString& source, const QList<T>& newItemList, const bool continueOnSourceNotValid = true) {
+		static bool load(const QString& source, std::initializer_list<T> newItemList, const bool continueOnSourceNotValid = true) {
 			QWriteLocker locker(&lock);
 			if (existsSource(source)) return false;
 
 			for (const auto& item : newItemList) {
-				if (item.key().source != source) {
+				if (item.key().source() != source) {
 					if (continueOnSourceNotValid)
 						continue;
 					else
@@ -97,7 +106,7 @@ namespace IRegistry {
 			if (!existsSource(source)) return false;
 
 			qsizetype removedCount = registry.removeIf([&source](const T& item) {
-				return item.key().source == source;
+				return item.key().source() == source;
 				});
 			return removedCount > 0;
 		}
@@ -118,7 +127,7 @@ namespace IRegistry {
 		// Accessors
 		static const std::optional<T> at(const qsizetype index) {
 			QReadLocker locker(&lock);
-			if (index < 0 || index >= registry.size()) 
+			if (index < 0 || index >= registry.size())
 				return std::nullopt;
 
 			return registry.at(index);

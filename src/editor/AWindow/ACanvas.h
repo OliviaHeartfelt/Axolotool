@@ -2,9 +2,13 @@
 
 #include "../ANode/ANode.h"
 #include "../ANode/scene/ANodeScene.h"
+#include "../ANode/pin/APinDataRegistry.h"
+
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
+
+#include <QColor>
 
 class ANodeItem : public QGraphicsRectItem {
 public:
@@ -21,6 +25,22 @@ class Canvas {
 
 public:
     Canvas() {
+        //test:
+        APinRegistry::Flow::load("Standard", {
+            { "Standard", "In",  APinRegistry::FlowValue{ 0.0 } },
+            { "Standard", "Out", APinRegistry::FlowValue{ 180.0 } }
+        });
+        APinRegistry::Type::load("Standard", {
+            { "Standard", "Exe",  {} },
+            { "Standard", "Bool", { 1 } },
+            { "Standard", "Int",  { 32 } }
+        });
+        APinRegistry::Style::load("Standard", {
+            { "Standard", "Exe",  {} },
+            { "Standard", "Bool", { Qt::red } },
+            { "Standard", "Int",  { Qt::cyan } }
+        });
+
         scene = new ANodeScene();
         view = new QGraphicsView(scene);
 
@@ -31,7 +51,7 @@ public:
         view->setDragMode(QGraphicsView::RubberBandDrag);
 
         scene->addItem(new ANode());
-        scene->addItem(new ANode());
+        scene->addItem(new ANode());   
 
         view->show();
     }
