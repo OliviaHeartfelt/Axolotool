@@ -27,18 +27,18 @@ public:
     Canvas() {
         //test:
         APinRegistry::Flow::load("Standard", {
-            { "Standard", "In",  APinRegistry::FlowValue{ 0.0 } },
-            { "Standard", "Out", APinRegistry::FlowValue{ 180.0 } }
+            { "In",  APinRegistry::FlowValue{ 0.0 } },
+            { "Out", APinRegistry::FlowValue{ 180.0 } }
         });
         APinRegistry::Type::load("Standard", {
-            { "Standard", "Exe",  {} },
-            { "Standard", "Bool", { 1 } },
-            { "Standard", "Int",  { 32 } }
+            { "Exe",  {} },
+            { "Bool", { 1 } },
+            { "Int",  { 32 } }
         });
         APinRegistry::Style::load("Standard", {
-            { "Standard", "Exe",  {} },
-            { "Standard", "Bool", { Qt::red } },
-            { "Standard", "Int",  { Qt::cyan } }
+            { "Exe",  {} },
+            { "Bool", { Qt::red } },
+            { "Int",  { Qt::cyan } }
         });
 
         scene = new ANodeScene();

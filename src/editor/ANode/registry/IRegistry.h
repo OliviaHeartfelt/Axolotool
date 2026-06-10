@@ -1,14 +1,18 @@
 #pragma once
 
+#include "./FRegistryKey.h"
+
 #include <utility>
 #include <concepts>
+#include <type_traits>
 #include <optional>
 #include <string>
 #include <format>
 #include <initializer_list>
 
+
 #include <QtTypes>
-#include <QList>
+#include <QHash>
 #include <QString>
 #include <QReadWriteLock>
 #include <QtAlgorithms>
@@ -16,44 +20,28 @@
 #include <QDebug>
 
 namespace IRegistry {
-	class FRegistryKey {
-		QString privateSource = "";
-		QString privateID = "";
-
-	public:
-		FRegistryKey() {}
-		FRegistryKey(const QString& source, const QString& ID) : privateSource(source), privateID(ID) {}
-
-		QString source() const { return privateSource; }
-		void source(const QString& newSource) { privateSource = newSource; }
-		QString id() const { return privateID; }
-		void id(const QString& newID) { privateID = newID; }
-
-		std::string debug() { return std::format("{{ source: {}, ID: {} }}", privateSource.toStdString(), privateID.toStdString()); }
-
-		bool operator==(const FRegistryKey& other) const {
-			return privateSource == other.privateSource && privateID == other.privateID;
-		}
-		friend QDataStream& operator<<(QDataStream& out, const FRegistryKey& data) { return out << data.privateSource << data.privateID;}
-		friend QDataStream& operator>>(QDataStream& in, FRegistryKey& data) {        return in  >> data.privateSource >> data.privateID; }
-	};
-
 	template<typename T>
-	concept DescriptorType = requires(const T t, const T u, QDataStream& stream, FRegistryKey mutableKey) {
-		{ t.key() } -> std::same_as<FRegistryKey>;
-		{ t == u } -> std::same_as<bool>;
-		{ stream << t.key() } -> std::same_as<QDataStream&>;
+	concept DescriptorType = requires(const T t, QDataStream& stream, FRegistryKey::FRegistryKey mutableKey) {
+		{ stream << t } -> std::same_as<QDataStream&>;
 		{ stream >> mutableKey } -> std::same_as<QDataStream&>;
 	};
 
 	template<DescriptorType T>
 	class IRegistry {
-		inline static QList<T> registry;
+		inline static QHash<FRegistryKey::FRegistryKey, T> registry;
 		inline static QReadWriteLock lock;
 
+		template<typename U>
+		struct LoadItem {
+			QString ID;
+			U value;
+
+			LoadItem(QString ID, U value) : ID(ID), value(value) {}
+		};
+
 		static const bool existsSource(const QString& source) {
-			for (const auto& flow : registry)
-				if (flow.key().source() == source) return true;
+			for (auto it = registry.keyBegin(); it != registry.keyEnd(); it++)
+				if (it->source() == source) return true;
 
 			return false;
 		}
@@ -62,42 +50,31 @@ namespace IRegistry {
 		IRegistry() = delete;
 
 		// Individual Add / Remove
-		static bool add(const T& newItem) {
+		static void add(const FRegistryKey::FRegistryKey& newKey, const T& newValue, const bool overrideItem = false) {
 			QWriteLocker locker(&lock);
-			for (const auto& item : registry)
-				if (item == newItem) return false;
 
-			registry.append(newItem);
-			return true;
+			if (overrideItem)
+				registry.insert(newKey, newValue);
+			else
+				registry.tryInsert(newKey, newValue);
 		}
-		static bool remove(const qsizetype index) {
+		static const bool remove(const FRegistryKey::FRegistryKey& key) {
 			QWriteLocker locker(&lock);
-			if (index < 0 || index >= registry.size()) return false;
-
-			registry.removeAt(index);
-			return true;
-		}
-		static const bool remove(const QString& source, const QString& id) {
-			QWriteLocker locker(&lock);
-			qsizetype removed = registry.removeIf([&source, &id](const T& item) {
-				return item.key().source() == source && item.key().id() == id;
-			});
-			return removed > 0;
+			return registry.remove(key);
 		}
 
 		// Bulk Load / Unload
-		static bool load(const QString& source, std::initializer_list<T> newItemList, const bool continueOnSourceNotValid = true) {
+		static bool load(const QString& source, std::initializer_list<LoadItem<T>> newItemList, const bool overrideItem = false) {
 			QWriteLocker locker(&lock);
 			if (existsSource(source)) return false;
 
-			for (const auto& item : newItemList) {
-				if (item.key().source() != source) {
-					if (continueOnSourceNotValid)
-						continue;
-					else
-						return false;
-				}
-				registry.append(item);
+			if (overrideItem) {
+				for (const auto& item : newItemList)
+					registry.insert(FRegistryKey::FRegistryKey{ source, item.ID }, item.value);
+			}
+			else {
+				for (const auto& item : newItemList)
+					registry.tryInsert(FRegistryKey::FRegistryKey{ source, item.ID }, item.value);
 			}
 			return true;
 		}
@@ -105,48 +82,33 @@ namespace IRegistry {
 			QWriteLocker locker(&lock);
 			if (!existsSource(source)) return false;
 
-			qsizetype removedCount = registry.removeIf([&source](const T& item) {
-				return item.key().source() == source;
-				});
+			qsizetype removedCount = registry.removeIf([&source](const FRegistryKey::FRegistryKey& item) {
+				return item.source() == source;
+			});
 			return removedCount > 0;
 		}
 
 		// Status Checks
-		static bool exists(const qsizetype index) {
+		static const bool exists(const FRegistryKey::FRegistryKey& item) {
 			QReadLocker locker(&lock);
-			return (index >= 0 && index < registry.size());
-		}
-		static const bool exists(const T& item) {
-			QReadLocker locker(&lock);
-			for (const auto& r : registry)
-				if (r == item) return true;
-
-			return false;
+			return registry.contains(item);
 		}
 
 		// Accessors
-		static const std::optional<T> at(const qsizetype index) {
+		static const std::optional<T> at(const FRegistryKey::FRegistryKey& key) {
+			//qDebug() << key.source() << key.id();
 			QReadLocker locker(&lock);
-			if (index < 0 || index >= registry.size())
+			auto it = registry.find(key);
+			if (it == registry.end())
 				return std::nullopt;
 
-			return registry.at(index);
+			return *it;
 		}
-		static const std::optional<T> at(const FRegistryKey& key) {
-			QReadLocker locker(&lock);
-
-			for (const auto& item : registry)
-				if (item.key() == key) return item;
-
-			return std::nullopt;
-		}
-
 
 		// Other
 		static void clear() {
 			QWriteLocker locker(&lock);
-			while (registry.size() > 0)
-				registry.removeLast();
+			registry.clear();
 		}
 		static qsizetype size() {
 			QReadLocker locker(&lock);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../registry/IRegistry.h"
+#include "../registry/FRegistryKey.h"
 
 #include <QList>
 #include <QReadWriteLock>
@@ -8,19 +8,21 @@
 namespace APinAllowLists {
     class AllowLists {
         class List {
-            QList<IRegistry::FRegistryKey> flowList;
+            QList<FRegistryKey::FRegistryKey> flowList;
             mutable QReadWriteLock lock;
 
         public:
-            void add(const IRegistry::FRegistryKey& key) {
+            void add(const FRegistryKey::FRegistryKey& key) {
                 QWriteLocker locker(&lock);
                 flowList.append(key);
             }
-            bool remove(const IRegistry::FRegistryKey& key) {
+            bool remove(const FRegistryKey::FRegistryKey& key) {
+
                 QWriteLocker locker(&lock);
                 return flowList.removeOne(key);
             }
-            bool contains(const IRegistry::FRegistryKey& key) {
+            bool contains(const FRegistryKey::FRegistryKey& key) {
+                if (flowList.size() == 0) return false;
                 QReadLocker locker(&lock);
                 return flowList.contains(key);
             }

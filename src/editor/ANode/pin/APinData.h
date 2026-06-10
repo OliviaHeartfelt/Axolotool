@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../registry/IRegistry.h"
+#include "../registry/FRegistryKey.h"
 #include <format>
 
 #include <QString>
@@ -9,21 +9,18 @@
 
 namespace APinData {
     class PinData {
-        IRegistry::FRegistryKey pFlow{};
-        IRegistry::FRegistryKey pType{};
-        IRegistry::FRegistryKey pStyle{};
-        QByteArray pBody;
+        FRegistryKey::FRegistryKey pFlow{};
+        FRegistryKey::FRegistryKey pType{};
+        FRegistryKey::FRegistryKey pStyle{};
 
     public:
-        const IRegistry::FRegistryKey& flow() const  { return pFlow; }
-        const IRegistry::FRegistryKey& type() const  { return pType; }
-        const IRegistry::FRegistryKey& style() const { return pStyle; }
-        const QByteArray& body() const { return pBody; }
+        const FRegistryKey::FRegistryKey& flow() const  { return pFlow; }
+        const FRegistryKey::FRegistryKey& type() const  { return pType; }
+        const FRegistryKey::FRegistryKey& style() const { return pStyle; }
 
-        IRegistry::FRegistryKey& flow()  { return pFlow; }
-        IRegistry::FRegistryKey& type()  { return pType; }
-        IRegistry::FRegistryKey& style() { return pStyle; }
-        QByteArray& body() { return pBody; }
+        FRegistryKey::FRegistryKey& flow()  { return pFlow; }
+        FRegistryKey::FRegistryKey& type()  { return pType; }
+        FRegistryKey::FRegistryKey& style() { return pStyle; }
 
         void debug() {
             qDebug() << std::format("{{\n\tflow: {},\n\ttype: {} \n}}", pFlow.debug(), pType.debug()).c_str();
@@ -32,7 +29,7 @@ namespace APinData {
         bool operator==(const PinData& other) const {
             return this->pFlow == other.pFlow && this->pType == other.pType;
         }
-        friend QDataStream& operator<<(QDataStream& out, const PinData& data) { return out << data.pFlow << data.pType << data.pBody; }
-        friend QDataStream& operator>>(QDataStream& in, PinData& data) {        return in  >> data.pFlow >> data.pType >> data.pBody; }
+        friend QDataStream& operator<<(QDataStream& out, const PinData& data) { return out << data.pFlow << data.pType; }
+        friend QDataStream& operator>>(QDataStream& in, PinData& data) {        return in  >> data.pFlow >> data.pType; }
     };
 }
