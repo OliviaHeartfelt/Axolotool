@@ -27,7 +27,6 @@
 class PinItem : public QGraphicsSvgItem {
 private:
     QList<AWireItem*> connectedWires;
-
     std::weak_ptr<APinData::PinData> pPinData;
     std::weak_ptr<APinAllowLists::AllowLists> pAllowLists;
 
@@ -97,17 +96,17 @@ public:
     // Is Allowed
     bool isFlowAllowed(const FRegistryKey::FRegistryKey& key) const {
         auto lists = pAllowLists.lock();
-        if (!lists) return true;
+        if (!lists || lists->flow().size() == 0) return true;
         return lists->flow().contains(key);
     }
     bool isTypeAllowed(const FRegistryKey::FRegistryKey& key) const {
         auto lists = pAllowLists.lock();
-        if (!lists) return true;
+        if (!lists || lists->type().size() == 0) return true;
         return lists->type().contains(key);
     }
 
     // Wiring Check
-    bool isConnectable(APinData::PinData& otherData) {
+    bool isConnectable(APinData::PinData& otherData) const {
         return isFlowAllowed(otherData.flow()) && isTypeAllowed(otherData.type());
     }
 

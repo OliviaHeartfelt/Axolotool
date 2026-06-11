@@ -17,7 +17,6 @@ namespace APinAllowLists {
                 flowList.append(key);
             }
             bool remove(const FRegistryKey::FRegistryKey& key) {
-
                 QWriteLocker locker(&lock);
                 return flowList.removeOne(key);
             }
@@ -25,6 +24,10 @@ namespace APinAllowLists {
                 if (flowList.size() == 0) return false;
                 QReadLocker locker(&lock);
                 return flowList.contains(key);
+            }
+            const qsizetype size() {
+                QReadLocker locker(&lock);
+                return flowList.size();
             }
         };
 
