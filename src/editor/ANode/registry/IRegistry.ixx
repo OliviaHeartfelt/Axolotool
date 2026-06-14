@@ -1,6 +1,4 @@
-#pragma once
-
-#include "FRegistryKey.h"
+module;
 
 #include <utility>
 #include <concepts>
@@ -10,7 +8,6 @@
 #include <format>
 #include <initializer_list>
 
-
 #include <QtTypes>
 #include <QHash>
 #include <QString>
@@ -19,7 +16,11 @@
 #include <QDataStream>
 #include <QDebug>
 
-namespace IRegistry {
+export module IRegistry;
+
+import FRegistryKey;
+
+export namespace IRegistry {
 
 	template<typename T>
 	concept DescriptorType = requires(const T t, QDataStream& stream, FRegistryKey::FRegistryKey mutableKey) {

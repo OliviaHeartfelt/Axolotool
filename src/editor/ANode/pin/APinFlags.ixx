@@ -1,8 +1,10 @@
-#pragma once
+module;
 
 #include <cstdint>
 
-namespace APinFlags {
+export module APinFlags;
+
+export namespace APinFlags {
 
     struct PinFlags {
         uint64_t defaultAllowFlowValue : 1;

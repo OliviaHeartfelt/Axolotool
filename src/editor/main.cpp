@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     initCommonResources(app);
 
-    AMainWindow win;
+    AWindow::AMainWindow win;
     win.show();
 
     return app.exec();

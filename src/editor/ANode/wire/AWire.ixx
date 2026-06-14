@@ -1,13 +1,11 @@
-module;
-
-#include "AWireData.h"
-#include "AWireItem.h"
-#include "AWireTemp.h"
-
 export module AWire;
 
+import AWireData;
+import AWireItem;
+import AWireTemp;
+
 export namespace AWire {
-	using WireData = ::AWireData::WireData;
+	using WireData = ::AWireData::Data;
 	using WireItem = ::AWireItem::WireItem;
 	using WireTemp = ::AWireTemp::WireTemp;
 }

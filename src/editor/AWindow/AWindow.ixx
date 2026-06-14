@@ -1,8 +1,7 @@
-module;
-
-#include "AMainWindow.h"
-
 export module AWindow;
 
-export using ::AMainWindow;
+import AMainWindow;
 
+export namespace AWindow {
+	using AMainWindow = ::AMainWindow::AMainWindow;
+}

@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <format>
 
@@ -6,9 +6,11 @@
 #include <QDataStream>
 #include <QDebug>
 
+export module APinData;
+
 import ARegistry;
 
-namespace APinData {
+export namespace APinData {
 
     class PinData {
         ARegistry::FRegistryKey pFlow{};

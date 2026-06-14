@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <format>
 
@@ -6,7 +6,9 @@
 #include <QDataStream>
 #include <QHash>
 
-namespace FRegistryKey {
+export module FRegistryKey;
+
+export namespace FRegistryKey {
 	class FRegistryKey {
 		QString privateSource = "";
 		QString privateID = "";

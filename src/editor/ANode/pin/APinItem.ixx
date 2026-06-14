@@ -1,10 +1,5 @@
-#pragma once
+module;
 
-#include "APinAllowLists.h"
-#include "APinData.h"
-#include "APinDrag.h"
-#include "APinDataRegistry.h"
-#include "APinFlags.h"
 #include <functional>
 #include <cstdint>
 #include <memory>
@@ -21,11 +16,24 @@
 #include <QVariant>
 #include <QReadWriteLock>
 #include <QPainter>
+#include <QtTypes>
+#include <QGraphicsItem>
+#include <QString>
+#include <QMimeData>
+
+export module APinItem;
 
 import Utility;
 import AWire;
+import ARegistry;
 
-namespace APinItem {
+import APinAllowLists;
+import APinData;
+import APinDrag;
+import APinRegistry;
+import APinFlags;
+
+export namespace APinItem {
 
     class PinItem : public QGraphicsSvgItem {
     private:
@@ -100,12 +108,12 @@ namespace APinItem {
         void svg(const QString& iconPath) { setSharedRenderer(new QSvgRenderer(iconPath, this)); }
 
         // Is Allowed
-        bool isFlowAllowed(const FRegistryKey::FRegistryKey& key) const {
+        bool isFlowAllowed(const ARegistry::FRegistryKey& key) const {
             auto lists = pAllowLists.lock();
             if (!lists || lists->flow().size() == 0) return pFlags.defaultAllowFlowValue == 1;
             return lists->flow().contains(key);
         }
-        bool isTypeAllowed(const FRegistryKey::FRegistryKey& key) const {
+        bool isTypeAllowed(const ARegistry::FRegistryKey& key) const {
             auto lists = pAllowLists.lock();
             if (!lists || lists->type().size() == 0) return pFlags.defaultAllowTypeValue == 1;
             return lists->type().contains(key);

@@ -4,6 +4,7 @@ project(AxoEditor)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Widgets Svg)
@@ -61,4 +62,8 @@ if(WIN32)
                 "$<TARGET_FILE:axo_editor>"
         COMMENT "Running Windows Qt deployment asset copies..."
     )
+endif()
+
+if(MSVC)
+    add_compile_options(/W4)
 endif()

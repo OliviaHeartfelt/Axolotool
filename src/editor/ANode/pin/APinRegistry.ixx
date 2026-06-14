@@ -1,13 +1,15 @@
-#pragma once
+module;
 
 #include <concepts>
 
 #include <QDataStream>
 #include <QColor>
 
+export module APinRegistry;
+
 import ARegistry;
 
-namespace APinRegistry {
+export namespace APinRegistry {
 
     // Flow
     struct FlowValue {

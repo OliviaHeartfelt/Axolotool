@@ -1,10 +1,11 @@
 module;
 
-#include "FRegistryKey.h"
-#include "IRegistry.h"
 #include <concepts>
 
 export module ARegistry;
+
+import FRegistryKey;
+import IRegistry;
 
 export namespace ARegistry {
 	using FRegistryKey = ::FRegistryKey::FRegistryKey;

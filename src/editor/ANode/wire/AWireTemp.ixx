@@ -1,6 +1,4 @@
-#pragma once
-
-#include "AWireData.h"
+module;
 
 #include <QByteArray>
 #include <QDataStream>
@@ -12,7 +10,11 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <QtMath>
 
-namespace AWireTemp {
+export module AWireTemp;
+
+import AWireData;
+
+export namespace AWireTemp {
 
     class WireTemp {
 
@@ -21,7 +23,7 @@ namespace AWireTemp {
             return "application/x-anode-wire-data";
         }
 
-        static void setMimeData(QMimeData* mimeData, AWireData::WireData& wireData) {
+        static void setMimeData(QMimeData* mimeData, AWireData::Data& wireData) {
             QByteArray posBlock;
             QDataStream posOut(&posBlock, QIODevice::WriteOnly);
             posOut.setVersion(QDataStream::Qt_6_11);
@@ -34,12 +36,12 @@ namespace AWireTemp {
             QDataStream posOut(&posBlock, QIODevice::WriteOnly);
             posOut.setVersion(QDataStream::Qt_6_11);
 
-            AWireData::WireData wireData{ pos };
+            AWireData::Data wireData{ pos };
             posOut << wireData;
             mimeData->setData(mimeType(), posBlock);
         }
 
-        static void draw(QGraphicsSceneDragDropEvent* event, AWireData::WireData& wireData, QGraphicsPathItem* wire, const bool hasTarget) {
+        static void draw(QGraphicsSceneDragDropEvent* event, AWireData::Data& wireData, QGraphicsPathItem* wire, const bool hasTarget) {
             QPointF currentMousePos = event->scenePos();
             QPainterPath path;
 

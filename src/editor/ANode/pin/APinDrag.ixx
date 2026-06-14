@@ -1,6 +1,4 @@
-#pragma once
-
-#include "APinData.h"
+module;
 
 #include <QDataStream>
 #include <QDebug>
@@ -14,9 +12,12 @@
 #include <QVariant>
 #include <QGraphicsItem>
 
-import AWire;
+export module APinDrag;
 
-namespace APinDrag {
+import AWire;
+import APinData;
+
+export namespace APinDrag {
 
     class Drag {
     private:

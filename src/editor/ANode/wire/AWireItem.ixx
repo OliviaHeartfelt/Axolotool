@@ -1,11 +1,13 @@
-#pragma once
+module;
 
 #include <QGraphicsPathItem>
 #include <QPen>
 #include <QPainterPath>
 #include <QtMath>
 
-namespace AWireItem {
+export module AWireItem;
+
+export namespace AWireItem {
 
     class WireItem : public QGraphicsPathItem {
     private:

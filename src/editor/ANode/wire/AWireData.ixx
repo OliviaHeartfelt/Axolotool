@@ -1,12 +1,14 @@
-#pragma once
+module;
 
 #include <QPointF>
 #include <QDataStream>
 #include <QDebug>
 
-namespace AWireData {
+export module AWireData;
 
-    struct WireData {
+export namespace AWireData {
+
+    struct Data {
         QPointF pos{};
         qreal dgrOrigin = 0;
         qreal dgrTargetDefault = 180;
@@ -18,7 +20,7 @@ namespace AWireData {
                 << "dgrTargetDefault: " << dgrTargetDefault << "\n";
         }
 
-        friend inline QDataStream& operator<<(QDataStream& out, const WireData& data) { return out << data.pos; }
-        friend inline QDataStream& operator>>(QDataStream& in, WireData& data) {        return  in >> data.pos; }
+        friend inline QDataStream& operator<<(QDataStream& out, const Data& data) { return out << data.pos; }
+        friend inline QDataStream& operator>>(QDataStream& in, Data& data) {        return  in >> data.pos; }
     };
 }

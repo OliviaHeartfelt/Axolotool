@@ -1,13 +1,14 @@
-#pragma once
+module;
 
 #include <QList>
 #include <QReadWriteLock>
 
+export module APinAllowLists;
+
 import ARegistry;
 
-namespace APinAllowLists {
+export namespace APinAllowLists {
     
-
     class AllowLists {
         class List {
             QList<ARegistry::FRegistryKey> flowList;
