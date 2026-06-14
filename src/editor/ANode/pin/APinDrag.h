@@ -1,7 +1,6 @@
 #pragma once
 
 #include "APinData.h"
-#include "../wire/AWireTemp.h"
 
 #include <QDataStream>
 #include <QDebug>
@@ -13,6 +12,9 @@
 #include <QIODevice>
 #include <QWidget>
 #include <QVariant>
+#include <QGraphicsItem>
+
+import AWire;
 
 namespace APinDrag {
 
@@ -39,7 +41,7 @@ namespace APinDrag {
             QMimeData* mimeData = new QMimeData();
 
             setDragData(mimeData, pinData);
-            AWireTemp::setMimeData(mimeData, scenePos);
+            AWire::WireTemp::setMimeData(mimeData, scenePos);
             mimeData->setProperty(mimeProperty::sourcePinItemPtr(), reinterpret_cast<quintptr>(sourcePin));
             drag->setMimeData(mimeData);
 

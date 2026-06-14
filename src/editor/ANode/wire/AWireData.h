@@ -5,6 +5,7 @@
 #include <QDebug>
 
 namespace AWireData {
+
     struct WireData {
         QPointF pos{};
         qreal dgrOrigin = 0;
@@ -16,15 +17,8 @@ namespace AWireData {
                 << "dgrOrigin: " << dgrOrigin << "\n"
                 << "dgrTargetDefault: " << dgrTargetDefault << "\n";
         }
+
+        friend inline QDataStream& operator<<(QDataStream& out, const WireData& data) { return out << data.pos; }
+        friend inline QDataStream& operator>>(QDataStream& in, WireData& data) {        return  in >> data.pos; }
     };
-
-    inline QDataStream& operator<<(QDataStream& out, const WireData& data) {
-        out << data.pos;
-        return out;
-    }
-
-    inline QDataStream& operator>>(QDataStream& in, WireData& data) {
-        in >> data.pos;
-        return in;
-    }
 }

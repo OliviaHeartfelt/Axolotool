@@ -5,7 +5,6 @@
 #include "APinDrag.h"
 #include "APinDataRegistry.h"
 #include "APinFlags.h"
-#include "../wire/AWireItem.h"
 #include <functional>
 #include <cstdint>
 #include <memory>
@@ -24,12 +23,13 @@
 #include <QPainter>
 
 import Utility;
+import AWire;
 
 namespace APinItem {
 
     class PinItem : public QGraphicsSvgItem {
     private:
-        QList<AWireItem*> connectedWires;
+        QList<AWire::WireItem*> connectedWires;
         std::weak_ptr<APinData::PinData> pPinData;
         std::weak_ptr<APinAllowLists::AllowLists> pAllowLists;
 
@@ -64,7 +64,7 @@ namespace APinItem {
             auto targetFlow = APinRegistry::Flow::at(data->flow());
             if (!targetFlow) return false;
 
-            AWireItem* permanentWire = new AWireItem(
+            AWire::WireItem* permanentWire = new AWire::WireItem(
                 sourcePin,
                 this,
                 sourceFlow.value().degree,
@@ -115,13 +115,13 @@ namespace APinItem {
         bool isConnectable(APinData::PinData& otherData) const { return isFlowAllowed(otherData.flow()) && isTypeAllowed(otherData.type()); }
 
         // Register
-        void registerWire(AWireItem* wire) { connectedWires.append(wire); }
-        void unregisterWire(AWireItem* wire) { connectedWires.removeOne(wire); }
+        void registerWire(AWire::WireItem* wire) { connectedWires.append(wire); }
+        void unregisterWire(AWire::WireItem* wire) { connectedWires.removeOne(wire); }
 
     protected:
         QVariant itemChange(GraphicsItemChange change, const QVariant& value) override {
             if (change == ItemScenePositionHasChanged)
-                for (AWireItem* wire : connectedWires) { wire->updatePath(); }
+                for (AWire::WireItem* wire : connectedWires) { wire->updatePath(); }
 
             return QGraphicsItem::itemChange(change, value);
         }
