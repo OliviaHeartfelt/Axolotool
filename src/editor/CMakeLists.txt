@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 project(AxoEditor)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -29,6 +26,8 @@ add_executable(axo_editor
     ${CMAKE_SOURCE_DIR}/assets/tabler/icons/TablerIconsResources.qrc
 )
 
+target_compile_features(axo_editor PUBLIC cxx_std_23)
+
 target_sources(axo_editor 
     PRIVATE 
     FILE_SET CXX_MODULES 
@@ -49,13 +48,13 @@ target_link_libraries(axo_editor PRIVATE
 
 set_target_properties(axo_editor PROPERTIES
     WIN32_EXECUTABLE ON
+    CXX_SCAN_FOR_MODULES ON
 )
 
 if(WIN32)
     get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
     get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
     
-    # Leverages the specific environment variable rather than hardcoding '.exe'
     add_custom_command(TARGET axo_editor POST_BUILD
         COMMAND "${_qt_bin_dir}/windeployqt" 
                 --debug 

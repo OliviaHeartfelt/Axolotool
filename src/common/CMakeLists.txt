@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 project(AxoCommon)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -21,6 +18,8 @@ set_source_files_properties(${COMMON_MODULES} PROPERTIES
 )
 
 add_library(axo_common OBJECT)
+
+target_compile_features(axo_common PUBLIC cxx_std_23)
 
 target_sources(axo_common
     PUBLIC

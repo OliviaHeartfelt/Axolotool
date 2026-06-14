@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./FRegistryKey.h"
+#include "FRegistryKey.h"
 
 #include <utility>
 #include <concepts>
@@ -20,6 +20,7 @@
 #include <QDebug>
 
 namespace IRegistry {
+
 	template<typename T>
 	concept DescriptorType = requires(const T t, QDataStream& stream, FRegistryKey::FRegistryKey mutableKey) {
 		{ stream << t } -> std::same_as<QDataStream&>;

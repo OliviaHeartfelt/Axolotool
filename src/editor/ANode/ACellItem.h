@@ -11,13 +11,15 @@
 #include <QGraphicsItem>
 #include <QPainter>
 
+import APin;
+
 class CellItem : public QGraphicsRectItem {
 private:
     QGraphicsSimpleTextItem* textItem;
-    PinItem* pinItem;
+    APin::PinItem* pinItem;
 
-    std::shared_ptr<APinData::PinData> cellPinData;
-    std::shared_ptr<APinAllowLists::AllowLists> allowLists;
+    std::shared_ptr<APin::PinData> cellPinData;
+    std::shared_ptr<APin::AllowLists> allowLists;
 
 public:
     CellItem(const QString& name, QGraphicsItem* parent) : QGraphicsRectItem(parent) {
@@ -25,11 +27,11 @@ public:
         setRect(0, 0, 90, 20);
         setPen(Qt::NoPen);
 
-        cellPinData = std::make_shared<APinData::PinData>();
+        cellPinData = std::make_shared<APin::PinData>();
         cellPinData->flow() = { "Standard", "In" };
         cellPinData->style() = { "Standard", "Int" };
 
-        allowLists = std::make_shared<APinAllowLists::AllowLists>();
+        allowLists = std::make_shared<APin::AllowLists>();
         allowLists->flow().add({ "Standard", "In" });
 
         // Add text relative to this cell's (0,0)
@@ -38,7 +40,7 @@ public:
         textItem->setBrush(Qt::white);
 
         // Add pin relative to this cell's (0,0)
-        pinItem = new PinItem(this);
+        pinItem = new APin::PinItem(this);
         pinItem->pinData(cellPinData);
         pinItem->allowLists(allowLists);
 

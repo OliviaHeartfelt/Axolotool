@@ -15,6 +15,7 @@
 #include <QVariant>
 
 namespace APinDrag {
+
     class Drag {
     private:
         static void setDragData(QMimeData* mimeData, APinData::PinData& pinData) {
@@ -34,8 +35,6 @@ namespace APinDrag {
         };
 
         static void useDrag(QGraphicsSceneMouseEvent* event, QGraphicsItem* sourcePin, APinData::PinData& pinData, QPointF&& scenePos) {
-            qDebug() << "drag started!";
-
             QDrag* drag = new QDrag(event->widget());
             QMimeData* mimeData = new QMimeData();
 
@@ -57,7 +56,7 @@ namespace APinDrag {
             
             in >> data;
 
-            qDebug() << "A wire was successfully dropped onto this specific pin!" << " Mime data:";
+            qDebug() << "Drop Mime data:";
             data.debug();
             return data;
         }

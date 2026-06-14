@@ -4,6 +4,7 @@
 
 #include <QString>
 #include <QDataStream>
+#include <QHash>
 
 namespace FRegistryKey {
 	class FRegistryKey {
