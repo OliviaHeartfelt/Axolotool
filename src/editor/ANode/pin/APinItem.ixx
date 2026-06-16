@@ -14,7 +14,6 @@ module;
 #include <QDebug>
 #include <QList>
 #include <QVariant>
-#include <QReadWriteLock>
 #include <QPainter>
 #include <QtTypes>
 #include <QGraphicsItem>
@@ -37,41 +36,40 @@ export namespace APinItem {
 
     class PinItem : public QGraphicsSvgItem {
     private:
-        QList<AWire::WireItem*> connectedWires;
-        std::weak_ptr<APinData::PinData> pPinData;
-        std::weak_ptr<APinAllowLists::AllowLists> pAllowLists;
-
+        APinFlags::PinFlags pFlags;
         QPointF dragStartPosition;
 
-        APinFlags::PinFlags pFlags;
+        std::shared_ptr<APinData::PinData> pPinData;
+        std::shared_ptr<APinAllowLists::AllowLists> pAllowLists;
+        QList<AWire::WireItem*> connectedWires;
 
-        const bool hasDraggingStarted(QGraphicsSceneMouseEvent* event) {
+
+        bool hasDraggingStarted(QGraphicsSceneMouseEvent* event) {
             return (event->screenPos() - dragStartPosition).manhattanLength() >= QApplication::startDragDistance();
         }
 
-        const bool createPermanentWire(QGraphicsSceneDragDropEvent* event) {
+        bool createPermanentWire(QGraphicsSceneDragDropEvent* event) {
             if (pFlags.allowMultipleWires != 1 && connectedWires.size() > 0) return false;
-
-            auto data = pPinData.lock();
-            if (!data) return false;
-
+            if (!pPinData) return false;
+            
             quintptr sourceAddress = event->mimeData()->property(APinDrag::Drag::mimeProperty::sourcePinItemPtr()).value<quintptr>();
             QGraphicsItem* sourceItem = reinterpret_cast<QGraphicsItem*>(sourceAddress);
             PinItem* sourcePin = dynamic_cast<PinItem*>(sourceItem);
 
             if (!sourcePin || sourcePin == this) return false;
-
+            
             auto sourceData = sourcePin->pinData();
             if (!sourceData) return false;
-
+            
             APinData::PinData originPinData = APinDrag::Drag::finishDrag(event);
             if (!isConnectable(originPinData)) return false;
-
-            auto sourceFlow = APinRegistry::Flow::at(sourceData->flow());
+            
+            auto sourceFlow = APinRegistry::Flow::at(sourcePin->pinData()->flow());
             if (!sourceFlow) return false;
-            auto targetFlow = APinRegistry::Flow::at(data->flow());
+            
+            auto targetFlow = APinRegistry::Flow::at(pPinData->flow());
             if (!targetFlow) return false;
-
+            
             AWire::WireItem* permanentWire = new AWire::WireItem(
                 sourcePin,
                 this,
@@ -86,7 +84,11 @@ export namespace APinItem {
         }
 
     public:
-        PinItem(QGraphicsItem* parent, const QString& iconPath = QStringLiteral(":/icons/outline/point.svg")) : QGraphicsSvgItem(parent) {
+        PinItem(QGraphicsItem* parent, const QString& iconPath = QStringLiteral(":/icons/outline/point.svg")) : 
+            QGraphicsSvgItem(parent), 
+            pPinData(std::make_shared<APinData::PinData>()),
+            pAllowLists(std::make_shared<APinAllowLists::AllowLists>())
+        {
             setSharedRenderer(new QSvgRenderer(iconPath, this));
             setAcceptDrops(true);
             setAcceptedMouseButtons(Qt::LeftButton);
@@ -95,8 +97,8 @@ export namespace APinItem {
         }
 
         // Get
-        std::shared_ptr<APinData::PinData> pinData() { return pPinData.lock(); }
-        std::shared_ptr<APinAllowLists::AllowLists> allowLists() { return pAllowLists.lock(); }
+        std::shared_ptr<APinData::PinData> pinData() { return pPinData; }
+        std::shared_ptr<APinAllowLists::AllowLists> allowLists() { return pAllowLists; }
         APinFlags::PinFlags& flags() { return pFlags; }
 
         // Set
@@ -105,18 +107,20 @@ export namespace APinItem {
             this->update();
         }
         void allowLists(std::shared_ptr<APinAllowLists::AllowLists> newLists) { pAllowLists = std::move(newLists); }
-        void svg(const QString& iconPath) { setSharedRenderer(new QSvgRenderer(iconPath, this)); }
+        void svg(const QString& iconPath) { 
+            if (auto* oldRenderer = renderer())
+                oldRenderer->deleteLater();
+            setSharedRenderer(new QSvgRenderer(iconPath, this));
+        }
 
         // Is Allowed
         bool isFlowAllowed(const ARegistry::FRegistryKey& key) const {
-            auto lists = pAllowLists.lock();
-            if (!lists || lists->flow().size() == 0) return pFlags.defaultAllowFlowValue == 1;
-            return lists->flow().contains(key);
+            if (!pAllowLists || pAllowLists->flow.size() == 0) return pFlags.defaultAllowFlowValue == 1;
+            return pAllowLists->flow.contains(key);
         }
         bool isTypeAllowed(const ARegistry::FRegistryKey& key) const {
-            auto lists = pAllowLists.lock();
-            if (!lists || lists->type().size() == 0) return pFlags.defaultAllowTypeValue == 1;
-            return lists->type().contains(key);
+            if (!pAllowLists || pAllowLists->type.size() == 0) return pFlags.defaultAllowTypeValue == 1;
+            return pAllowLists->type.contains(key);
         }
 
         // Wiring Check
@@ -141,8 +145,8 @@ export namespace APinItem {
         void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override {
             event->accept();
 
-            if (auto data = pPinData.lock(); data && hasDraggingStarted(event))
-                APinDrag::Drag::useDrag(event, this, *data, mapToScene(boundingRect().center()));
+            if (pPinData && hasDraggingStarted(event))
+                APinDrag::Drag::useDrag(event, this, *pPinData, mapToScene(boundingRect().center()));
         }
         void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override { event->accept(); }
 
@@ -156,10 +160,7 @@ export namespace APinItem {
             createPermanentWire(event);
         }
 
-        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
-            auto data = pPinData.lock();
-            if (!data) return;
-
+        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override {
             QRectF rect = boundingRect().toAlignedRect();;
             QSize size = rect.toRect().size();
 
@@ -180,9 +181,10 @@ export namespace APinItem {
             imgColorPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
 
             QColor pinColor = Qt::gray;
-            if (auto tempOpt = APinRegistry::Style::at(data->style()))
-                pinColor = tempOpt.value().color;
-
+            if (pPinData) {
+                if (auto tempOpt = APinRegistry::Style::at(pPinData->style()))
+                    pinColor = tempOpt.value().color;
+            }
             imgColorPainter.fillRect(svgImage.rect(), pinColor);
             imgColorPainter.end();
 

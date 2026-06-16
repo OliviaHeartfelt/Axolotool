@@ -22,7 +22,7 @@ export namespace FRegistryKey {
 		QString id() const { return privateID; }
 		void id(const QString& newID) { privateID = newID; }
 
-		std::string debug() { return std::format("{{ source: {}, ID: {} }}", privateSource.toStdString(), privateID.toStdString()); }
+		const std::string debug() const { return std::format("{{ source: {}, ID: {} }}", privateSource.toStdString(), privateID.toStdString()); }
 
 		bool operator==(const FRegistryKey& other) const {
 			return privateSource == other.privateSource && privateID == other.privateID;

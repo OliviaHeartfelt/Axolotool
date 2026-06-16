@@ -63,7 +63,3 @@ if(WIN32)
         COMMENT "Running Windows Qt deployment asset copies..."
     )
 endif()
-
-if(MSVC)
-    add_compile_options(/W4)
-endif()

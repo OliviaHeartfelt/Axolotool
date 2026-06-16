@@ -12,7 +12,7 @@ module;
 
 export module ANode;
 
-import ACellItem;
+import ACell;
 import ANodeGrid;
 
 export namespace ANode {
@@ -48,7 +48,7 @@ export namespace ANode {
             //alien->setGraphicsEffect(effect);
             //body->addItem(alien, 0, 1);
 
-            ACellItem::CellItem* inputCell = new ACellItem::CellItem("Input A", this);
+            ACell::Item* inputCell = new ACell::Item("Input A", this);
             body->addItem(inputCell, 0, 0);
         }
 
