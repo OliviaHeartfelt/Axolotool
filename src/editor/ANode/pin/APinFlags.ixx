@@ -14,7 +14,9 @@ export namespace APinFlags {
 
         uint64_t priority : 4;
 
-        uint64_t customFlags : 56;
+        uint64_t isColorDirty : 1;
+
+        uint64_t customFlags : 55;
 
         PinFlags() :
             defaultAllowFlowValue(1),
@@ -23,6 +25,8 @@ export namespace APinFlags {
             isRequired(1),
 
             priority(0),
+
+            isColorDirty(1),
 
             customFlags(0)
         {

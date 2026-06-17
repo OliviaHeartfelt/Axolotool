@@ -20,6 +20,8 @@ module;
 #include <QString>
 #include <QMimeData>
 #include <QMetaObject>
+#include <QReadWriteLock>
+#include <QImage>
 
 export module APinItem;
 
@@ -36,12 +38,16 @@ import APinFlags;
 export namespace APinItem {
 
     class PinItem : public QGraphicsSvgItem {
-    private:
-        std::atomic<APinFlags::PinFlags> pFlags;
-        QPointF dragStartPosition;
+        mutable QReadWriteLock lock;
+
+        APinFlags::PinFlags pFlags;
+        QColor pinColor = Qt::gray;
+        QPointF dragStartPosition{};
 
         std::atomic<std::shared_ptr<APinData::PinData>> pPinData;
         std::atomic<std::shared_ptr<APinAllowLists::AllowLists>> pAllowLists;
+
+        QImage rasterCache;
         QList<AWire::WireItem*> connectedWires;
 
 
@@ -50,7 +56,8 @@ export namespace APinItem {
         }
 
         bool createPermanentWire(QGraphicsSceneDragDropEvent* event) {
-            if (pFlags.load().allowMultipleWires != 1 && connectedWires.size() > 0) return false;
+            QWriteLocker locker(&lock);
+            if (pFlags.allowMultipleWires != 1 && connectedWires.size() > 0) return false;
 
             auto data = pPinData.load();
             if (!data) return false;
@@ -65,6 +72,7 @@ export namespace APinItem {
             if (!sourceData) return false;
             
             APinData::PinData originPinData = APinDrag::Drag::finishDrag(event);
+            
             if (!isConnectable(originPinData)) return false;
             
             auto sourceFlow = APinRegistry::Flow::at(sourceData->flow());
@@ -79,19 +87,23 @@ export namespace APinItem {
                 sourceFlow.value().degree,
                 targetFlow.value().degree
             );
+            
             scene()->addItem(permanentWire);
-
             sourcePin->registerWire(permanentWire);
-            this->registerWire(permanentWire);
+            connectedWires.append(permanentWire);
             return true;
         }
-        
-        void setSVG(const QString& iconPath) {
-            QMetaObject::invokeMethod(this, [this, iconPath]() {
-                if (auto* oldRenderer = renderer())
-                    oldRenderer->deleteLater();
-                setSharedRenderer(new QSvgRenderer(iconPath, this));
-            }, Qt::QueuedConnection);
+
+        void updateColorAndCache() {
+            if (auto data = pPinData.load()) {
+                if (auto tempOpt = APinRegistry::Style::at(data->style())) {
+                    QColor newColor = tempOpt.value().color;
+                    if (pinColor != newColor) {
+                        pinColor = newColor;
+                        pFlags.isColorDirty = 1;
+                    }
+                }
+            }
         }
 
     public:
@@ -107,12 +119,15 @@ export namespace APinItem {
             this->update();
         }
 
-        void safeUpdate() { QMetaObject::invokeMethod(this, [this]() { this->update(); }, Qt::QueuedConnection); }
+        void safeUpdate() { QMetaObject::invokeMethod(this, [this]() { 
+            updateColorAndCache();
+            this->update(); 
+        }, Qt::QueuedConnection); }
 
         // Get
-        std::shared_ptr<APinData::PinData> pinData() { return pPinData.load(); }
+        std::shared_ptr<APinData::PinData> pinData() const { return pPinData.load(); }
         std::shared_ptr<APinAllowLists::AllowLists> allowLists() { return pAllowLists.load(); }
-        APinFlags::PinFlags flags() const { return pFlags.load(); }
+        APinFlags::PinFlags flags() const { return pFlags; }
 
         // Set
         void pinData(std::shared_ptr<APinData::PinData> newData) { 
@@ -120,35 +135,46 @@ export namespace APinItem {
             safeUpdate();
         }
         void allowLists(std::shared_ptr<APinAllowLists::AllowLists> newLists) { pAllowLists.store(std::move(newLists)); }
-        void flags(const APinFlags::PinFlags& newFlags) { pFlags.store(newFlags); }
+
         void svg(const QString& iconPath) { 
             QMetaObject::invokeMethod(this, [this, iconPath]() {
                 if (auto* oldRenderer = renderer())
                     oldRenderer->deleteLater();
                 setSharedRenderer(new QSvgRenderer(iconPath, this));
+                pFlags.isColorDirty = 1;
+                updateColorAndCache();
+                this->update();
             }, Qt::QueuedConnection);
         }
 
         // Is Allowed
         bool isFlowAllowed(const ARegistry::FRegistryKey& key) const {
             if (const auto& list = pAllowLists.load(); !list || list->flow.size() == 0)
-                return pFlags.load().defaultAllowFlowValue == 1;
+                return pFlags.defaultAllowFlowValue == 1;
             else
                 return list->flow.contains(key);
         }
         bool isTypeAllowed(const ARegistry::FRegistryKey& key) const {
             if (const auto& list = pAllowLists.load(); !list || list->type.size() == 0)
-                return pFlags.load().defaultAllowTypeValue == 1;
+                return pFlags.defaultAllowTypeValue == 1;
             else
                 return list->type.contains(key);
         }
 
         // Wiring Check
-        bool isConnectable(APinData::PinData& otherData) const { return isFlowAllowed(otherData.flow()) && isTypeAllowed(otherData.type()); }
+        bool isConnectable(APinData::PinData& otherData) const {
+            return isFlowAllowed(otherData.flow()) && isTypeAllowed(otherData.type());
+        }
 
-        // Register
-        void registerWire(AWire::WireItem* wire) { connectedWires.append(wire); }
-        void unregisterWire(AWire::WireItem* wire) { connectedWires.removeOne(wire); }
+        // Wire
+        void registerWire(AWire::WireItem* wire) { 
+            QWriteLocker locker(&lock);
+            connectedWires.append(wire);
+        }
+        void unregisterWire(AWire::WireItem* wire) { 
+            QWriteLocker locker(&lock);
+            connectedWires.removeOne(wire);
+        }
 
     protected:
         QVariant itemChange(GraphicsItemChange change, const QVariant& value) override {
@@ -166,7 +192,7 @@ export namespace APinItem {
             event->accept();
 
             if (auto data = pPinData.load(); data && hasDraggingStarted(event))
-                APinDrag::Drag::useDrag(event, this, *data, mapToScene(boundingRect().center()));
+                    APinDrag::Drag::useDrag(event, this, *data, mapToScene(boundingRect().center()));
         }
         void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override { event->accept(); }
 
@@ -177,6 +203,7 @@ export namespace APinItem {
             if (!event->mimeData()->hasFormat(APinDrag::Drag::mimeType())) return;
             event->acceptProposedAction();
 
+            dragStartPosition = { 0.0, 0.0 };
             createPermanentWire(event);
         }
 
@@ -189,26 +216,24 @@ export namespace APinItem {
                 return;
             }
 
-            QImage svgImage(size, QImage::Format_ARGB32_Premultiplied);
-            svgImage.fill(Qt::transparent);
+            if (pFlags.isColorDirty == 1 || rasterCache.size() != size) {
+                rasterCache = QImage(size, QImage::Format_ARGB32_Premultiplied);
+                rasterCache.fill(Qt::transparent);
 
-            QPainter imgPainter(&svgImage);
-            if (auto* svgRender = renderer())
-                svgRender->render(&imgPainter, QRectF(QPointF(0, 0), size));
-            imgPainter.end();
+                QPainter imgPainter(&rasterCache);
+                if (auto* svgRender = renderer())
+                    svgRender->render(&imgPainter, QRectF(QPointF(0, 0), size));
+                imgPainter.end();
 
-            QPainter imgColorPainter(&svgImage);
-            imgColorPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+                QPainter imgColorPainter(&rasterCache);
+                imgColorPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
 
-            QColor pinColor = Qt::gray;
-            if (auto data = pPinData.load()) {
-                if (auto tempOpt = APinRegistry::Style::at(data->style()))
-                    pinColor = tempOpt.value().color;
+                imgColorPainter.fillRect(rasterCache.rect(), pinColor);
+                imgColorPainter.end();
+
+                pFlags.isColorDirty = 0;
             }
-            imgColorPainter.fillRect(svgImage.rect(), pinColor);
-            imgColorPainter.end();
-
-            painter->drawImage(rect.topLeft(), svgImage);
+            painter->drawImage(rect.topLeft(), rasterCache);
         }
     };
 }

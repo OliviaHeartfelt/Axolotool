@@ -2,7 +2,7 @@ module;
 
 #include <initializer_list>
 
-#include <QList>
+#include <QSet>
 #include <QReadWriteLock>
 
 export module APinAllowLists;
@@ -12,7 +12,7 @@ import ARegistry;
 export namespace APinAllowLists {
 
     class List {
-        QList<ARegistry::FRegistryKey> flowList;
+        QSet<ARegistry::FRegistryKey> flowList;
         mutable QReadWriteLock lock;
 
     public:
@@ -21,7 +21,7 @@ export namespace APinAllowLists {
         ~List() = default;
 
         List(const List& other) {
-            QWriteLocker locker(&lock);
+            QWriteLocker locker(&other.lock);
             flowList = other.flowList;
         }
         List& operator= (const List& other) {
@@ -40,22 +40,32 @@ export namespace APinAllowLists {
         }
 
         List(List&& other) noexcept {
+            QWriteLocker otherLocker(&other.lock);
             flowList = std::move(other.flowList);
         }
         List& operator=(List&& other) noexcept {
             if (this == &other) return *this;
-            QWriteLocker locker(&lock);
-            flowList = std::move(other.flowList);
+
+            if (this < &other) {
+                QWriteLocker locker(&lock);
+                QWriteLocker otherLocker(&other.lock);
+                flowList = std::move(other.flowList);
+            }
+            else {
+                QWriteLocker otherLocker(&other.lock);
+                QWriteLocker locker(&lock);
+                flowList = std::move(other.flowList);
+            }
             return *this;
         }
 
         void add(const ARegistry::FRegistryKey& key) {
             QWriteLocker locker(&lock);
-            flowList.append(key);
+            flowList.insert(key);
         }
         bool remove(const ARegistry::FRegistryKey& key) {
             QWriteLocker locker(&lock);
-            return flowList.removeOne(key);
+            return flowList.remove(key);
         }
         bool contains(const ARegistry::FRegistryKey& key) const {
             QReadLocker locker(&lock);

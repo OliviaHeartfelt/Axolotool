@@ -15,13 +15,13 @@ import ARegistry;
 export namespace APinData {
 
     class PinData {
-        ARegistry::FRegistryKey pFlow{};
-        ARegistry::FRegistryKey pType{};
-        ARegistry::FRegistryKey pStyle{};
+        ARegistry::FRegistryKey pFlow;
+        ARegistry::FRegistryKey pType;
+        ARegistry::FRegistryKey pStyle;
         mutable QReadWriteLock lock;
 
     public:
-        PinData() = default;
+        PinData() : pFlow({}), pType({}), pStyle({}) {}
         PinData(const ARegistry::FRegistryKey& pFlow, const ARegistry::FRegistryKey& pType, const ARegistry::FRegistryKey& pStyle) :
             pFlow(pFlow), pType(pType), pStyle(pStyle) {}
         ~PinData() = default;

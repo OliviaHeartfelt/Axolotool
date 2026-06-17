@@ -46,6 +46,7 @@ export namespace ACellItem {
             pinItem->pinData()->flow(FRegistryKey::FRegistryKey{ "Standard", "In" });
             pinItem->pinData()->style(FRegistryKey::FRegistryKey{ "Standard", "Int" });
             pinItem->allowLists()->flow.add(FRegistryKey::FRegistryKey{ "Standard", "In" });
+            pinItem->safeUpdate();
 
             pinItem->setPos(70, 2); // Placed on the right side of the cell
         }

@@ -11,6 +11,7 @@ module;
 #include <QWidget>
 #include <QVariant>
 #include <QGraphicsItem>
+#include <QReadWriteLock>
 
 export module APinDrag;
 
@@ -20,7 +21,6 @@ import APinData;
 export namespace APinDrag {
 
     class Drag {
-    private:
         static void setDragData(QMimeData* mimeData, APinData::PinData& pinData) {
             QByteArray block;
             QDataStream out(&block, QIODevice::WriteOnly);
@@ -32,7 +32,7 @@ export namespace APinDrag {
 
 
     public:
-        static const QString mimeType() { return "application/x-anode-data"; }
+        static const QString mimeType() { return QStringLiteral("application/x-anode-data"); }
         struct mimeProperty {
             static const char* sourcePinItemPtr() { return "sourcePinItemPtr"; }
         };
