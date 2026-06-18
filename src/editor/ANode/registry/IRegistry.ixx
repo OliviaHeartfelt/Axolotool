@@ -1,21 +1,3 @@
-module;
-
-#include <utility>
-#include <concepts>
-#include <type_traits>
-#include <optional>
-#include <string>
-#include <format>
-#include <initializer_list>
-
-#include <QtTypes>
-#include <QHash>
-#include <QString>
-#include <QReadWriteLock>
-#include <QtAlgorithms>
-#include <QDataStream>
-#include <QDebug>
-
 export module IRegistry;
 
 import FRegistryKey;

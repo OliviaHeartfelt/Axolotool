@@ -1,12 +1,12 @@
-#include <QApplication>
-#include <QMainWindow>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QWidget>
-#include <QLabel>
-#include <QRandomGenerator>
+//#include <QApplication>
+//#include <QMainWindow>
+//#include <QPushButton>
+//#include <QVBoxLayout>
+//#include <QWidget>
+//#include <QLabel>
+//#include <QRandomGenerator>
 
-import ACommonStyles;
+//import ACommonStyles;
 import AWindow;
 
 import ACombineStyles;

@@ -1,10 +1,3 @@
-module;
-
-#include <initializer_list>
-
-#include <QSet>
-#include <QReadWriteLock>
-
 export module APinAllowLists;
 
 import ARegistry;

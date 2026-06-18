@@ -1,12 +1,3 @@
-module;
-
-#include <QDataStream>
-#include <QGraphicsScene>
-#include <QIODevice>
-#include <QGraphicsPathItem>
-#include <QGraphicsSceneDragDropEvent>
-#include <QMimeData>
-
 export module ANodeScene;
 
 import AWire;

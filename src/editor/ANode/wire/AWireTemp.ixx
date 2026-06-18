@@ -1,15 +1,3 @@
-module;
-
-#include <QByteArray>
-#include <QDataStream>
-#include <QMimeData>
-#include <QIODevice>
-#include <QWidget>
-#include <QString>
-#include <QGraphicsPathItem>
-#include <QGraphicsSceneDragDropEvent>
-#include <QtMath>
-
 export module AWireTemp;
 
 import AWireData;

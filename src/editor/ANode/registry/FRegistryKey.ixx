@@ -1,11 +1,3 @@
-module;
-
-#include <format>
-
-#include <QString>
-#include <QDataStream>
-#include <QHash>
-
 export module FRegistryKey;
 
 export namespace FRegistryKey {

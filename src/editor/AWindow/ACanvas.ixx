@@ -1,11 +1,3 @@
-module;
-
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QGraphicsRectItem>
-
-#include <QColor>
-
 export module ACanvas;
 
 import APinRegistry;

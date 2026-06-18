@@ -1,12 +1,3 @@
-module;
-
-#include <vector>
-#include <algorithm>
-
-#include <QGraphicsItem>
-#include <QGraphicsSimpleTextItem>
-#include <QDebug>
-
 export module ANodeGrid;
 
 export namespace ANodeGrid {

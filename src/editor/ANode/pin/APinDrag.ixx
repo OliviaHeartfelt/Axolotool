@@ -1,18 +1,3 @@
-module;
-
-#include <QDataStream>
-#include <QDebug>
-#include <QString>
-#include <QMimeData>
-#include <QGraphicsSceneMouseEvent>
-#include <QGraphicsSceneDragDropEvent>
-#include <QDrag>
-#include <QIODevice>
-#include <QWidget>
-#include <QVariant>
-#include <QGraphicsItem>
-#include <QReadWriteLock>
-
 export module APinDrag;
 
 import AWire;

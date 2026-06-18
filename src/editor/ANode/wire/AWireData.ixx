@@ -1,9 +1,3 @@
-module;
-
-#include <QPointF>
-#include <QDataStream>
-#include <QDebug>
-
 export module AWireData;
 
 export namespace AWireData {

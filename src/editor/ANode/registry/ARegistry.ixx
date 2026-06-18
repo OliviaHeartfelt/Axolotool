@@ -1,7 +1,3 @@
-module;
-
-#include <concepts>
-
 export module ARegistry;
 
 import FRegistryKey;

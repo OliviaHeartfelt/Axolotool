@@ -1,13 +1,3 @@
-module;
-
-#include <format>
-#include <concepts>
-
-#include <QString>
-#include <QDataStream>
-#include <QDebug>
-#include <QReadWriteLock>
-
 export module APinData;
 
 import ARegistry;

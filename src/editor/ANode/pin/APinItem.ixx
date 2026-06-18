@@ -1,31 +1,5 @@
-module;
-
-#include <functional>
-#include <cstdint>
-#include <memory>
-#include <atomic>
-
-#include <QApplication>
-#include <QGraphicsScene>
-#include <QGraphicsSvgItem>
-#include <QGraphicsSceneDragDropEvent>
-#include <QSvgRenderer>
-#include <QGraphicsSceneMouseEvent>
-#include <QDebug>
-#include <QList>
-#include <QVariant>
-#include <QPainter>
-#include <QtTypes>
-#include <QGraphicsItem>
-#include <QString>
-#include <QMimeData>
-#include <QMetaObject>
-#include <QReadWriteLock>
-#include <QImage>
-
 export module APinItem;
 
-import Utility;
 import AWire;
 import ARegistry;
 

@@ -1,10 +1,3 @@
-module;
-
-#include <QGraphicsPathItem>
-#include <QPen>
-#include <QPainterPath>
-#include <QtMath>
-
 export module AWireItem;
 
 export namespace AWireItem {

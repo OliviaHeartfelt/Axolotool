@@ -1,10 +1,3 @@
-module;
-
-#include <concepts>
-
-#include <QDataStream>
-#include <QColor>
-
 export module APinRegistry;
 
 import ARegistry;

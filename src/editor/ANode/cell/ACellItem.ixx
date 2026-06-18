@@ -1,13 +1,3 @@
-module;
-
-#include <memory>
-
-#include <QGraphicsRectItem>
-#include <QGraphicsSimpleTextItem>
-#include <QString>
-#include <QGraphicsItem>
-#include <QPainter>
-
 export module ACellItem;
 
 import APin;

@@ -1,15 +1,3 @@
-module;
-
-#include <QDebug>
-#include <QGraphicsRectItem>
-#include <QPainter>
-#include <QStyleOptionGraphicsItem>
-#include <QSvgRenderer>
-#include <QGraphicsSvgItem>
-#include <QCoreApplication>
-#include <QDir>
-#include <QGraphicsColorizeEffect>
-
 export module ANode;
 
 import ACell;

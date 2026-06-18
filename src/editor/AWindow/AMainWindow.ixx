@@ -1,11 +1,3 @@
-module;
-
-#include <QMainWindow>
-#include <QWidget>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QFrame>
-
 export module AMainWindow;
 
 import ACanvas;
