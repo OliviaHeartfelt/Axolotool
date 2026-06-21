@@ -4,6 +4,28 @@ import NDConfig;
 
 export namespace NDCell {
 
+    bool createTable(QSqlQuery& query) {
+        QString createCellsTable = R"(
+            CREATE TABLE IF NOT EXISTS node_cells (
+                cell_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                node_id INTEGER NOT NULL,
+                layout_row SMALLINT NOT NULL,
+                layout_col SMALLINT NOT NULL,
+                layout_row_span SMALLINT NOT NULL,
+                layout_col_span SMALLINT NOT NULL,
+                cell_type TEXT NOT NULL,
+                FOREIGN KEY(node_id) REFERENCES nodes(node_id) ON DELETE CASCADE,
+                UNIQUE(node_id, layout_row, layout_col)
+            );
+        )";
+
+        if (!query.exec(createCellsTable)) {
+            qCritical() << "Failed to create node_cells table:" << query.lastError().text();
+            return false;
+        }
+        return true;
+    }
+
     bool isCellAvailable(QSqlDatabase& db, int nodeId, short row, short col, short rowSpan, short colSpan) {
         QSqlQuery query(db);
         query.prepare(R"(
@@ -24,11 +46,11 @@ export namespace NDCell {
         return !(query.exec() && query.next());
     }
 
-    bool create(QSqlDatabase& db, QSqlQuery& query, const int nodeId, const NDConfig::CellSpawnInfo& cell, bool overrideOnCollision = false) {
+    std::optional<int> create(QSqlDatabase& db, QSqlQuery& query, const int nodeId, const NDConfig::CellSpawnInfo& cell, bool overrideOnCollision = false) {
         if (!isCellAvailable(db, nodeId, cell.row, cell.col, cell.rowSpan, cell.colSpan)) {
             if (!overrideOnCollision) {
                 qWarning() << "Cell insertion rejected: Space is occupied.";
-                return false;
+                return std::nullopt;
             }
             QSqlQuery deleteQuery(db);
             deleteQuery.prepare(R"(
@@ -47,7 +69,7 @@ export namespace NDCell {
 
             if (!deleteQuery.exec()) {
                 qWarning() << "Failed to evict overlapping cells during overwrite:" << deleteQuery.lastError().text();
-                return false;
+                return std::nullopt;
             }
         }
 
@@ -64,9 +86,9 @@ export namespace NDCell {
 
         if (!query.exec()) {
             qWarning() << "Failed to execute Cell creation query:" << query.lastError().text();
-            return false;
+            return std::nullopt;
         }
-        return true;
+        return query.lastInsertId().toInt();;
     }
 
     void remove(QSqlDatabase& db, const int ID) {

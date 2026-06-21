@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25) # Required for C++20/23 modules
+cmake_minimum_required(VERSION 3.28) # Required for C++20/23 modules
 project(Axolotool)
 
 set(CMAKE_CXX_STANDARD 23)

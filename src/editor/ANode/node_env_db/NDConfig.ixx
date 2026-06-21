@@ -9,4 +9,6 @@ export namespace NDConfig {
         short rowSpan = 1;
         short colSpan = 1;
     };
+
+    const int currentSchemaVersion() { return 1; }
 }

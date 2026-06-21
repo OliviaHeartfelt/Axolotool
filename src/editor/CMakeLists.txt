@@ -1,10 +1,15 @@
-cmake_minimum_required(VERSION 3.28)
-project(AxoEditor)
+#cmake_minimum_required(VERSION 3.28)
+#project(AxoEditor)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+#set(CMAKE_CXX_STANDARD 23)
+#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 find_package(Qt6 COMPONENTS 
     Core 
@@ -82,6 +87,9 @@ add_executable(axo_editor
 target_compile_features(axo_editor PUBLIC cxx_std_23)
 
 target_precompile_headers(axo_editor PRIVATE
+    # Third-party
+    <modern-uuid/uuid.h>
+
     # C++
     <algorithm>
     <initializer_list>
@@ -159,7 +167,7 @@ target_precompile_headers(axo_editor PRIVATE
 
 target_sources(axo_editor 
     PRIVATE 
-    FILE_SET CXX_MODULES 
+    FILE_SET CXX_MODULES
     BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
     FILES 
         ${ANODE_CELL_MODULES}
@@ -173,6 +181,14 @@ target_sources(axo_editor
         ${ASTYLE_MODULES}
 )
 
+include(FetchContent)
+FetchContent_Declare(modern-uuid
+  GIT_REPOSITORY https://github.com/gershnik/modern-uuid.git
+  GIT_TAG v2.4
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(modern-uuid)
+
 target_link_libraries(axo_editor PRIVATE 
     Qt6::Widgets
     Qt6::Svg
@@ -180,6 +196,7 @@ target_link_libraries(axo_editor PRIVATE
     Qt6::Gui 
     Qt6::Core
     Qt6::Sql
+    modern-uuid::modern-uuid-static
 )
 
 set_target_properties(axo_editor PROPERTIES
