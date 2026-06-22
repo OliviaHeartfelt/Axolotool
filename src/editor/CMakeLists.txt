@@ -25,14 +25,6 @@ set(ANODE_NODE_MODULES
     ANode/node/ANodeGrid.h
 )
 
-set(ANODE_DB_MODULES
-    ANode/node_env_db/ANodeEnvDB.h
-    ANode/node_env_db/NDCell.h
-    ANode/node_env_db/NDConfig.h
-    ANode/node_env_db/NDNode.h
-    ANode/node_env_db/NDTransaction.h
-)
-
 set(ANODE_PIN_MODULES
     ANode/pin/APin.h
     ANode/pin/APinAllowLists.h
@@ -61,6 +53,31 @@ set(ANODE_WIRE_MODULES
     ANode/wire/AWireTemp.h
 )
 
+set(ANODE_DB_MODULES
+    ANode/node_env_db/ANodeEnvDB.h
+    ANode/node_env_db/NDConfig.h
+    ANode/node_env_db/NDConcepts.h
+
+    #Node
+    ANode/node_env_db/node/NDNode.h
+    ANode/node_env_db/node/details/Config.h
+    ANode/node_env_db/node/details/Init.h
+    ANode/node_env_db/node/details/Create.h
+    ANode/node_env_db/node/details/Read.h
+    ANode/node_env_db/node/details/Update.h
+    ANode/node_env_db/node/details/Delete.h
+
+    #Cell
+    ANode/node_env_db/cell/NDCell.h
+    ANode/node_env_db/cell/details/Config.h
+    ANode/node_env_db/cell/details/Init.h
+    ANode/node_env_db/cell/details/Helper.h
+    ANode/node_env_db/cell/details/Create.h
+    ANode/node_env_db/cell/details/Read.h
+    ANode/node_env_db/cell/details/Update.h
+    ANode/node_env_db/cell/details/Delete.h
+)
+
 #AWindow
 set(AWINDOW_MODULES
     AWindow/ACanvas.h
@@ -75,7 +92,8 @@ set(ASTYLE_MODULES
 
 set(UTILITY_MODULES
     Utility/Utility.h
-    Utility/uuid.h
+    Utility/details/UUID.h
+    Utility/details/SqlTransaction.h
 )
 
 add_executable(axo_editor 

@@ -4,6 +4,7 @@ build/
 old/
 assets/tabler/icons/filled
 assets/tabler/icons/outline
+.github/
 
 # Personal Presets
 CMakeUserPresets.json

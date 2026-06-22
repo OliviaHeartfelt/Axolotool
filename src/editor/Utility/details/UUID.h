@@ -1,8 +1,8 @@
 #pragma once
 
-namespace uuid {
+namespace UUID {
 
-    struct uuid {
+    struct UUID {
         static inline QByteArray uuidToBytes(const muuid::uuid& id) {
             return QByteArray(reinterpret_cast<const char*>(&id), sizeof(muuid::uuid));
         }

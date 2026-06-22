@@ -1,8 +1,10 @@
 #pragma once
 
-#include "uuid.h"
+#include "details/uuid.h"
+#include "details/SqlTransaction.h"
 
 namespace Utility {
 
-	using uuid = ::uuid::uuid;
+	using UUID = ::UUID::UUID;
+	using SqlTransaction = ::SqlTransaction::SqlTransaction;
 }

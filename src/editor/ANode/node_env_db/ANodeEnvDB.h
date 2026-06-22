@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-#include "NDNode.h"
-#include "NDCell.h"
+#include "node/NDNode.h"
+#include "cell/NDCell.h"
+
 #include "NDConfig.h"
-#include "NDTransaction.h"
+#include "NDConcepts.h"
 #include "../../Utility/Utility.h"
 
 namespace ANodeEnvDB {
@@ -14,11 +15,19 @@ namespace ANodeEnvDB {
 
         QSqlDatabase getDatabase() const { return QSqlDatabase::database(connectionName); }
 
-	public:
 		ANodeEnvDB(const QString& connectionName, const QString& dbPath) : connectionName(connectionName), dbPath(dbPath) {}
 		~ANodeEnvDB() {
 			close();
 		}
+	public:
+
+
+
+        bool containsAllCoreTables(const QStringList& strList) const {
+            if (!strList.contains("nodes", Qt::CaseInsensitive)) return false;
+            if (!strList.contains("node_cells", Qt::CaseInsensitive)) return false;
+            return true;
+        }
 
         bool open() {
             QSqlDatabase db;
@@ -64,25 +73,28 @@ namespace ANodeEnvDB {
         }
 
         // Node
-        std::optional<muuid::uuid> createNode(const QString& title, const short rowNum, const short colNum, const QList<NDConfig::CellSpawnInfo>& cells = {}, const QPointF pos = { 0.0, 0.0 }) {
+        std::optional<muuid::uuid> createNode(const QString& title, const short rowNum, const short colNum, const QList<NDCell::RecordInfo>& cells = {}, const QPointF pos = {0.0, 0.0}) {
             QSqlDatabase db = getDatabase();
+            if (!containsAllCoreTables(db.tables())) return std::nullopt;
             QSqlQuery query(db);
-            NDTransaction::NDTransaction tr(db);
+
+            Utility::SqlTransaction tr(db);
             if (!tr.started()) return std::nullopt;
 
             std::optional<muuid::uuid> nodeId = NDNode::create(query, title, rowNum, colNum, pos);
             if (!nodeId) return std::nullopt;
 
-            for (const auto& cell : cells) {
-                if (!NDCell::create(db, query, nodeId.value(), cell)) return std::nullopt;
-            }
+            for (const auto& cell : cells)
+                if (!NDCell::create(query, nodeId.value(), cell)) return std::nullopt;
 
             if (!tr.commit()) return std::nullopt;
             return nodeId;
         }
         bool removeNode(const muuid::uuid& ID) {
             QSqlDatabase db = getDatabase();
-            NDTransaction::NDTransaction tr(db);
+            if (!containsAllCoreTables(db.tables())) return false;
+
+            Utility::SqlTransaction tr(db);
             if (!tr.started()) return false;
 
             NDNode::remove(db, ID);
@@ -90,27 +102,27 @@ namespace ANodeEnvDB {
         }
 
         // Cell
-        std::optional<muuid::uuid> createCell(const muuid::uuid& nodeId, const NDConfig::CellSpawnInfo& cell, bool overrideOnCollision = false) {
+        std::optional<muuid::uuid> createCell(const muuid::uuid& nodeId, const NDCell::RecordInfo& cell, bool overrideOnCollision = false) {
             QSqlDatabase db = getDatabase();
-            NDTransaction::NDTransaction tr(db);
+            if (!containsAllCoreTables(db.tables())) return std::nullopt;
+
+            Utility::SqlTransaction tr(db);
             if (!tr.started()) return std::nullopt;
 
             QSqlQuery query(db);
             muuid::uuid newCellId = muuid::uuid::generate_unix_time_based();
 
-            std::optional<muuid::uuid> insertedId = NDCell::create(db, query, nodeId, cell, overrideOnCollision);
-            if (!insertedId) {
-                qWarning() << "Aborting cell topology build due to insertion failure."
-                db.rollback();
-                return std::nullopt;
-            }
+            std::optional<muuid::uuid> insertedId = NDCell::create(query, nodeId, cell, overrideOnCollision);
+            tr.rollbackIf(!insertedId, "Aborting cell topology build due to insertion failure.");
 
             if (!tr.commit()) return std::nullopt;
             return insertedId;
         }
         bool removeCell(const muuid::uuid& ID) {
             QSqlDatabase db = getDatabase();
-            NDTransaction::NDTransaction tr(db);
+            if (!containsAllCoreTables(db.tables())) return false;
+
+            Utility::SqlTransaction tr(db);
             if (!tr.started()) return false;
 
             NDCell::remove(db, ID);
@@ -122,31 +134,14 @@ namespace ANodeEnvDB {
             QSqlDatabase db = getDatabase();
             if (containsAllCoreTables(db.tables())) return true;
 
-            if (!db.transaction()) {
-                qWarning() << "Failed to start schema initialization transaction."
-                return false;
-            }
+            Utility::SqlTransaction tr(db);
+            if (!tr.started()) return false;
 
-            QSqlQuery query(getDatabase());
+            QSqlQuery query(db);
+            if ( tr.rollbackIf(!NDNode::createTable(query) || !NDCell::createTable(query), "Schema initialization failed! Rolling back changes.") ) return false;
 
-            if (!NDNode::createTable(query) || !NDCell::createTable(query)) {
-                qCritical() << "Schema initialization failed! Rolling back changes."
-                db.rollback();
-                return false;
-            }
-
-            if (!db.commit()) {
-                qCritical() << "Failed to commit schema initialization transaction."
-                db.rollback();
-                return false;
-            }
-
-            return true;
-        }
-        bool containsAllCoreTables(const QStringList& strList) {
-            if (!strList.contains("nodes", Qt::CaseInsensitive)) return false;
-            if (!strList.contains("node_cells", Qt::CaseInsensitive)) return false;
-            return true;
+            return tr.commit();
         }
 	};
+    //static_assert(NDConcepts::DatabaseProvider<ANodeEnvDB>);
 }

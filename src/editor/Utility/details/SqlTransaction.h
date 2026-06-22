@@ -1,26 +1,38 @@
 #pragma once
 
-namespace NDTransaction {
+namespace SqlTransaction {
 
-	class NDTransaction {
+	class SqlTransaction {
         QSqlDatabase& db;
         bool committed = false;
         bool hasStarted = false;
 
     public:
-        NDTransaction(QSqlDatabase& database) : db(database) {
+        SqlTransaction(QSqlDatabase& database) : db(database) {
             hasStarted = db.transaction();
             if (!hasStarted) {
                 qWarning() << "Failed to start database transaction.";
             }
         }
-        ~NDTransaction() {
+        ~SqlTransaction() {
             if (hasStarted && !committed) {
                 qCritical() << "Transaction auto-rolled back due to unexpected exit.";
                 db.rollback();
             }
         }
+
         bool started() const { return hasStarted; }
+
+        bool rollbackIf(const bool useRollback, const QString& errorMessage = "") {
+            if (useRollback && hasStarted && !committed) {
+                if (!errorMessage.isEmpty()) {
+                    qCritical() << errorMessage;
+                }
+                db.rollback();
+                committed = true;
+            }
+            return useRollback;
+        }
         bool commit() {
             if (!hasStarted || committed) return false;
 
