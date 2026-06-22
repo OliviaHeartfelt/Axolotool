@@ -1,15 +1,15 @@
-export module APinItem;
+#pragma once
 
-import AWire;
-import ARegistry;
+#include "../wire/AWire.h"
+#include "../registry/ARegistry.h"
 
-import APinAllowLists;
-import APinData;
-import APinDrag;
-import APinRegistry;
-import APinFlags;
+#include "APinAllowLists.h"
+#include "APinData.h"
+#include "APinDrag.h"
+#include "APinRegistry.h"
+#include "APinFlags.h"
 
-export namespace APinItem {
+namespace APinItem {
 
     class PinItem : public QGraphicsSvgItem {
         mutable QReadWriteLock lock;

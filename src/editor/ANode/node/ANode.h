@@ -1,9 +1,9 @@
-export module ANode;
+#pragma once
 
-import ACell;
-import ANodeGrid;
+#include "../cell/ACell.h"
+#include "ANodeGrid.h"
 
-export namespace ANode {
+namespace ANode {
 
     class ANode : public QGraphicsRectItem {
     public:

@@ -1,6 +1,6 @@
-export module NDConfig;
+#pragma once
 
-export namespace NDConfig {
+namespace NDConfig {
 
     struct CellSpawnInfo {
         QString cellType;

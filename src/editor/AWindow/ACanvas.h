@@ -1,10 +1,11 @@
-export module ACanvas;
+#pragma once
 
-import APinRegistry;
-import ANode;
-import ANodeScene;
+#include "../ANode/pin/APinRegistry.h"
+#include "../ANode/node/ANode.h"
+#include "../ANode/scene/ANodeScene.h"
 
-export namespace ACanvas {
+namespace ACanvas {
+
     class ANodeItem : public QGraphicsRectItem {
     public:
         ANodeItem() {

@@ -1,13 +1,13 @@
-export module APinFactory;
+#pragma once
 
-import APinAllowLists;
-import APinData;
-import APinItem;
-import FRegistryKey;
+#include "APinAllowLists.h"
+#include "APinData.h"
+#include "APinItem.h"
+#include "../registry/ARegistry.h"
 
-using RKey = ::FRegistryKey::FRegistryKey;
+using RKey = ::ARegistry::FRegistryKey;
 
-export namespace APinFactory {
+namespace APinFactory {
 
 	APinItem::PinItem* newPin(
 		QGraphicsItem* parent,

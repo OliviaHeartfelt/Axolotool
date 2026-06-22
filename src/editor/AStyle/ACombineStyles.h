@@ -1,6 +1,6 @@
-export module ACombineStyles;
+#pragma once
 
-export namespace ACombineStyles {
+namespace ACombineStyles {
 
     QString combineStyles(const QString& resourceFolder = QStringLiteral(":/"), const QStringList& nameFilters = QStringList()) {
         QStringList concatenatedStyles;

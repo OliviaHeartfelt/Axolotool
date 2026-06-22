@@ -1,6 +1,6 @@
-export module AWireData;
+#pragma once
 
-export namespace AWireData {
+namespace AWireData {
 
     struct Data {
         QPointF pos{};

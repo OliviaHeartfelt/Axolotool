@@ -1,8 +1,8 @@
-export module AWireTemp;
+#pragma once
 
-import AWireData;
+#include "AWireData.h"
 
-export namespace AWireTemp {
+namespace AWireTemp {
 
     class WireTemp {
 

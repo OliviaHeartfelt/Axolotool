@@ -1,6 +1,6 @@
-export module ANodeGrid;
+#pragma once
 
-export namespace ANodeGrid {
+namespace ANodeGrid {
 
     class Grid {
     public:

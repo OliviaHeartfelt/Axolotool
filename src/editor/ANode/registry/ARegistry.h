@@ -1,9 +1,9 @@
-export module ARegistry;
+#pragma once
 
-import FRegistryKey;
-import IRegistry;
+#include "FRegistryKey.h"
+#include "IRegistry.h"
 
-export namespace ARegistry {
+namespace ARegistry {
 	using FRegistryKey = ::FRegistryKey::FRegistryKey;
 
 	template<typename T>

@@ -1,8 +1,8 @@
-export module ANodeScene;
+#pragma once
 
-import AWire;
+#include "../wire/AWire.h"
 
-export namespace ANodeScene {
+namespace ANodeScene {
 
     class NodeScene : public QGraphicsScene {
         QGraphicsPathItem* temporaryWire = nullptr;

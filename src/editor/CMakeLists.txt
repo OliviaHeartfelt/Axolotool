@@ -1,11 +1,4 @@
-#cmake_minimum_required(VERSION 3.28)
-#project(AxoEditor)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-#set(CMAKE_CXX_STANDARD 23)
-#set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -23,65 +16,82 @@ find_package(Qt6 COMPONENTS
 
 #ANode
 set(ANODE_CELL_MODULES
-    ANode/cell/ACell.ixx
-    ANode/cell/ACellItem.ixx
+    ANode/cell/ACell.h
+    ANode/cell/ACellItem.h
 )
 
 set(ANODE_NODE_MODULES
-    ANode/node/ANode.ixx
-    ANode/node/ANodeGrid.ixx
+    ANode/node/ANode.h
+    ANode/node/ANodeGrid.h
 )
 
 set(ANODE_DB_MODULES
-    ANode/node_env_db/ANodeEnvDB.ixx
-    ANode/node_env_db/NDCell.ixx
-    ANode/node_env_db/NDConfig.ixx
-    ANode/node_env_db/NDNode.ixx
+    ANode/node_env_db/ANodeEnvDB.h
+    ANode/node_env_db/NDCell.h
+    ANode/node_env_db/NDConfig.h
+    ANode/node_env_db/NDNode.h
+    ANode/node_env_db/NDTransaction.h
 )
 
 set(ANODE_PIN_MODULES
-    ANode/pin/APin.ixx
-    ANode/pin/APinAllowLists.ixx
-    ANode/pin/APinData.ixx
-    ANode/pin/APinDrag.ixx
-    ANode/pin/APinFactory.ixx
-    ANode/pin/APinFlags.ixx
-    ANode/pin/APinItem.ixx
-    ANode/pin/APinRegistry.ixx
+    ANode/pin/APin.h
+    ANode/pin/APinAllowLists.h
+    ANode/pin/APinData.h
+    ANode/pin/APinDrag.h
+    ANode/pin/APinFactory.h
+    ANode/pin/APinFlags.h
+    ANode/pin/APinItem.h
+    ANode/pin/APinRegistry.h
 )
 
 set(ANODE_REGISTRY_MODULES
-    ANode/registry/ARegistry.ixx
-    ANode/registry/FRegistryKey.ixx
-    ANode/registry/IRegistry.ixx
+    ANode/registry/ARegistry.h
+    ANode/registry/FRegistryKey.h
+    ANode/registry/IRegistry.h
 )
 
 set(ANODE_SCENE_MODULES
-    ANode/scene/ANodeScene.ixx
+    ANode/scene/ANodeScene.h
 )
 
 set(ANODE_WIRE_MODULES
-    ANode/wire/AWire.ixx
-    ANode/wire/AWireData.ixx
-    ANode/wire/AWireItem.ixx
-    ANode/wire/AWireTemp.ixx
+    ANode/wire/AWire.h
+    ANode/wire/AWireData.h
+    ANode/wire/AWireItem.h
+    ANode/wire/AWireTemp.h
 )
 
 #AWindow
 set(AWINDOW_MODULES
-    AWindow/ACanvas.ixx
-    AWindow/AMainWindow.ixx
-    AWindow/AWindow.ixx
+    AWindow/ACanvas.h
+    AWindow/AMainWindow.h
+    AWindow/AWindow.h
 )
 
 #AStyle
 set(ASTYLE_MODULES
-    AStyle/ACombineStyles.ixx
+    AStyle/ACombineStyles.h
+)
+
+set(UTILITY_MODULES
+    Utility/Utility.h
+    Utility/uuid.h
 )
 
 add_executable(axo_editor 
     main.cpp
     ${CMAKE_SOURCE_DIR}/assets/tabler/icons/TablerIconsResources.qrc
+    
+    ${ANODE_CELL_MODULES}
+    ${ANODE_NODE_MODULES}
+    ${ANODE_DB_MODULES}
+    ${ANODE_PIN_MODULES}
+    ${ANODE_REGISTRY_MODULES}
+    ${ANODE_SCENE_MODULES}
+    ${ANODE_WIRE_MODULES}
+    ${AWINDOW_MODULES}
+    ${ASTYLE_MODULES}
+    ${UTILITY_MODULES}
 )
 
 target_compile_features(axo_editor PUBLIC cxx_std_23)
@@ -163,22 +173,6 @@ target_precompile_headers(axo_editor PRIVATE
     <QGraphicsSimpleTextItem>
     <QStyleOptionGraphicsItem>
     <QGraphicsColorizeEffect>
-)
-
-target_sources(axo_editor 
-    PRIVATE 
-    FILE_SET CXX_MODULES
-    BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}"
-    FILES 
-        ${ANODE_CELL_MODULES}
-        ${ANODE_NODE_MODULES}
-        ${ANODE_DB_MODULES}
-        ${ANODE_PIN_MODULES}
-        ${ANODE_REGISTRY_MODULES}
-        ${ANODE_SCENE_MODULES}
-        ${ANODE_WIRE_MODULES}
-        ${AWINDOW_MODULES}
-        ${ASTYLE_MODULES}
 )
 
 include(FetchContent)

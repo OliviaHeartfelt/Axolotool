@@ -1,14 +1,15 @@
-export module NDCell;
+#pragma once
 
-import NDConfig;
+#include "NDConfig.h"
+#include "../../Utility/Utility.h"
 
-export namespace NDCell {
+namespace NDCell {
 
     bool createTable(QSqlQuery& query) {
         QString createCellsTable = R"(
             CREATE TABLE IF NOT EXISTS node_cells (
-                cell_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                node_id INTEGER NOT NULL,
+                cell_id BLOB PRIMARY KEY,
+                node_id BLOB,
                 layout_row SMALLINT NOT NULL,
                 layout_col SMALLINT NOT NULL,
                 layout_row_span SMALLINT NOT NULL,
@@ -17,7 +18,7 @@ export namespace NDCell {
                 FOREIGN KEY(node_id) REFERENCES nodes(node_id) ON DELETE CASCADE,
                 UNIQUE(node_id, layout_row, layout_col)
             );
-        )";
+        )"
 
         if (!query.exec(createCellsTable)) {
             qCritical() << "Failed to create node_cells table:" << query.lastError().text();
@@ -26,7 +27,7 @@ export namespace NDCell {
         return true;
     }
 
-    bool isCellAvailable(QSqlDatabase& db, int nodeId, short row, short col, short rowSpan, short colSpan) {
+    bool isCellAvailable(QSqlDatabase& db, const muuid::uuid& nodeId, const short row, const short col, const short rowSpan, const short colSpan) {
         QSqlQuery query(db);
         query.prepare(R"(
             SELECT 1 FROM node_cells
@@ -37,7 +38,7 @@ export namespace NDCell {
               AND (:new_col + :new_col_span) > layout_col
             LIMIT 1;
         )");
-        query.bindValue(":node_id", nodeId);
+        query.bindValue(":node_id", Utility::uuid::uuidToBytes(nodeId));
         query.bindValue(":new_row", row);
         query.bindValue(":new_row_span", rowSpan);
         query.bindValue(":new_col", col);
@@ -46,38 +47,41 @@ export namespace NDCell {
         return !(query.exec() && query.next());
     }
 
-    std::optional<int> create(QSqlDatabase& db, QSqlQuery& query, const int nodeId, const NDConfig::CellSpawnInfo& cell, bool overrideOnCollision = false) {
+    std::optional<muuid::uuid> create(QSqlDatabase& db, QSqlQuery& query, const muuid::uuid& nodeId, const NDConfig::CellSpawnInfo& cell, bool overrideOnCollision = false) {
         if (!isCellAvailable(db, nodeId, cell.row, cell.col, cell.rowSpan, cell.colSpan)) {
+            
             if (!overrideOnCollision) {
-                qWarning() << "Cell insertion rejected: Space is occupied.";
+                qWarning() << "Cell insertion rejected: Space is occupied."
                 return std::nullopt;
             }
-            QSqlQuery deleteQuery(db);
-            deleteQuery.prepare(R"(
-                    DELETE FROM node_cells
-                    WHERE node_id = :node_id
-                      AND :new_row < (layout_row + layout_row_span)
-                      AND (:new_row + :new_row_span) > layout_row
-                      AND :new_col < (layout_col + layout_col_span)
-                      AND (:new_col + :new_col_span) > layout_col;
-                )");
-            deleteQuery.bindValue(":node_id", nodeId);
-            deleteQuery.bindValue(":new_row", cell.row);
-            deleteQuery.bindValue(":new_row_span", cell.rowSpan);
-            deleteQuery.bindValue(":new_col", cell.col);
-            deleteQuery.bindValue(":new_col_span", cell.colSpan);
 
-            if (!deleteQuery.exec()) {
-                qWarning() << "Failed to evict overlapping cells during overwrite:" << deleteQuery.lastError().text();
+            query.prepare(R"(
+                DELETE FROM node_cells
+                WHERE node_id = :node_id
+                  AND :new_row < (layout_row + layout_row_span)
+                  AND (:new_row + :new_row_span) > layout_row
+                  AND :new_col < (layout_col + layout_col_span)
+                  AND (:new_col + :new_col_span) > layout_col;
+            )");
+            query.bindValue(":node_id", Utility::uuid::uuidToBytes(nodeId));
+            query.bindValue(":new_row", cell.row);
+            query.bindValue(":new_row_span", cell.rowSpan);
+            query.bindValue(":new_col", cell.col);
+            query.bindValue(":new_col_span", cell.colSpan);
+
+            if (!query.exec()) {
+                qWarning() << "Failed to evict overlapping cells during overwrite:" << query.lastError().text();
                 return std::nullopt;
             }
         }
 
         query.prepare(R"(
-            INSERT INTO node_cells (node_id, layout_row, layout_col, layout_row_span, layout_col_span, cell_type)
-            VALUES (:node_id, :row, :col, :row_span, :col_span, :type);
+            INSERT INTO node_cells (cell_id, node_id, layout_row, layout_col, layout_row_span, layout_col_span, cell_type)
+            VALUES (:cell_id, :node_id, :row, :col, :row_span, :col_span, :type);
         )");
-        query.bindValue(":node_id", nodeId);
+        muuid::uuid newCellId = muuid::uuid::generate_unix_time_based();
+        query.bindValue(":cell_id", Utility::uuid::uuidToBytes(newCellId));
+        query.bindValue(":node_id", Utility::uuid::uuidToBytes(nodeId));
         query.bindValue(":row", cell.row);
         query.bindValue(":col", cell.col);
         query.bindValue(":row_span", cell.rowSpan);
@@ -88,13 +92,13 @@ export namespace NDCell {
             qWarning() << "Failed to execute Cell creation query:" << query.lastError().text();
             return std::nullopt;
         }
-        return query.lastInsertId().toInt();;
+        return newCellId;
     }
 
-    void remove(QSqlDatabase& db, const int ID) {
+    void remove(QSqlDatabase& db, const muuid::uuid& ID) {
         QSqlQuery query(db);
         query.prepare("DELETE FROM node_cells WHERE cell_id = :id;");
-        query.bindValue(":id", ID);
+        query.bindValue(":id", Utility::uuid::uuidToBytes(ID));
 
         if (!query.exec()) {
             qWarning() << "Failed to remove cell:" << query.lastError().text();

@@ -1,10 +1,12 @@
-﻿export module ANodeEnvDB;
+﻿#pragma once
 
-import NDNode;
-import NDCell;
-import NDConfig;
+#include "NDNode.h"
+#include "NDCell.h"
+#include "NDConfig.h"
+#include "NDTransaction.h"
+#include "../../Utility/Utility.h"
 
-export namespace ANodeEnvDB {
+namespace ANodeEnvDB {
 
 	class ANodeEnvDB {
 		QString connectionName;
@@ -35,7 +37,6 @@ export namespace ANodeEnvDB {
             }
 
             QSqlQuery query(db);
-
             if (!query.exec("PRAGMA foreign_keys = ON;")) { qWarning() << "Failed to enable Foreign Keys:" << query.lastError().text(); }
             if (!query.exec("PRAGMA journal_mode=WAL;")) {  qWarning() << "Failed to enable WAL mode:"     << query.lastError().text(); }
 
@@ -63,67 +64,58 @@ export namespace ANodeEnvDB {
         }
 
         // Node
-        std::optional<int> createNode(const QString& title, const short rowNum, const short colNum, const QList<NDConfig::CellSpawnInfo>& cells = {}, const QPointF pos = { 0.0, 0.0 }) {           
+        std::optional<muuid::uuid> createNode(const QString& title, const short rowNum, const short colNum, const QList<NDConfig::CellSpawnInfo>& cells = {}, const QPointF pos = { 0.0, 0.0 }) {
             QSqlDatabase db = getDatabase();
-            if (!db.transaction()) { 
-                qWarning() << "Could not start database transaction.";
-                return std::nullopt;
-            }
-
             QSqlQuery query(db);
+            NDTransaction::NDTransaction tr(db);
+            if (!tr.started()) return std::nullopt;
 
-            std::optional<int> newNodeId = NDNode::create(query, title, rowNum, colNum, pos);
-            if (!newNodeId) { 
-                db.rollback(); 
-                return std::nullopt;
-            }
+            std::optional<muuid::uuid> nodeId = NDNode::create(query, title, rowNum, colNum, pos);
+            if (!nodeId) return std::nullopt;
 
             for (const auto& cell : cells) {
-                if (!NDCell::create(db, query, newNodeId.value(), cell)) {
-                    qWarning() << "Aborting entire node topology build due to cell insertion failure.";
-                    db.rollback();
-                    return std::nullopt;
-                }
+                if (!NDCell::create(db, query, nodeId.value(), cell)) return std::nullopt;
             }
 
-            if (!db.commit()) {
-                qWarning() << "Failed to commit node topology transaction.";
+            if (!tr.commit()) return std::nullopt;
+            return nodeId;
+        }
+        bool removeNode(const muuid::uuid& ID) {
+            QSqlDatabase db = getDatabase();
+            NDTransaction::NDTransaction tr(db);
+            if (!tr.started()) return false;
+
+            NDNode::remove(db, ID);
+            return tr.commit();
+        }
+
+        // Cell
+        std::optional<muuid::uuid> createCell(const muuid::uuid& nodeId, const NDConfig::CellSpawnInfo& cell, bool overrideOnCollision = false) {
+            QSqlDatabase db = getDatabase();
+            NDTransaction::NDTransaction tr(db);
+            if (!tr.started()) return std::nullopt;
+
+            QSqlQuery query(db);
+            muuid::uuid newCellId = muuid::uuid::generate_unix_time_based();
+
+            std::optional<muuid::uuid> insertedId = NDCell::create(db, query, nodeId, cell, overrideOnCollision);
+            if (!insertedId) {
+                qWarning() << "Aborting cell topology build due to insertion failure."
                 db.rollback();
                 return std::nullopt;
             }
-            return newNodeId;
+
+            if (!tr.commit()) return std::nullopt;
+            return insertedId;
         }
-        //bool removeNode() {
-
-        //}
-
-        // Cell
-        std::optional<int> createCell(const int nodeId, const NDConfig::CellSpawnInfo& cell, bool overrideOnCollision = false) {
+        bool removeCell(const muuid::uuid& ID) {
             QSqlDatabase db = getDatabase();
-            if (!db.transaction()) {
-                qWarning() << "Failed to start transaction for standalone cell creation.";
-                return std::nullopt;
-            }
+            NDTransaction::NDTransaction tr(db);
+            if (!tr.started()) return false;
 
-            QSqlQuery query(db);
-
-            std::optional<int> insertedId = std::nullopt;
-            if (auto insertedId = NDCell::create(db, query, nodeId, cell, overrideOnCollision)) {
-
-                if (!db.commit()) {
-                    qWarning() << "Failed to commit cell transaction to disk.";
-                    db.rollback();
-                    return std::nullopt;
-                }
-                return insertedId;
-            }
-
-            db.rollback();
-            return std::nullopt;
+            NDCell::remove(db, ID);
+            return tr.commit();
         }
-        //bool removeCell() {
-
-        //}
 
     private:
         bool createCoreTables() {
@@ -131,20 +123,20 @@ export namespace ANodeEnvDB {
             if (containsAllCoreTables(db.tables())) return true;
 
             if (!db.transaction()) {
-                qWarning() << "Failed to start schema initialization transaction.";
+                qWarning() << "Failed to start schema initialization transaction."
                 return false;
             }
 
             QSqlQuery query(getDatabase());
 
             if (!NDNode::createTable(query) || !NDCell::createTable(query)) {
-                qCritical() << "Schema initialization failed! Rolling back changes.";
+                qCritical() << "Schema initialization failed! Rolling back changes."
                 db.rollback();
                 return false;
             }
 
             if (!db.commit()) {
-                qCritical() << "Failed to commit schema initialization transaction.";
+                qCritical() << "Failed to commit schema initialization transaction."
                 db.rollback();
                 return false;
             }

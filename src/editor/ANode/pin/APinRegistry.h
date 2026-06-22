@@ -1,8 +1,8 @@
-export module APinRegistry;
+#pragma once
 
-import ARegistry;
+#include "../registry/ARegistry.h"
 
-export namespace APinRegistry {
+namespace APinRegistry {
 
     // Flow
     struct FlowValue {

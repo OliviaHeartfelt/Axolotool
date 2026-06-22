@@ -1,6 +1,7 @@
-export module FRegistryKey;
+#pragma once
 
-export namespace FRegistryKey {
+namespace FRegistryKey {
+
 	class FRegistryKey {
 		QString privateSource = "";
 		QString privateID = "";

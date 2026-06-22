@@ -1,6 +1,6 @@
-export module AWireItem;
+#pragma once
 
-export namespace AWireItem {
+namespace AWireItem {
 
     class WireItem : public QGraphicsPathItem {
     private:

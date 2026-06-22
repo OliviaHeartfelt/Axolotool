@@ -1,9 +1,9 @@
-export module APinDrag;
+#pragma once
 
-import AWire;
-import APinData;
+#include "../wire/AWire.h"
+#include "APinData.h"
 
-export namespace APinDrag {
+namespace APinDrag {
 
     class Drag {
         static void setDragData(QMimeData* mimeData, APinData::PinData& pinData) {

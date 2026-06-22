@@ -1,15 +1,5 @@
-//#include <QApplication>
-//#include <QMainWindow>
-//#include <QPushButton>
-//#include <QVBoxLayout>
-//#include <QWidget>
-//#include <QLabel>
-//#include <QRandomGenerator>
-
-//import ACommonStyles;
-import AWindow;
-
-import ACombineStyles;
+#include "./AWindow/AMainWindow.h"
+#include "./AStyle/ACombineStyles.h"
 
 void initCommonResources(QApplication& app) {
     //Q_INIT_RESOURCE(ACommonResources);
@@ -24,7 +14,7 @@ int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     initCommonResources(app);
 
-    AWindow::AMainWindow win;
+    AMainWindow::AMainWindow win;
     win.show();
 
     return app.exec();

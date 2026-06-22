@@ -1,10 +1,10 @@
-export module AWire;
+#pragma once
 
-import AWireData;
-import AWireItem;
-import AWireTemp;
+#include "AWireData.h"
+#include "AWireItem.h"
+#include "AWireTemp.h"
 
-export namespace AWire {
+namespace AWire {
 	using WireData = ::AWireData::Data;
 	using WireItem = ::AWireItem::WireItem;
 	using WireTemp = ::AWireTemp::WireTemp;

@@ -1,11 +1,13 @@
-export module NDNode;
+#pragma once
 
-export namespace NDNode {
+#include "../../Utility/Utility.h"
+
+namespace NDNode {
 
     bool createTable(QSqlQuery& query) {
         QString createNodesTable = R"(
             CREATE TABLE IF NOT EXISTS nodes (
-                node_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                node_id BLOB PRIMARY KEY,
                 title TEXT NOT NULL,
                 row_num SMALLINT NOT NULL,
                 col_num SMALLINT NOT NULL,
@@ -23,11 +25,13 @@ export namespace NDNode {
         return true;
     }
 
-    std::optional<int> create(QSqlQuery& query, const QString& title, const short rowNum, const short colNum, const QPointF pos = { 0.0, 0.0 }) {
+    std::optional<muuid::uuid> create(QSqlQuery& query, const QString& title, const short rowNum, const short colNum, const QPointF pos = { 0.0, 0.0 }) {
         query.prepare(R"(
-            INSERT INTO nodes (title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h)
-            VALUES (:title, :row, :col, :x, :y, -1.0, -1.0);
+            INSERT INTO nodes (node_id, title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h)
+            VALUES (:node_id, :title, :row, :col, :x, :y, -1.0, -1.0);
         )");
+        muuid::uuid newNodeId = muuid::uuid::generate_unix_time_based();
+        query.bindValue(":node_id", Utility::uuid::uuidToBytes(newNodeId));
         query.bindValue(":title", title);
         query.bindValue(":row", rowNum);
         query.bindValue(":col", colNum);
@@ -38,13 +42,13 @@ export namespace NDNode {
             qWarning() << "Failed to execute Node creation query:" << query.lastError().text();
             return std::nullopt;
         }
-        return query.lastInsertId().toInt();
+        return newNodeId;
     }
 
-    void remove(QSqlDatabase& db, const int ID) {
+    void remove(QSqlDatabase& db, const muuid::uuid& id) {
         QSqlQuery query(db);
         query.prepare("DELETE FROM nodes WHERE node_id = :id;");
-        query.bindValue(":id", ID);
+        query.bindValue(":id", Utility::uuid::uuidToBytes(id));
 
         if (!query.exec()) {
             qWarning() << "Failed to remove node:" << query.lastError().text();

@@ -1,10 +1,10 @@
-export module APin;
+#pragma once
 
-import APinAllowLists;
-import APinData;
-import APinItem;
+#include "APinAllowLists.h"
+#include "APinData.h"
+#include "APinItem.h"
 
-export namespace APin {
+namespace APin {
     using AllowLists = ::APinAllowLists::AllowLists;
     using PinData = ::APinData::PinData;
     using Item = ::APinItem::PinItem;

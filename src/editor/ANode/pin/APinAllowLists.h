@@ -1,8 +1,8 @@
-export module APinAllowLists;
+#pragma once
 
-import ARegistry;
+#include "../registry/ARegistry.h"
 
-export namespace APinAllowLists {
+namespace APinAllowLists {
 
     class List {
         QSet<ARegistry::FRegistryKey> flowList;

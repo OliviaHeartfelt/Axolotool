@@ -1,8 +1,8 @@
-export module IRegistry;
+#pragma once
 
-import FRegistryKey;
+#include "FRegistryKey.h"
 
-export namespace IRegistry {
+namespace IRegistry {
 
 	template<typename T>
 	concept DescriptorType = requires(const T t, QDataStream& stream, FRegistryKey::FRegistryKey mutableKey) {

@@ -1,9 +1,9 @@
-export module ACellItem;
+#pragma once
 
-import APin;
-import FRegistryKey;
+#include "../pin/APin.h"
+#include "../registry/FRegistryKey.h"
 
-export namespace ACellItem {
+namespace ACellItem {
 
     class Item : public QGraphicsRectItem {
     private:

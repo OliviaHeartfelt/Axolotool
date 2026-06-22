@@ -1,6 +1,6 @@
-export module APinFlags;
+#pragma once
 
-export namespace APinFlags {
+namespace APinFlags {
 
     struct PinFlags {
         uint64_t defaultAllowFlowValue : 1;

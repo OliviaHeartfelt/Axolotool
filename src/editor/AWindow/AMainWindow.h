@@ -1,8 +1,8 @@
-export module AMainWindow;
+#pragma once
 
-import ACanvas;
+#include "ACanvas.h"
 
-export namespace AMainWindow {
+namespace AMainWindow {
 
     class AMainWindow : public QMainWindow {
     public:

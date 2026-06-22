@@ -1,8 +1,8 @@
-export module APinData;
+#pragma once
 
-import ARegistry;
+#include "../registry/ARegistry.h"
 
-export namespace APinData {
+namespace APinData {
 
     class PinData {
         ARegistry::FRegistryKey pFlow;
