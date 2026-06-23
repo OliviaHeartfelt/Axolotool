@@ -11,9 +11,17 @@ namespace NDCellDetails::Init {
                 layout_col SMALLINT NOT NULL,
                 layout_row_span SMALLINT NOT NULL,
                 layout_col_span SMALLINT NOT NULL,
-                cell_type TEXT NOT NULL,
+                pin_item_id TEXT REFERENCES pin_items(id) ON DELETE SET NULL,
+                widget_id TEXT REFERENCES widgets(id) ON DELETE SET NULL,
+
                 FOREIGN KEY(node_id) REFERENCES nodes(node_id) ON DELETE CASCADE,
-                UNIQUE(node_id, layout_row, layout_col)
+                UNIQUE(node_id, layout_row, layout_col),
+
+                CHECK (
+                    (pin_item_id IS NULL AND widget_id IS NULL) OR     -- Neither
+                    (pin_item_id IS NOT NULL AND widget_id IS NULL) OR -- Pin only
+                    (pin_item_id IS NULL AND widget_id IS NOT NULL)    -- Widget only
+                )
             );
         )";
     

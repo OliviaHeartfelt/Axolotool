@@ -131,6 +131,7 @@ target_precompile_headers(axo_editor PRIVATE
     <optional>
     <string>
     <vector>
+    <variant>
 
     # Core Qt used everywhere
     <QString>

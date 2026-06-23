@@ -15,8 +15,8 @@ namespace NDCellDetails::Create {
         }
     
         query.prepare(R"(
-            INSERT INTO node_cells (cell_id, node_id, layout_row, layout_col, layout_row_span, layout_col_span, cell_type)
-            VALUES (:cell_id, :node_id, :row, :col, :row_span, :col_span, :type);
+            INSERT INTO node_cells (cell_id, node_id, layout_row, layout_col, layout_row_span, layout_col_span)
+            VALUES (:cell_id, :node_id, :row, :col, :row_span, :col_span);
         )");
         muuid::uuid newCellId = muuid::uuid::generate_unix_time_based();
     
@@ -26,7 +26,6 @@ namespace NDCellDetails::Create {
         query.bindValue(":col", cellInfo.col);
         query.bindValue(":row_span", cellInfo.rowSpan);
         query.bindValue(":col_span", cellInfo.colSpan);
-        query.bindValue(":type", cellInfo.cellType);
     
         if (!query.exec()) {
             qWarning() << "Failed to execute Cell creation query:" << query.lastError().text();

@@ -20,6 +20,7 @@ namespace NDCellDetails::Update {
             WHERE cell_id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
+
         query.bindValue(":row", cellInfo.row);
         query.bindValue(":col", cellInfo.col);
         query.bindValue(":row_span", cellInfo.rowSpan);
