@@ -13,9 +13,7 @@ namespace NDNodeDetails::Read {
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-        if (!query.exec() || !query.next()) {
-            return std::nullopt;
-        }
+        if (!query.exec() || !query.next()) return std::nullopt;
 
         return NDNodeDetails::Config::Record{
             id,
@@ -29,7 +27,10 @@ namespace NDNodeDetails::Read {
     }
     inline std::optional<QList<NDNodeDetails::Config::Record>> getAll(QSqlQuery& query, const bool continueAtFail = true) {
         QList<Config::Record> nodes;
-        QString selectAll = "SELECT node_id, title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h FROM nodes;";
+        QString selectAll = R"(
+            SELECT node_id, title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h 
+            FROM nodes;
+        )";
 
         if (!query.exec(selectAll)) {
             qWarning() << "Failed to fetch all nodes:" << query.lastError().text();
@@ -38,10 +39,11 @@ namespace NDNodeDetails::Read {
 
         while (query.next()) {
             auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-
             if (!id) {
-                if (continueAtFail) continue;
-                else return std::nullopt;
+                if (continueAtFail) 
+                    continue;
+                else 
+                    return std::nullopt;
             }
 
             nodes.append(NDNodeDetails::Config::Record{
@@ -52,7 +54,7 @@ namespace NDNodeDetails::Read {
                 QPointF(query.value(4).toDouble(), query.value(5).toDouble()),
                 query.value(6).toDouble(),
                 query.value(7).toDouble()
-                });
+            });
         }
         return nodes;
     }

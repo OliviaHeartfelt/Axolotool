@@ -57,8 +57,8 @@ namespace ANodeEnvDB {
             }
 
             QSqlQuery query(db);
-            if (!query.exec("PRAGMA foreign_keys = ON;")) { qWarning() << "Failed to enable Foreign Keys:" << query.lastError().text(); }
-            if (!query.exec("PRAGMA journal_mode=WAL;")) {  qWarning() << "Failed to enable WAL mode:"     << query.lastError().text(); }
+            if (!query.exec("PRAGMA foreign_keys = ON;")) { qCritical() << "Failed to enable Foreign Keys:" << query.lastError().text(); }
+            if (!query.exec("PRAGMA journal_mode=WAL;")) {  qCritical() << "Failed to enable WAL mode:"     << query.lastError().text(); }
 
             if (!createCoreTables()) { return false; }
 

@@ -56,8 +56,10 @@ namespace NDCellDetails::Read {
             auto cellIdOpt = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
     
             if (!cellIdOpt) {
-                if (continueAtFail) continue;
-                else return std::nullopt;
+                if (continueAtFail) 
+                    continue;
+                else 
+                    return std::nullopt;
             }
 
             NDCellDetails::Config::CellContent cellContent;

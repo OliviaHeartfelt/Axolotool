@@ -2,7 +2,7 @@
 
 namespace NDNodeDetails::Config {
 
-	struct Record {
+	struct alignas(8) Record {
 		muuid::uuid id;
 		QString title;
 		short rowNum;
