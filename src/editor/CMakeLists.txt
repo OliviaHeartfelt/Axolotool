@@ -85,6 +85,15 @@ set(ANODE_DB_MODULES
     ANode/node_env_db/pin/details/Read.h
     ANode/node_env_db/pin/details/Update.h
     ANode/node_env_db/pin/details/Delete.h
+
+    #Pin Source
+    ANode/node_env_db/pin_source/NDPinSource.h
+    ANode/node_env_db/pin_source/details/Config.h
+    ANode/node_env_db/pin_source/details/Init.h
+    ANode/node_env_db/pin_source/details/Create.h
+    ANode/node_env_db/pin_source/details/Read.h
+    ANode/node_env_db/pin_source/details/Update.h
+    ANode/node_env_db/pin_source/details/Delete.h
 )
 
 #AWindow

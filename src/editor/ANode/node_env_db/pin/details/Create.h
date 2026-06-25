@@ -44,7 +44,11 @@ namespace NDPinDetails::Create {
             for (const auto& fId : allowedFlows) {
                 query.bindValue(":pin_id", pinBytes);
                 query.bindValue(":flow_id", Utility::UUID::uuidToBytes(fId));
-                if (!query.exec()) return false;
+
+                if (!query.exec()) {
+                    qCritical() << "Failed to insert flow to allow list:" << query.lastError().text();
+                    return false;
+                }
             }
         }
         return true;
@@ -60,7 +64,11 @@ namespace NDPinDetails::Create {
             for (const auto& tId : allowedTypes) {
                 query.bindValue(":pin_id", pinBytes);
                 query.bindValue(":type_id", Utility::UUID::uuidToBytes(tId));
-                if (!query.exec()) return false;
+
+                if (!query.exec()) {
+                    qCritical() << "Failed to insert type to allow list:" << query.lastError().text();
+                    return false;
+                }
             }
         }
         return true;

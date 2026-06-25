@@ -33,7 +33,7 @@ namespace NDPinDetails::Init {
         )";
 
         if (!query.exec(createPinAllowFlowTable)) {
-            qCritical() << "Failed to create pin table:" << query.lastError().text();
+            qCritical() << "Failed to create pin_allow_flow table:" << query.lastError().text();
             return false;
         }
         return true;
@@ -48,7 +48,7 @@ namespace NDPinDetails::Init {
         )";
 
         if (!query.exec(createPinAllowTypeTable)) {
-            qCritical() << "Failed to create pin table:" << query.lastError().text();
+            qCritical() << "Failed to create pin_allow_type table:" << query.lastError().text();
             return false;
         }
         return true;
