@@ -18,9 +18,9 @@ namespace NDCellDetails::Init {
                 UNIQUE(node_id, layout_row, layout_col),
 
                 CHECK (
-                    (pin_item_id IS NULL AND widget_id IS NULL) OR     -- Neither
-                    (pin_item_id IS NOT NULL AND widget_id IS NULL) OR -- Pin only
-                    (pin_item_id IS NULL AND widget_id IS NOT NULL)    -- Widget only
+                    (pin_item_id IS NULL AND widget_id IS NULL) OR
+                    (pin_item_id IS NOT NULL AND widget_id IS NULL) OR
+                    (pin_item_id IS NULL AND widget_id IS NOT NULL)
                 )
             );
         )";

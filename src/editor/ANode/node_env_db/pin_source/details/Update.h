@@ -4,6 +4,7 @@
 
 namespace NDPinSourceDetails::Update {
 
+    // 0. Source
     inline bool updateSource(QSqlQuery& query, const muuid::uuid& id, const NDPinSourceDetails::Config::SourceUpdate& newSource) {
         QStringList clauses;
 
@@ -27,6 +28,31 @@ namespace NDPinSourceDetails::Update {
         }
         return true;
     }
+    inline bool updateContributor(QSqlQuery& query, const muuid::uuid& id, const NDPinSourceDetails::Config::ContributorUpdate& newContributor) {
+        QStringList clauses;
+
+        if (newContributor.name) clauses.append("name = :name");
+
+        if (clauses.isEmpty()) return true;
+
+        QString updateSql = QString("UPDATE pin_contributor SET %1 WHERE id = :id;").arg(clauses.join(", "));
+        if (!query.prepare(updateSql)) {
+            qCritical() << "Failed to prepare dynamic update query:" << query.lastError().text();
+            return false;
+        }
+
+        query.bindValue(":id", Utility::UUID::uuidToBytes(id));
+
+        if (newContributor.name)   query.bindValue(":name", *newContributor.name);
+
+        if (!query.exec()) {
+            qWarning() << "Failed to update contributor:" << query.lastError().text();
+            return false;
+        }
+        return true;
+    }
+
+    // 1. Flow
     inline bool updateFlow(QSqlQuery& query, const muuid::uuid& id, const NDPinSourceDetails::Config::FlowUpdate& newFlow) {
         QStringList clauses;
 
@@ -52,6 +78,8 @@ namespace NDPinSourceDetails::Update {
         }
         return true;
     }
+
+    // 2. Type
     inline bool updateType(QSqlQuery& query, const muuid::uuid& id, const NDPinSourceDetails::Config::TypeUpdate& newType) {
         QStringList clauses;
 
@@ -77,6 +105,8 @@ namespace NDPinSourceDetails::Update {
         }
         return true;
     }
+
+    // 3. Style
     inline bool updateStyle(QSqlQuery& query, const muuid::uuid& id, const NDPinSourceDetails::Config::StyleUpdate& newStyle) {
         QStringList clauses;
 

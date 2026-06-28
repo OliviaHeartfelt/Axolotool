@@ -5,7 +5,7 @@
 
 namespace NDPinDetails::Read {
 	
-    inline std::optional<NDPinDetails::Config::Record> get(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+    inline std::optional<NDPinDetails::Config::FullPinRecord> get(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
         const auto pinData = getPin(query, id);
         if (!pinData) return std::nullopt;
 
@@ -15,7 +15,7 @@ namespace NDPinDetails::Read {
         const auto allowTypes = getAllowTypes(query, id, continueAtFail);
         if (!allowTypes) return std::nullopt;
 
-        return (NDPinDetails::Config::Record{
+        return (NDPinDetails::Config::FullPinRecord{
             pinData->id,
             pinData->flowId,
             pinData->typeId,

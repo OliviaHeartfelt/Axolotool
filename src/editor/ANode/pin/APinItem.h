@@ -182,7 +182,7 @@ namespace APinItem {
         }
 
         void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override {
-            QRectF rect = boundingRect().toAlignedRect();;
+            QRectF rect = boundingRect().toAlignedRect();
             QSize size = rect.toRect().size();
 
             if (size.isEmpty()) {

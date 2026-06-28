@@ -14,10 +14,23 @@ namespace NDPinSourceDetails::Config {
 		std::optional<QString> name;
 	};
 
+	struct Contributor {
+		muuid::uuid id;
+		muuid::uuid sourceId;
+		QString name;
+	};
+	struct ContributorInfo {
+		muuid::uuid sourceId;
+		QString name;
+	};
+	struct ContributorUpdate {
+		std::optional<QString> name;
+	};
+
 	// 1. Flow
 	struct Flow {
 		muuid::uuid id;
-		muuid::uuid sourceId;
+		muuid::uuid contributorId;
 		QString name;
         qreal degree;
 	};
@@ -33,7 +46,7 @@ namespace NDPinSourceDetails::Config {
 	// 2. Type
 	struct Type {
 		muuid::uuid id;
-		muuid::uuid sourceId;
+		muuid::uuid contributorId;
 		QString name;
         int bit_size;
 	};
@@ -49,7 +62,7 @@ namespace NDPinSourceDetails::Config {
 	// 3. Style
 	struct Style {
 		muuid::uuid id;
-		muuid::uuid sourceId;
+		muuid::uuid contributorId;
 		QString name;
         QColor color;
         int wire_thickness;
