@@ -11,11 +11,12 @@ namespace NDPinDetails::Create {
     ) {
         muuid::uuid pinId = muuid::uuid::generate_unix_time_based();
         query.prepare(R"(
-            INSERT INTO pin (id, flow_id, type_id, style_id)
-            VALUES (:id, :flow, :type, :style);
+            INSERT INTO pin (id, contributor_id, flow_id, type_id, style_id)
+            VALUES (:id, :contributor_id, :flow, :type, :style);
         )");
 
         query.bindValue(":id",    Utility::UUID::uuidToBytes(pinId));
+        query.bindValue(":id",    Utility::UUID::uuidToBytes(newPin.contributorId));
         query.bindValue(":flow",  newPin.flowId  ? Utility::UUID::uuidToBytes(*newPin.flowId)  : QVariant());
         query.bindValue(":type",  newPin.typeId  ? Utility::UUID::uuidToBytes(*newPin.typeId)  : QVariant());
         query.bindValue(":style", newPin.styleId ? Utility::UUID::uuidToBytes(*newPin.styleId) : QVariant());

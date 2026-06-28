@@ -17,6 +17,7 @@ namespace NDPinDetails::Read {
 
         return (NDPinDetails::Config::FullPinRecord{
             pinData->id,
+            pinData->contributorId,
             pinData->flowId,
             pinData->typeId,
             pinData->styleId,
@@ -26,7 +27,7 @@ namespace NDPinDetails::Read {
     }
     inline std::optional<NDPinDetails::Config::PinRecord> getPin(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT flow_id, type_id, style_id 
+            SELECT contributor_id, flow_id, type_id, style_id 
             FROM pin 
             WHERE id = :id;
         )");
@@ -36,7 +37,7 @@ namespace NDPinDetails::Read {
 
         auto parseNullableUUID = [](const QVariant& variant) -> std::optional<std::optional<muuid::uuid>> {
             if (variant.isNull())
-                return std::optional<muuid::uuid>{std::nullopt};
+                return std::optional<muuid::uuid>{};
 
             auto parsed = Utility::UUID::bytesToUuid(variant.toByteArray());
             if (!parsed) 
@@ -45,17 +46,21 @@ namespace NDPinDetails::Read {
             return parsed;
         };
 
-        auto flowOpt = parseNullableUUID(query.value(0));
+        auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+        if (!contributorId) return std::nullopt;
+
+        auto flowOpt = parseNullableUUID(query.value(1));
         if (!flowOpt) return std::nullopt;
 
-        auto typeOpt = parseNullableUUID(query.value(1));
+        auto typeOpt = parseNullableUUID(query.value(2));
         if (!typeOpt) return std::nullopt; 
 
-        auto styleOpt = parseNullableUUID(query.value(2));
+        auto styleOpt = parseNullableUUID(query.value(3));
         if (!styleOpt) return std::nullopt; 
 
         return NDPinDetails::Config::PinRecord{
             id,
+            *contributorId,
             *flowOpt,
             *typeOpt,
             *styleOpt

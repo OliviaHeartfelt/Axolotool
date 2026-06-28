@@ -2,6 +2,8 @@
 
 #include "cell/NDCell.h"
 #include "node/NDNode.h"
+#include "pin/NDPin.h"
+#include "pin_source/NDPinSource.h"
 
 #include "NDConfig.h"
 #include "NDConcepts.h"
@@ -17,8 +19,10 @@ namespace ANodeEnvDB {
 		QString dbPath;
 
         bool createCoreTables() {
-            if (!node.createTable()) return false;
-            if (!cell.createTable()) return false;
+            if (!node.createTable())          return false;
+            if (!cell.createTable())          return false;
+            if (!pinSource.createAllTables()) return false;
+            if (!pin.createAllTables())       return false;
             return true;
         }
 
@@ -38,7 +42,8 @@ namespace ANodeEnvDB {
 
         NDNode::Component<ANodeEnvDB> node;
         NDCell::Component<ANodeEnvDB> cell;
-
+        NDPinSource::Component<ANodeEnvDB> pinSource;
+        NDPin::Component<ANodeEnvDB> pin;
 
         bool open() {
             QSqlDatabase db;
