@@ -15,11 +15,11 @@ namespace NDPinDetails::Create {
             VALUES (:id, :contributor_id, :flow, :type, :style);
         )");
 
-        query.bindValue(":id",    Utility::UUID::uuidToBytes(pinId));
-        query.bindValue(":id",    Utility::UUID::uuidToBytes(newPin.contributorId));
-        query.bindValue(":flow",  newPin.flowId  ? Utility::UUID::uuidToBytes(*newPin.flowId)  : QVariant());
-        query.bindValue(":type",  newPin.typeId  ? Utility::UUID::uuidToBytes(*newPin.typeId)  : QVariant());
-        query.bindValue(":style", newPin.styleId ? Utility::UUID::uuidToBytes(*newPin.styleId) : QVariant());
+        query.bindValue(":id",             Utility::UUID::uuidToBytes(pinId));
+        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newPin.contributorId));
+        query.bindValue(":flow",           newPin.flowId  ? Utility::UUID::uuidToBytes(*newPin.flowId)  : QVariant());
+        query.bindValue(":type",           newPin.typeId  ? Utility::UUID::uuidToBytes(*newPin.typeId)  : QVariant());
+        query.bindValue(":style",          newPin.styleId ? Utility::UUID::uuidToBytes(*newPin.styleId) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert pin:" << query.lastError().text();

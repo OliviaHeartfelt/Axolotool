@@ -26,4 +26,9 @@ namespace NDPinDetails::Config {
 		QList<muuid::uuid> allowFlowList = {};
 		QList<muuid::uuid> allowTypeList = {};
 	};
+	struct UpdatePinRecord {
+		std::variant<std::monostate, std::optional<muuid::uuid>> flowId = std::monostate{};
+		std::variant<std::monostate, std::optional<muuid::uuid>> typeId = std::monostate{};
+		std::variant<std::monostate, std::optional<muuid::uuid>> styleId = std::monostate{};
+	};
 }

@@ -4,25 +4,12 @@
 
 namespace NDPinDetails::Update {
 
-    struct Property {
-        bool modify = false;
-        std::optional<muuid::uuid> value = std::nullopt;
-    };
-    struct UpdateProperties {
-        Property flow;
-        Property type;
-        Property style;
-    };
-    inline bool updatePin(
-        QSqlQuery& query,
-        const muuid::uuid& id,
-        const UpdateProperties& newProperties
-    ) {
+    inline bool updatePin(QSqlQuery& query, const muuid::uuid& id, const NDPinDetails::Config::UpdatePinRecord& newProperties) {
         QStringList clauses;
 
-        if (newProperties.flow.modify)  clauses.append("flow_id = :flow_id");
-        if (newProperties.type.modify)  clauses.append("type_id = :type_id");
-        if (newProperties.style.modify) clauses.append("style_id = :style_id");
+        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.flowId))  clauses.append("flow_id = :flow_id");
+        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId))  clauses.append("type_id = :type_id");
+        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.styleId)) clauses.append("style_id = :style_id");
 
         if (clauses.isEmpty()) return true;
 
@@ -34,14 +21,23 @@ namespace NDPinDetails::Update {
 
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-        if (newProperties.flow.modify  && newProperties.flow.value)  query.bindValue(":flow_id", 
-            newProperties.flow.value ?  Utility::UUID::uuidToBytes(*newProperties.flow.value) : QVariant());
+        using UpdateField = std::variant<std::monostate, std::optional<muuid::uuid>>;
+        auto unpackUpdateField = [](const UpdateField& field) -> QVariant {
+            if (const auto* opt = std::get_if<std::optional<muuid::uuid>>(&field)) {
+                return *opt ? Utility::UUID::uuidToBytes(**opt) : QVariant(QVariant::fromValue(nullptr));
+            }
+            return QVariant();
+        };
 
-        if (newProperties.type.modify && newProperties.type.value)  query.bindValue(":type_id", 
-            newProperties.type.value ?  Utility::UUID::uuidToBytes(*newProperties.type.value) : QVariant());
-
-        if (newProperties.style.modify && newProperties.style.value) query.bindValue(":style_id", 
-            newProperties.style.value ? Utility::UUID::uuidToBytes(*newProperties.style.value) : QVariant());
+        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.flowId)) {
+            query.bindValue(":flow_id", unpackUpdateField(newProperties.flowId));
+        }
+        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId)) {
+            query.bindValue(":type_id", unpackUpdateField(newProperties.typeId));
+        }
+        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.styleId)) {
+            query.bindValue(":style_id", unpackUpdateField(newProperties.styleId));
+        }
 
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update pin:" << query.lastError().text();

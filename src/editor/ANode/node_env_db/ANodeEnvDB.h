@@ -4,6 +4,7 @@
 #include "node/NDNode.h"
 #include "pin/NDPin.h"
 #include "pin_source/NDPinSource.h"
+#include "widget/NDWidget.h"
 
 #include "NDConfig.h"
 #include "NDConcepts.h"
@@ -21,8 +22,9 @@ namespace ANodeEnvDB {
         bool createCoreTables() {
             if (!node.createTable())          return false;
             if (!cell.createTable())          return false;
-            if (!pinSource.createAllTables()) return false;
             if (!pin.createAllTables())       return false;
+            if (!pinSource.createAllTables()) return false;
+            if (!widget.createAllTables())    return false;
             return true;
         }
 
@@ -33,7 +35,13 @@ namespace ANodeEnvDB {
             StorageKey() = default;
         };
 
-		ANodeEnvDB(const QString& connectionName, const QString& dbPath) : connectionName(connectionName), dbPath(dbPath), node(this), cell(this) {}
+		ANodeEnvDB(const QString& connectionName, const QString& dbPath) : connectionName(connectionName), dbPath(dbPath), 
+            node(this), 
+            cell(this),
+            pin(this),
+            pinSource(this),
+            widget(this) {}
+
 		~ANodeEnvDB() {
 			close();
 		}
@@ -42,8 +50,9 @@ namespace ANodeEnvDB {
 
         NDNode::Component<ANodeEnvDB> node;
         NDCell::Component<ANodeEnvDB> cell;
-        NDPinSource::Component<ANodeEnvDB> pinSource;
         NDPin::Component<ANodeEnvDB> pin;
+        NDPinSource::Component<ANodeEnvDB> pinSource;
+        NDWidget::Component<ANodeEnvDB> widget;
 
         bool open() {
             QSqlDatabase db;

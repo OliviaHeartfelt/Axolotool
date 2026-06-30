@@ -10,11 +10,11 @@ namespace NDPinDetails::Init {
     inline bool createPinTable(QSqlQuery& query) {
         QString createPinTableQuery = R"(
             CREATE TABLE IF NOT EXISTS pin (
-                id        BLOB PRIMARY KEY,
+                id             BLOB PRIMARY KEY,
                 contributor_id BLOB NOT NULL REFERENCES pin_contributor(id) ON DELETE CASCADE,
-                flow_id   BLOB REFERENCES flow(id)  ON DELETE SET NULL,
-                type_id   BLOB REFERENCES type(id)  ON DELETE SET NULL,
-                style_id  BLOB REFERENCES style(id) ON DELETE SET NULL
+                flow_id        BLOB REFERENCES flow(id)  ON DELETE SET NULL,
+                type_id        BLOB REFERENCES type(id)  ON DELETE SET NULL,
+                style_id       BLOB REFERENCES style(id) ON DELETE SET NULL
             );
         )";
 

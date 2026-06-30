@@ -119,7 +119,7 @@ namespace NDPin {
         };
 
         // 3. Update
-        inline bool updatePin(const muuid::uuid& id, const NDPinDetails::Update::UpdateProperties& updateProperties) {
+        inline bool updatePin(const muuid::uuid& id, const NDPinDetails::Config::UpdatePinRecord& updateProperties) {
             QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
             QSqlQuery query(db);
 

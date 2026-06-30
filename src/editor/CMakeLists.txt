@@ -14,7 +14,7 @@ find_package(Qt6 COMPONENTS
     REQUIRED
 )
 
-#ANode
+# Node
 set(ANODE_CELL_MODULES
     ANode/cell/ACell.h
     ANode/cell/ACellItem.h
@@ -53,12 +53,13 @@ set(ANODE_WIRE_MODULES
     ANode/wire/AWireTemp.h
 )
 
+# Node Environment DB
 set(ANODE_DB_MODULES
     ANode/node_env_db/ANodeEnvDB.h
     ANode/node_env_db/NDConfig.h
     ANode/node_env_db/NDConcepts.h
 
-    #Node
+    # Node
     ANode/node_env_db/node/NDNode.h
     ANode/node_env_db/node/details/Config.h
     ANode/node_env_db/node/details/Init.h
@@ -67,7 +68,7 @@ set(ANODE_DB_MODULES
     ANode/node_env_db/node/details/Update.h
     ANode/node_env_db/node/details/Delete.h
 
-    #Cell
+    # Cell
     ANode/node_env_db/cell/NDCell.h
     ANode/node_env_db/cell/details/Config.h
     ANode/node_env_db/cell/details/Init.h
@@ -77,7 +78,7 @@ set(ANODE_DB_MODULES
     ANode/node_env_db/cell/details/Update.h
     ANode/node_env_db/cell/details/Delete.h
 
-    #Pin
+    # Pin
     ANode/node_env_db/pin/NDPin.h
     ANode/node_env_db/pin/details/Config.h
     ANode/node_env_db/pin/details/Init.h
@@ -86,7 +87,7 @@ set(ANODE_DB_MODULES
     ANode/node_env_db/pin/details/Update.h
     ANode/node_env_db/pin/details/Delete.h
 
-    #Pin Source
+    # Pin Source
     ANode/node_env_db/pin_source/NDPinSource.h
     ANode/node_env_db/pin_source/details/Config.h
     ANode/node_env_db/pin_source/details/Init.h
@@ -94,20 +95,39 @@ set(ANODE_DB_MODULES
     ANode/node_env_db/pin_source/details/Read.h
     ANode/node_env_db/pin_source/details/Update.h
     ANode/node_env_db/pin_source/details/Delete.h
+
+    # Widget
+    ANode/node_env_db/widget/NDWidget.h
+    ANode/node_env_db/widget/details/Config.h
+    ANode/node_env_db/widget/details/Init.h
+    ANode/node_env_db/widget/details/Create.h
+    ANode/node_env_db/widget/details/Read.h
+    ANode/node_env_db/widget/details/Update.h
+    ANode/node_env_db/widget/details/Delete.h
+
+    # Widget Source
+    ANode/node_env_db/widget_source/NDWidgetSource.h
+    ANode/node_env_db/widget_source/details/Config.h
+    ANode/node_env_db/widget_source/details/Init.h
+    ANode/node_env_db/widget_source/details/Create.h
+    ANode/node_env_db/widget_source/details/Read.h
+    ANode/node_env_db/widget_source/details/Update.h
+    ANode/node_env_db/widget_source/details/Delete.h
 )
 
-#AWindow
+# Window
 set(AWINDOW_MODULES
     AWindow/ACanvas.h
     AWindow/AMainWindow.h
     AWindow/AWindow.h
 )
 
-#AStyle
+# Style
 set(ASTYLE_MODULES
     AStyle/ACombineStyles.h
 )
 
+# Utility
 set(UTILITY_MODULES
     Utility/Utility.h
     Utility/details/UUID.h

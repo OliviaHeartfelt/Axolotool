@@ -32,19 +32,6 @@ namespace NDPinSource {
             if (!tr.commit()) return false;
             return true;
         }
-        template<typename Callable>
-        bool useTransaction(Callable&& fn) {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            QSqlQuery query(db);
-
-            Utility::SqlTransaction tr(db);
-            if (!tr.started()) return false;
-
-            if (!std::forward<Callable>(fn)(query)) return false;
-
-            if (!tr.commit()) return false;
-            return true;
-        }
         template<typename T, typename Callable>
         std::optional<muuid::uuid> useTransactionOptional(const T& data, Callable&& fn) {
             QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
