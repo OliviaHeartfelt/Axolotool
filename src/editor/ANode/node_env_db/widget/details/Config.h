@@ -3,7 +3,7 @@
 namespace NDWidgetDetails::Config {
 
     template<typename T>
-    concept WidgetState = requires(const T t, QByteArray byteArray) {
+    concept ByteConvertible = requires(const T t, QByteArray byteArray) {
         { T::byteArrayToClass(byteArray) } -> std::same_as<std::optional<T>>;
         { t.classToByteArray() } -> std::same_as<QByteArray>;
     };
@@ -27,7 +27,7 @@ namespace NDWidgetDetails::Config {
     };
 
 	// Widget
-    template<NDWidgetDetails::Config::WidgetState State>
+    template<NDWidgetDetails::Config::ByteConvertible State>
 	struct FullWidgetRecord {
         muuid::uuid id;
 		muuid::uuid coreId;
@@ -35,12 +35,14 @@ namespace NDWidgetDetails::Config {
         qreal w;
         qreal h;
 	};
+    template<NDWidgetDetails::Config::ByteConvertible State>
     struct CreateWidgetRecord {
         muuid::uuid coreId;
+        std::optional<State> state = std::nullopt;
         std::optional<qreal> w = std::nullopt;
         std::optional<qreal> h = std::nullopt;
     };
-    template<NDWidgetDetails::Config::WidgetState State>
+    template<NDWidgetDetails::Config::ByteConvertible State>
     struct UpdateWidgetRecord {
         std::variant<std::monostate, std::optional<State>> state = std::monostate{};
         std::variant<std::monostate, std::optional<qreal>> w = std::monostate{};

@@ -18,13 +18,13 @@ namespace NDWidgetDetails::Create {
         query.bindValue(":data_id",        newWidgetCore.dataId ? Utility::UUID::uuidToBytes(*newWidgetCore.dataId) : QVariant());
 
         if (!query.exec()) {
-            qCritical() << "Failed to insert pin:" << query.lastError().text();
+            qCritical() << "Failed to insert widget core:" << query.lastError().text();
             return std::nullopt;
         }
         return coreId;
     }
-    template<NDWidgetDetails::Config::WidgetState State>
-    inline std::optional<muuid::uuid> createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord& newWidget, const std::optional<State>& state = std::nullopt) {
+    template<NDWidgetDetails::Config::ByteConvertible State>
+    inline std::optional<muuid::uuid> createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
         muuid::uuid widgetId = muuid::uuid::generate_unix_time_based();
         query.prepare(R"(
             INSERT INTO widget (id, core_id, state, w_size, h_size)
@@ -33,12 +33,12 @@ namespace NDWidgetDetails::Create {
 
         query.bindValue(":id",      Utility::UUID::uuidToBytes(widgetId));
         query.bindValue(":core_id", Utility::UUID::uuidToBytes(newWidget.coreId));
-        query.bindValue(":state",   state ? QVariant(state->classToByteArray()) : QVariant());
+        query.bindValue(":state",   newWidget.state ? QVariant(newWidget.state->classToByteArray()) : QVariant());
         query.bindValue(":w_size",  newWidget.w ? *newWidget.w : QVariant());
         query.bindValue(":h_size",  newWidget.h ? *newWidget.h : QVariant());
 
         if (!query.exec()) {
-            qCritical() << "Failed to insert pin:" << query.lastError().text();
+            qCritical() << "Failed to insert widget:" << query.lastError().text();
             return std::nullopt;
         }
         return widgetId;

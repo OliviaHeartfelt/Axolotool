@@ -49,7 +49,7 @@ namespace NDWidgetDetails::Update {
     }
     
     // 2. Widget
-    template<NDWidgetDetails::Config::WidgetState State>
+    template<NDWidgetDetails::Config::ByteConvertible State>
     inline bool updateWidget(QSqlQuery& query, muuid::uuid id, const NDWidgetDetails::Config::UpdateWidgetRecord<State>& newProperties) {
         QStringList clauses;
     

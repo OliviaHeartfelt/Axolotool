@@ -106,13 +106,13 @@ namespace NDWidgetDetails::Read {
                 *contributorId,
                 *typeId,
                 *dataId
-                });
+            });
         }
         return list;
     }
 
     // 2. Widget
-    template<NDWidgetDetails::Config::WidgetState State>
+    template<NDWidgetDetails::Config::ByteConvertible State>
     inline std::optional<NDWidgetDetails::Config::FullWidgetRecord<State>> getWidget(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT core_id, state, w_size, h_size
@@ -142,7 +142,7 @@ namespace NDWidgetDetails::Read {
         };
     }
 
-    template<NDWidgetDetails::Config::WidgetState State>
+    template<NDWidgetDetails::Config::ByteConvertible State>
     inline std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getContributorWidgets(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
         QList<NDWidgetDetails::Config::FullWidgetRecord<State>> list;
 
@@ -185,7 +185,7 @@ namespace NDWidgetDetails::Read {
         return list;
     }
 
-    template<NDWidgetDetails::Config::WidgetState State>
+    template<NDWidgetDetails::Config::ByteConvertible State>
     inline std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getAllWidgets(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
         QList<NDWidgetDetails::Config::FullWidgetRecord<State>> list;
 
@@ -194,7 +194,7 @@ namespace NDWidgetDetails::Read {
             FROM widget w
             INNER JOIN widget_core core ON w.core_id = core.id
             INNER JOIN widget_contributor c ON core.contributor_id = c.id
-            WHERE c.id = :source_id;
+            WHERE c.source_id = :source_id;
         )");
         query.bindValue(":source_id", Utility::UUID::uuidToBytes(sourceId));
 

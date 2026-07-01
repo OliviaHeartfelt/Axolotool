@@ -7,7 +7,7 @@ namespace NDWidgetDetails::Init {
             && createWidgetTable(query);
     }
     inline bool createWidgetCoreTable(QSqlQuery& query) {
-        QString createPinSourceTable = R"(
+        QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget_core (
                 id             BLOB PRIMARY KEY,
                 contributor_id BLOB NOT NULL REFERENCES widget_contributor(id) ON DELETE CASCADE,
@@ -16,14 +16,14 @@ namespace NDWidgetDetails::Init {
             );
         )";
 
-        if (!query.exec(createPinSourceTable)) {
+        if (!query.exec(sql)) {
             qCritical() << "Failed to create widget core table:" << query.lastError().text();
             return false;
         }
         return true;
     }
     inline bool createWidgetTable(QSqlQuery& query) {
-        QString createPinSourceTable = R"(
+        QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget (
                 id      BLOB PRIMARY KEY,
                 core_id BLOB NOT NULL REFERENCES widget_core(id) ON DELETE CASCADE,
@@ -33,7 +33,7 @@ namespace NDWidgetDetails::Init {
             );
         )";
 
-        if (!query.exec(createPinSourceTable)) {
+        if (!query.exec(sql)) {
             qCritical() << "Failed to create widget table:" << query.lastError().text();
             return false;
         }

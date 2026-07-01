@@ -5,13 +5,18 @@
 #include "pin/NDPin.h"
 #include "pin_source/NDPinSource.h"
 #include "widget/NDWidget.h"
+#include "widget_source/NDWidgetSource.h"
 
 #include "NDConfig.h"
 #include "NDConcepts.h"
 #include "../../Utility/Utility.h"
 
-namespace NDNode { struct ComponentFriendTag; }
-namespace NDCell { struct ComponentFriendTag; }
+namespace NDNode {         struct ComponentFriendTag; }
+namespace NDCell {         struct ComponentFriendTag; }
+namespace NDPin {          struct ComponentFriendTag; }
+namespace NDPinSource {    struct ComponentFriendTag; }
+namespace NDWidget {       struct ComponentFriendTag; }
+namespace NDWidgetSource { struct ComponentFriendTag; }
 
 namespace ANodeEnvDB {
 
@@ -20,11 +25,12 @@ namespace ANodeEnvDB {
 		QString dbPath;
 
         bool createCoreTables() {
-            if (!node.createTable())          return false;
-            if (!cell.createTable())          return false;
-            if (!pin.createAllTables())       return false;
-            if (!pinSource.createAllTables()) return false;
-            if (!widget.createAllTables())    return false;
+            if (!node.createTable())             return false;
+            if (!cell.createTable())             return false;
+            if (!pin.createAllTables())          return false;
+            if (!pinSource.createAllTables())    return false;
+            if (!widget.createAllTables())       return false;
+            if (!widgetSource.createAllTables()) return false;
             return true;
         }
 
@@ -32,6 +38,10 @@ namespace ANodeEnvDB {
         class StorageKey {
             friend class NDNode::ComponentFriendTag;
             friend class NDCell::ComponentFriendTag;
+            friend class NDPin::ComponentFriendTag;
+            friend class NDPinSource::ComponentFriendTag;
+            friend class NDWidget::ComponentFriendTag;
+            friend class NDWidgetSource::ComponentFriendTag;
             StorageKey() = default;
         };
 
@@ -40,7 +50,9 @@ namespace ANodeEnvDB {
             cell(this),
             pin(this),
             pinSource(this),
-            widget(this) {}
+            widget(this),
+            widgetSource(this)
+        {}
 
 		~ANodeEnvDB() {
 			close();
@@ -53,6 +65,7 @@ namespace ANodeEnvDB {
         NDPin::Component<ANodeEnvDB> pin;
         NDPinSource::Component<ANodeEnvDB> pinSource;
         NDWidget::Component<ANodeEnvDB> widget;
+        NDWidgetSource::Component<ANodeEnvDB> widgetSource;
 
         bool open() {
             QSqlDatabase db;
@@ -80,8 +93,15 @@ namespace ANodeEnvDB {
                 qCritical() << "Failed to read database schema version:" << query.lastError().text();
                 return false;
             }
-            query.next();
-            int storedVersion = query.value(0).toInt();
+
+            std::optional<unsigned int> storedVersion = std::nullopt;
+            if (query.next()) {
+                storedVersion = query.value(0).toInt();
+            }
+            else {
+                qCritical() << "Database failed to return user_version row.";
+                return false;
+            }
 
             if (storedVersion < NDConfig::currentSchemaVersion()) {
                 /* upgrade logic */
