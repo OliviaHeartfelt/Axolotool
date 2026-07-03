@@ -25,8 +25,8 @@ namespace ANodeEnvDB {
 		QString dbPath;
 
         bool createCoreTables() {
-            if (!node.createTable())             return false;
-            if (!cell.createTable())             return false;
+            if (!node.createAllTables())         return false;
+            if (!cell.createAllTables())         return false;
             if (!pin.createAllTables())          return false;
             if (!pinSource.createAllTables())    return false;
             if (!widget.createAllTables())       return false;

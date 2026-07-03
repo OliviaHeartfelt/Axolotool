@@ -9,6 +9,7 @@
 
 #include "../cell/details/Create.h"
 #include "../NDConcepts.h"
+#include "../NDHelpers.h"
 
 namespace NDNode {
 
@@ -23,97 +24,95 @@ namespace NDNode {
     class Component {
         DBContext* parent;
 
+        QSqlDatabase database() const { return parent->getDatabase(ComponentFriendTag::createKey<DBContext>()); }
+
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
         bool existsTable() const {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            return db.tables().contains("nodes", Qt::CaseInsensitive);
+            return database().tables().contains("nodes", Qt::CaseInsensitive);
         }
 
         // 0. Init
-        bool createTable() {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            QSqlQuery query(db);
-
-            Utility::SqlTransaction tr(db);
-            if (!tr.started()) return false;
-
-            const bool wasTableCreated = NDNodeDetails::Init::createTable(query);
-
-            if (!wasTableCreated || !tr.commit()) return false;
-            return true;
+        bool createAllTables() {
+            return NDHelpers::useQuery(database(), [](QSqlQuery& query) {
+                return NDNodeDetails::Init::createTable(query);
+            });
         }
 
         // 1. Create
-        std::optional<muuid::uuid> create(const QString& title, const short rowNum, const short colNum, const QList<NDCell::RecordInfo>& cells = {}, const QPointF pos = { 0.0, 0.0 }) {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            QSqlQuery query(db);
+        std::optional<muuid::uuid> create(const NDCellDetails::Config::CreateCellRecord newNode, QList<NDCell::Config::CreateCellRecord>& cells = {}, const bool overrideOnCollision = false, const bool continueAtFail = false) {
+            return NDHelpers::useTransaction<muuid::uuid>(database(), [&](QSqlQuery& query) -> std::optional<muuid::uuid> {
+                std::optional<muuid::uuid> nodeId = NDNodeDetails::Create::create(query, newNode);
+                if (!nodeId) return std::nullopt;
 
-            Utility::SqlTransaction tr(db);
-            if (!tr.started()) return std::nullopt;
-            
-            std::optional<muuid::uuid> nodeId = NDNodeDetails::Create::create(query, title, rowNum, colNum, pos);
+                for (auto& cell : cells) {
+                    cell.nodeId = *nodeId;
+
+                    if (!NDCellDetails::Create::create(query, *nodeId, cell, overrideOnCollision)) {
+                        if (continueAtFail)
+                            continue;
+                        else
+                            return std::nullopt;
+                    }
+                }
+                return nodeId;
+            });
+        }
+        std::optional<muuid::uuid> create(QSqlQuery& query, const NDCellDetails::Config::CreateCellRecord newNode, QList<NDCell::Config::CreateCellRecord>& cells = {}, const bool overrideOnCollision = false, const bool continueAtFail = false) {
+            std::optional<muuid::uuid> nodeId = NDNodeDetails::Create::create(query, newNode);
             if (!nodeId) return std::nullopt;
 
-            for (const auto& cell : cells)
-                if (!::NDCellDetails::Create::create(query, nodeId.value(), cell)) return std::nullopt;
+            for (auto& cell : cells) {
+                cell.nodeId = *nodeId;
 
-            if (!tr.commit()) return std::nullopt;
+                if (!NDCellDetails::Create::create(query, *nodeId, cell, overrideOnCollision)) {
+                    if (continueAtFail)
+                        continue;
+                    else
+                        return std::nullopt;
+                }
+            }
             return nodeId;
         }
 
         // 2. Read
-        std::optional<NDNodeDetails::Config::Record> get(const muuid::uuid& id) {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            QSqlQuery query(db);
-
-            Utility::SqlTransaction tr(db);
-            if (!tr.started()) return std::nullopt;
-
-            const auto record = NDNodeDetails::Read::get(query, id);
-
-            if (!record || !tr.commit()) return std::nullopt;
-            return *record;
+        std::optional<NDNodeDetails::Config::FullNodeRecord> get(const muuid::uuid& id) {
+            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+                return NDNodeDetails::Read::get(query, id);
+            });
         }
-        std::optional<QList<NDNodeDetails::Config::Record>> getAll(const bool continueAtFail = true) {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            QSqlQuery query(db);
+        std::optional<NDNodeDetails::Config::FullNodeRecord> get(QSqlQuery& query, const muuid::uuid& id) {
+            return NDNodeDetails::Read::get(query, id);
+        }
 
-            Utility::SqlTransaction tr(db);
-            if (!tr.started()) return std::nullopt;
-
-            const auto record = NDNodeDetails::Read::getAll(query, continueAtFail);
-
-            if (!record || !tr.commit()) return std::nullopt;
-            return *record;
+        std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAll(const bool continueAtFail = true) {
+            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+                return NDNodeDetails::Read::getAll(query, continueAtFail);
+            });
+        }
+        std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAll(QSqlQuery& query, const bool continueAtFail = true) {
+            return NDNodeDetails::Read::getAll(query, continueAtFail);
         }
 
         // 3. Update
-        bool updateGeometry(const muuid::uuid& id, const QPointF& pos, const double w = -1.0, const double h = -1.0) {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            QSqlQuery query(db);
-
-            Utility::SqlTransaction tr(db);
-            if (!tr.started()) return false;
-
-            const bool isUpdated = NDNodeDetails::Update::updateGeometry(query, id, pos, w, h);
-
-            if (!isUpdated || !tr.commit()) return false;
-            return true;
+        bool updateNode(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord& newProperties) {
+            return NDHelpers::useTransaction<bool>(database(), [&](QSqlQuery& query) {
+                return NDNodeDetails::Update::updateNode(query, id, newProperties);
+            });
+        }
+        bool updateNode(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord newProperties) {
+            return NDNodeDetails::Update::updateNode(query, id, newProperties);
         }
 
         // 4. Delete
         bool remove(const muuid::uuid& id) {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-
-            Utility::SqlTransaction tr(db);
-            if (!tr.started()) return false;
-
-            const bool isDeleted = NDNodeDetails::Delete::remove(db, id);
-
-            if (!isDeleted || !tr.commit()) return false;
-            return true; return tr.commit();
+            return NDHelpers::useTransaction(database(), [&](QSqlQuery&) {
+                return NDNodeDetails::Delete::remove(database(), id);
+            });
+        }
+        bool remove(QSqlQuery& query, const muuid::uuid& id) {
+            return NDNodeDetails::Delete::remove(query, id);
         }
     };
 }

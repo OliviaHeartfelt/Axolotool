@@ -75,16 +75,9 @@ namespace NDWidgetSource {
 
         // 0. Init
         bool createAllTables() {
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            QSqlQuery query(db);
-
-            Utility::SqlTransaction tr(db);
-            if (!tr.started()) return false;
-
-            const bool wereTablesCreated = NDWidgetSourceDetails::Init::createAllTables(query);
-
-            if (!wereTablesCreated || !tr.commit()) return false;
-            return true;
+            return useTransaction([](QSqlQuery& query) {
+                return NDWidgetSourceDetails::Init::createAllTables(query);
+            });
         }
 
         // 1. Create - Source

@@ -5,17 +5,17 @@
 
 namespace NDNodeDetails::Read {
 
-    inline std::optional<NDNodeDetails::Config::Record> get(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDNodeDetails::Config::FullNodeRecord> get(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h 
             FROM nodes 
-            WHERE node_id = :id;
+            WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
         if (!query.exec() || !query.next()) return std::nullopt;
 
-        return NDNodeDetails::Config::Record{
+        return NDNodeDetails::Config::FullNodeRecord{
             id,
             query.value(0).toString(),
             static_cast<short>(query.value(1).toInt()),
@@ -25,10 +25,10 @@ namespace NDNodeDetails::Read {
             query.value(6).toDouble()
         };
     }
-    inline std::optional<QList<NDNodeDetails::Config::Record>> getAll(QSqlQuery& query, const bool continueAtFail = true) {
-        QList<Config::Record> nodes;
+    inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAll(QSqlQuery& query, const bool continueAtFail = true) {
+        QList<Config::FullNodeRecord> nodes;
         QString selectAll = R"(
-            SELECT node_id, title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h 
+            SELECT id, title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h 
             FROM nodes;
         )";
 
@@ -46,7 +46,7 @@ namespace NDNodeDetails::Read {
                     return std::nullopt;
             }
 
-            nodes.append(NDNodeDetails::Config::Record{
+            nodes.append(NDNodeDetails::Config::FullNodeRecord{
                 id.value(),
                 query.value(1).toString(),
                 static_cast<short>(query.value(2).toInt()),

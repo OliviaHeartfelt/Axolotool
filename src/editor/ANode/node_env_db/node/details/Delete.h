@@ -4,9 +4,8 @@
 
 namespace NDNodeDetails::Delete {
 
-    inline bool remove(QSqlDatabase& db, const muuid::uuid& id) {
-        QSqlQuery query(db);
-        query.prepare("DELETE FROM nodes WHERE node_id = :id;");
+    inline bool remove(QSqlQuery& query, const muuid::uuid& id) {
+        query.prepare("DELETE FROM nodes WHERE id = :id;");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
         if (!query.exec()) {

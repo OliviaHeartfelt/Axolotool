@@ -58,6 +58,7 @@ set(ANODE_DB_MODULES
     ANode/node_env_db/ANodeEnvDB.h
     ANode/node_env_db/NDConfig.h
     ANode/node_env_db/NDConcepts.h
+    ANode/node_env_db/NDHelpers.h
 
     # Node
     ANode/node_env_db/node/NDNode.h

@@ -83,7 +83,7 @@ namespace NDWidgetSourceDetails::Update {
         return true;
     }
     template<NDWidgetSourceDetails::Config::ByteConvertible Data>
-    inline bool updateWidgetData(QSqlQuery& query, muuid::uuid id, const NDWidgetSourceDetails::Config::UpdateWidgetDataRecord<Data>& newProperties) {
+    inline bool updateWidgetData(QSqlQuery& query, const muuid::uuid id, const NDWidgetSourceDetails::Config::UpdateWidgetDataRecord<Data>& newProperties) {
         QStringList clauses;
 
         if (newProperties.name) clauses.append("name = :name");

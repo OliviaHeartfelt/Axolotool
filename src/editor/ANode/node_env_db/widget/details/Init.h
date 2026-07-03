@@ -10,9 +10,13 @@ namespace NDWidgetDetails::Init {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget_core (
                 id             BLOB PRIMARY KEY,
-                contributor_id BLOB NOT NULL REFERENCES widget_contributor(id) ON DELETE CASCADE,
-                type_id        BLOB REFERENCES (id) ON DELETE CASCADE,
-                data_id        BLOB REFERENCES (id) ON DELETE CASCADE
+                contributor_id BLOB NOT NULL,
+                type_id        BLOB,
+                data_id        BLOB,
+
+                FOREIGN KEY(contributor_id) REFERENCES widget_contributor(id) ON DELETE CASCADE,
+                FOREIGN KEY(type_id) REFERENCES widget_type(id) ON DELETE CASCADE,
+                FOREIGN KEY(data_id) REFERENCES widget_data(id) ON DELETE CASCADE
             );
         )";
 
@@ -26,10 +30,14 @@ namespace NDWidgetDetails::Init {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget (
                 id      BLOB PRIMARY KEY,
-                core_id BLOB NOT NULL REFERENCES widget_core(id) ON DELETE CASCADE,
-                state   BLOB
-                w_size  REAL DEFAULT 0.0
-                h_size  REAL DEFAULT 0.0
+                cell_id BLOB NOT NULL UNIQUE,
+                core_id BLOB NOT NULL,
+                state   BLOB,
+                w_size  REAL DEFAULT 0.0,
+                h_size  REAL DEFAULT 0.0,
+
+                FOREIGN KEY(cell_id) REFERENCES cell(id) ON DELETE CASCADE,
+                FOREIGN KEY(core_id) REFERENCES widget_core(id) ON DELETE CASCADE
             );
         )";
 
