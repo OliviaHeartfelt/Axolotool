@@ -1,7 +1,7 @@
 #pragma once
 
 namespace NDPinDetails::Init {
-	
+
     inline bool createAllTables(QSqlQuery& query) {
         return createPinTable(query)
             && createPinAllowFlowTable(query)
@@ -11,10 +11,15 @@ namespace NDPinDetails::Init {
         QString createPinTableQuery = R"(
             CREATE TABLE IF NOT EXISTS pin (
                 id             BLOB PRIMARY KEY,
-                contributor_id BLOB NOT NULL REFERENCES pin_contributor(id) ON DELETE CASCADE,
-                flow_id        BLOB REFERENCES flow(id)  ON DELETE SET NULL,
-                type_id        BLOB REFERENCES type(id)  ON DELETE SET NULL,
-                style_id       BLOB REFERENCES style(id) ON DELETE SET NULL
+                contributor_id BLOB NOT NULL,
+                flow_id        BLOB,
+                type_id        BLOB,
+                style_id       BLOB,
+
+                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE,
+                FOREIGN KEY (flow_id)        REFERENCES pin_flow(id)        ON DELETE SET NULL,
+                FOREIGN KEY (type_id)        REFERENCES pin_type(id)        ON DELETE SET NULL,
+                FOREIGN KEY (style_id)       REFERENCES pin_style(id)       ON DELETE SET NULL
             );
         )";
 
@@ -27,9 +32,12 @@ namespace NDPinDetails::Init {
     inline bool createPinAllowFlowTable(QSqlQuery& query) {
         QString createPinAllowFlowTableQuery = R"(
             CREATE TABLE IF NOT EXISTS pin_allow_flow (
-                pin_id  BLOB NOT NULL REFERENCES pin(id)  ON DELETE CASCADE,
-                flow_id BLOB NOT NULL REFERENCES flow(id) ON DELETE CASCADE,
-                PRIMARY KEY (pin_id, flow_id)
+                pin_id  BLOB NOT NULL,
+                flow_id BLOB NOT NULL,
+                
+                PRIMARY KEY (pin_id, flow_id),
+                FOREIGN KEY (pin_id)  REFERENCES pin(id)      ON DELETE CASCADE,
+                FOREIGN KEY (flow_id) REFERENCES pin_flow(id) ON DELETE CASCADE
             );
         )";
 
@@ -42,9 +50,12 @@ namespace NDPinDetails::Init {
     inline bool createPinAllowTypeTable(QSqlQuery& query) {
         QString createPinAllowTypeTableQuery = R"(
             CREATE TABLE IF NOT EXISTS pin_allow_type (
-                pin_id  BLOB NOT NULL REFERENCES pin(id)  ON DELETE CASCADE,
-                type_id BLOB NOT NULL REFERENCES type(id) ON DELETE CASCADE,
-                PRIMARY KEY (pin_id, type_id)
+                pin_id  BLOB NOT NULL,
+                type_id BLOB NOT NULL,
+                
+                PRIMARY KEY (pin_id, type_id),
+                FOREIGN KEY (pin_id)  REFERENCES pin(id)      ON DELETE CASCADE,
+                FOREIGN KEY (type_id) REFERENCES pin_type(id) ON DELETE CASCADE
             );
         )";
 

@@ -12,14 +12,17 @@ namespace NDPinSourceDetails::Init {
     inline bool createPinSourceTable(QSqlQuery& query) {
         QString createPinSourceTable = R"(
             CREATE TABLE IF NOT EXISTS pin_source (
-                id   BLOB PRIMARY KEY,
+                id   BLOB NOT NULL,
                 name TEXT NOT NULL,
-                UNIQUE(name)
+
+                UNIQUE(name),
+
+                PRIMARY KEY (id)
             );
         )";
 
         if (!query.exec(createPinSourceTable)) {
-            qCritical() << "Failed to create pin source table:" << query.lastError().text();
+            qCritical() << "Failed to create pin_source table:" << query.lastError().text();
             return false;
         }
         return true;
@@ -27,15 +30,19 @@ namespace NDPinSourceDetails::Init {
     inline bool createPinContributorTable(QSqlQuery& query) {
         QString createPinContributorTable = R"(
             CREATE TABLE IF NOT EXISTS pin_contributor (
-                id        BLOB PRIMARY KEY,
-                source_id BLOB NOT NULL REFERENCES pin_source(id) ON DELETE CASCADE,
+                id        BLOB NOT NULL,
+                source_id BLOB NOT NULL,
                 name      TEXT NOT NULL,
-                UNIQUE(source_id, name)
+
+                UNIQUE(source_id, name),
+
+                PRIMARY KEY (id),
+                FOREIGN KEY (source_id) REFERENCES pin_source(id) ON DELETE CASCADE
             );
         )";
 
         if (!query.exec(createPinContributorTable)) {
-            qCritical() << "Failed to create pin contributor table:" << query.lastError().text();
+            qCritical() << "Failed to create pin_contributor table:" << query.lastError().text();
             return false;
         }
         return true;
@@ -43,47 +50,59 @@ namespace NDPinSourceDetails::Init {
 
     inline bool createPinFlowTable(QSqlQuery& query) {
         QString createPinFlowTable = R"(
-            CREATE TABLE IF NOT EXISTS flow (
-                id             BLOB PRIMARY KEY,
-                contributor_id BLOB NOT NULL REFERENCES pin_contributor(id) ON DELETE CASCADE,
+            CREATE TABLE IF NOT EXISTS pin_flow (
+                id             BLOB NOT NULL,
+                contributor_id BLOB NOT NULL ,
                 name           TEXT NOT NULL,
                 degree         REAL DEFAULT 0.0,
-                UNIQUE(contributor_id, name)
+
+                UNIQUE(contributor_id, name),
+
+                PRIMARY KEY (id),
+                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE
             );
         )";
 
         if (!query.exec(createPinFlowTable)) {
-            qCritical() << "Failed to create pin flow table:" << query.lastError().text();
+            qCritical() << "Failed to create flow table:" << query.lastError().text();
             return false;
         }
         return true;
     }
     inline bool createPinTypeTable(QSqlQuery& query) {
         QString createPinTypeTable = R"(
-            CREATE TABLE IF NOT EXISTS type (
-                id             BLOB PRIMARY KEY,
-                contributor_id BLOB NOT NULL REFERENCES pin_contributor(id) ON DELETE CASCADE,
+            CREATE TABLE IF NOT EXISTS pin_type (
+                id             BLOB NOT NULL,
+                contributor_id BLOB NOT NULL,
                 name           TEXT NOT NULL,
                 bit_size       INTEGER DEFAULT 0,
-                UNIQUE(contributor_id, name)
+
+                UNIQUE(contributor_id, name),
+
+                PRIMARY KEY (id),
+                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE
             );
         )";
 
         if (!query.exec(createPinTypeTable)) {
-            qCritical() << "Failed to create pin type table:" << query.lastError().text();
+            qCritical() << "Failed to create  type table:" << query.lastError().text();
             return false;
         }
         return true;
     }
     inline bool createPinStyleTable(QSqlQuery& query) {
         QString createPinStyleTable = R"(
-            CREATE TABLE IF NOT EXISTS style (
-                id             BLOB PRIMARY KEY,
-                contributor_id BLOB NOT NULL REFERENCES pin_contributor(id) ON DELETE CASCADE,
+            CREATE TABLE IF NOT EXISTS pin_style (
+                id             BLOB NOT NULL,
+                contributor_id BLOB NOT NULL,
                 name           TEXT NOT NULL,
                 color          INTEGER NOT NULL,
                 wire_thickness INTEGER DEFAULT 2,
-                UNIQUE(contributor_id, name)
+
+                UNIQUE(contributor_id, name),
+
+                PRIMARY KEY (id),
+                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE
             );
         )";
 
@@ -94,39 +113,3 @@ namespace NDPinSourceDetails::Init {
         return true;
     }
 }
-
-/*
-CREATE TABLE IF NOT EXISTS pin_source (
-    id   BLOB PRIMARY KEY,
-    name TEXT NOT NULL,
-    UNIQUE(name)
-);
-CREATE TABLE IF NOT EXISTS pin_contributor (
-    id        BLOB PRIMARY KEY,
-    source_id BLOB NOT NULL REFERENCES pin_source(id) ON DELETE CASCADE,
-    name      TEXT NOT NULL,
-    UNIQUE(source_id, name)
-);
-CREATE TABLE IF NOT EXISTS flow (
-    id             BLOB PRIMARY KEY,
-    contributor_id BLOB NOT NULL REFERENCES pin_contributor(id) ON DELETE CASCADE,
-    name           TEXT NOT NULL,
-    degree         REAL DEFAULT 0.0,
-    UNIQUE(source_id, contributor_id, name)
-);
-CREATE TABLE IF NOT EXISTS type (
-    id             BLOB PRIMARY KEY,
-    contributor_id BLOB NOT NULL REFERENCES pin_contributor(id) ON DELETE CASCADE,
-    name           TEXT NOT NULL,
-    bit_size       INTEGER DEFAULT 0,
-    UNIQUE(source_id, contributor_id, name)
-);
-CREATE TABLE IF NOT EXISTS style (
-    id             BLOB PRIMARY KEY,
-    contributor_id BLOB NOT NULL REFERENCES pin_contributor(id) ON DELETE CASCADE,
-    name           TEXT NOT NULL,
-    color          INTEGER NOT NULL,
-    wire_thickness INTEGER DEFAULT 2,
-    UNIQUE(source_id, contributor_id, name)
-);
-*/

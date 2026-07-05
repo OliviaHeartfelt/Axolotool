@@ -7,8 +7,8 @@ namespace NDNodeDetails::Create {
 
     inline std::optional<muuid::uuid> create(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord& newNode) {
         query.prepare(R"(
-            INSERT INTO nodes (id,  title,  row_num,  col_num,  canvas_x,  canvas_y,  canvas_w,  canvas_h)
-            VALUES (          :id, :title, :row_num, :col_num, :canvas_x, :canvas_y, :canvas_w, :canvas_h);
+            INSERT INTO node (id,  title,  row_num,  col_num,  canvas_x,  canvas_y,  canvas_w,  canvas_h)
+            VALUES (         :id, :title, :row_num, :col_num, :canvas_x, :canvas_y, :canvas_w, :canvas_h);
         )");
         muuid::uuid newNodeId = muuid::uuid::generate_unix_time_based();
 

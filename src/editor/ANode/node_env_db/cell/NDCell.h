@@ -25,9 +25,7 @@ namespace NDCell {
     class Component {
         DBContext* parent;
 
-        QSqlDatabase database() const {
-            return parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-        }
+        QSqlDatabase database() const { return parent->getDatabase(ComponentFriendTag::createKey<DBContext>()); }
 
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
@@ -45,7 +43,7 @@ namespace NDCell {
 
         // 1. Create
         std::optional<muuid::uuid> createCell(const muuid::uuid& nodeId, const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
-            return NDHelpers::useTransaction<muuid::uuid>(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) -> std::optional<muuid::uuid> {
                 return NDCellDetails::Create::create(query, nodeId, newCell, overrideOnCollision);
             });
         }

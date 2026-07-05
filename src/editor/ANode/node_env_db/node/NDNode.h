@@ -30,7 +30,7 @@ namespace NDNode {
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
         bool existsTable() const {
-            return database().tables().contains("nodes", Qt::CaseInsensitive);
+            return database().tables().contains("node", Qt::CaseInsensitive);
         }
 
         // 0. Init
@@ -42,7 +42,7 @@ namespace NDNode {
 
         // 1. Create
         std::optional<muuid::uuid> create(const NDCellDetails::Config::CreateCellRecord newNode, QList<NDCell::Config::CreateCellRecord>& cells = {}, const bool overrideOnCollision = false, const bool continueAtFail = false) {
-            return NDHelpers::useTransaction<muuid::uuid>(database(), [&](QSqlQuery& query) -> std::optional<muuid::uuid> {
+            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) -> std::optional<muuid::uuid> {
                 std::optional<muuid::uuid> nodeId = NDNodeDetails::Create::create(query, newNode);
                 if (!nodeId) return std::nullopt;
 
@@ -97,7 +97,7 @@ namespace NDNode {
 
         // 3. Update
         bool updateNode(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord& newProperties) {
-            return NDHelpers::useTransaction<bool>(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Update::updateNode(query, id, newProperties);
             });
         }

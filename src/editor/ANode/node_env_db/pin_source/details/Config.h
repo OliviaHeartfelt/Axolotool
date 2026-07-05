@@ -3,76 +3,76 @@
 namespace NDPinSourceDetails::Config {
 
 	// 0. Source
-	struct Source {
+	struct FullPinSourceRecord {
 		muuid::uuid id;
 		QString name;
 	};
-	struct SourceInfo {
+	struct CreatePinSourceRecord {
 		QString name;
 	};
-	struct SourceUpdate {
+	struct UpdatePinSourceRecord {
 		std::optional<QString> name;
 	};
 
-	struct Contributor {
+	struct FullPinContributorRecord {
 		muuid::uuid id;
 		muuid::uuid sourceId;
 		QString name;
 	};
-	struct ContributorInfo {
+	struct CreatePinContributorRecord {
 		muuid::uuid sourceId;
 		QString name;
 	};
-	struct ContributorUpdate {
+	struct UpdatePinContributorRecord {
 		std::optional<QString> name;
 	};
 
 	// 1. Flow
-	struct Flow {
+	struct FullPinFlowRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
 		QString name;
         qreal degree;
 	};
-	struct FlowInfo {
+	struct CreatePinFlowRecord {
 		QString name;
 		qreal degree = 0.0;
 	};
-	struct FlowUpdate {
+	struct UpdatePinFlowRecord {
 		std::optional<QString> name;
 		std::optional<qreal> degree = 0.0;
 	};
 
 	// 2. Type
-	struct Type {
+	struct FullPinTypeRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
 		QString name;
         int bit_size;
 	};
-	struct TypeInfo {
+	struct CreatePinTypeRecord {
 		QString name;
 		int bit_size = 0;
 	};
-	struct TypeUpdate {
+	struct UpdatePinTypeRecord {
 		std::optional<QString> name;
 		std::optional<int> bit_size;
 	};
 
 	// 3. Style
-	struct Style {
+	struct FullPinStyleRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
 		QString name;
         QColor color;
         int wire_thickness;
 	};
-	struct StyleInfo {
+	struct CreatePinStyleRecord {
 		QString name;
 		QColor color = Qt::gray;
 		int wire_thickness = 2;
 	};
-	struct StyleUpdate {
+	struct UpdatePinStyleRecord {
 		std::optional<QString> name;
 		std::optional<QColor> color;
 		std::optional<int> wire_thickness;

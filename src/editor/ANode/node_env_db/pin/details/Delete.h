@@ -26,7 +26,7 @@ namespace NDPinDetails::Delete {
         query.bindValue(":pin_id", Utility::UUID::uuidToBytes(pinId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to delete pin:" << query.lastError().text();
+            qCritical() << "Failed to delete allowed flow:" << query.lastError().text();
             return false;
         }
         return true;
@@ -40,7 +40,7 @@ namespace NDPinDetails::Delete {
         query.bindValue(":flow_id", Utility::UUID::uuidToBytes(flowId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to delete pin:" << query.lastError().text();
+            qCritical() << "Failed to delete allowed flows:" << query.lastError().text();
             return false;
         }
         return true;
@@ -54,7 +54,7 @@ namespace NDPinDetails::Delete {
         query.bindValue(":pin_id", Utility::UUID::uuidToBytes(pinId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to delete pin:" << query.lastError().text();
+            qCritical() << "Failed to delete allowed type:" << query.lastError().text();
             return false;
         }
         return true;
@@ -68,7 +68,7 @@ namespace NDPinDetails::Delete {
         query.bindValue(":type_id", Utility::UUID::uuidToBytes(typeId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to delete pin:" << query.lastError().text();
+            qCritical() << "Failed to delete allowed types:" << query.lastError().text();
             return false;
         }
         return true;

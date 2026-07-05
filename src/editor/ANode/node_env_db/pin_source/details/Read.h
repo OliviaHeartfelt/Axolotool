@@ -6,7 +6,7 @@
 namespace NDPinSourceDetails::Read {
 
     // 0. Source
-    inline std::optional<NDPinSourceDetails::Config::Source> getSource(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDPinSourceDetails::Config::FullPinSourceRecord> getSource(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT name
             FROM pin_source 
@@ -21,21 +21,21 @@ namespace NDPinSourceDetails::Read {
 
         if (!query.next()) return std::nullopt;
 
-        return NDPinSourceDetails::Config::Source{
+        return NDPinSourceDetails::Config::FullPinSourceRecord{
             id,
             query.value(0).toString()
         };
     }
-    inline std::optional<QList<NDPinSourceDetails::Config::Source>> getAllSources(QSqlQuery& query, const bool continueAtFail = false) {
-        QList<NDPinSourceDetails::Config::Source> list;
+    inline std::optional<QList<NDPinSourceDetails::Config::FullPinSourceRecord>> getAllSources(QSqlQuery& query, const bool continueAtFail = false) {
+        QList<NDPinSourceDetails::Config::FullPinSourceRecord> list;
 
         query.prepare(R"(
             SELECT id, name
-            FROM flow
+            FROM pin_source
         )");
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getAllContributors query:" << query.lastError().text();
+            qCritical() << "Failed to execute getAllSources query:" << query.lastError().text();
             return std::nullopt;
         }
 
@@ -48,7 +48,7 @@ namespace NDPinSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinSourceDetails::Config::Source{
+            list.append(NDPinSourceDetails::Config::FullPinSourceRecord{
                 *id,
                 query.value(1).toString()
             });
@@ -56,7 +56,7 @@ namespace NDPinSourceDetails::Read {
         return list;
     }
 
-    inline std::optional<NDPinSourceDetails::Config::Contributor> getContributor(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDPinSourceDetails::Config::FullPinContributorRecord> getContributor(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT source_id, name
             FROM pin_contributor 
@@ -74,18 +74,18 @@ namespace NDPinSourceDetails::Read {
         const auto sourceId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!sourceId) return std::nullopt;
 
-        return NDPinSourceDetails::Config::Contributor{
+        return NDPinSourceDetails::Config::FullPinContributorRecord{
             id,
             *sourceId,
             query.value(1).toString()
         };
     }
-    inline std::optional<QList<NDPinSourceDetails::Config::Contributor>> getAllContributors(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDPinSourceDetails::Config::Contributor> list;
+    inline std::optional<QList<NDPinSourceDetails::Config::FullPinContributorRecord>> getAllContributors(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDPinSourceDetails::Config::FullPinContributorRecord> list;
 
         query.prepare(R"(
             SELECT id, name
-            FROM flow 
+            FROM pin_contributor 
             WHERE source_id = :source_id;
         )");
         query.bindValue(":source_id", Utility::UUID::uuidToBytes(sourceId));
@@ -104,7 +104,7 @@ namespace NDPinSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinSourceDetails::Config::Contributor{
+            list.append(NDPinSourceDetails::Config::FullPinContributorRecord{
                 *id,
                 sourceId,
                 query.value(1).toString()
@@ -114,10 +114,10 @@ namespace NDPinSourceDetails::Read {
     }
 
     // 1. Flow
-    inline std::optional<NDPinSourceDetails::Config::Flow> getFlow(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDPinSourceDetails::Config::FullPinFlowRecord> getFlow(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, degree
-            FROM flow 
+            FROM pin_flow 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
@@ -132,25 +132,25 @@ namespace NDPinSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        return NDPinSourceDetails::Config::Flow{
+        return NDPinSourceDetails::Config::FullPinFlowRecord{
             id,
             *contributorId,
             query.value(1).toString(),
             query.value(2).toReal()
         };
     }
-    inline std::optional<QList<NDPinSourceDetails::Config::Flow>> getContributorFlows(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDPinSourceDetails::Config::Flow> list;
+    inline std::optional<QList<NDPinSourceDetails::Config::FullPinFlowRecord>> getContributorFlows(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDPinSourceDetails::Config::FullPinFlowRecord> list;
 
         query.prepare(R"(
             SELECT id, name, degree
-            FROM flow 
+            FROM pin_flow 
             WHERE contributor_id = :contributor_id;
         )");
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(contributorId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getAllFlows query:" << query.lastError().text();
+            qCritical() << "Failed to execute getContributorFlows query:" << query.lastError().text();
             return std::nullopt;
         }
 
@@ -163,7 +163,7 @@ namespace NDPinSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinSourceDetails::Config::Flow{
+            list.append(NDPinSourceDetails::Config::FullPinFlowRecord{
                 *id,
                 contributorId,
                 query.value(1).toString(),
@@ -172,12 +172,12 @@ namespace NDPinSourceDetails::Read {
         }
         return list;
     }
-    inline std::optional<QList<NDPinSourceDetails::Config::Flow>> getAllFlows(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDPinSourceDetails::Config::Flow> list;
+    inline std::optional<QList<NDPinSourceDetails::Config::FullPinFlowRecord>> getAllFlows(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDPinSourceDetails::Config::FullPinFlowRecord> list;
 
         query.prepare(R"(
             SELECT f.id, f.contributor_id, f.name, f.degree
-            FROM flow f
+            FROM pin_flow f
             INNER JOIN pin_contributor c ON f.contributor_id = c.id
             WHERE c.source_id = :source_id;
         )");
@@ -199,7 +199,7 @@ namespace NDPinSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinSourceDetails::Config::Flow{
+            list.append(NDPinSourceDetails::Config::FullPinFlowRecord{
                 *id,
                 *contributorId,
                 query.value(2).toString(),
@@ -210,10 +210,10 @@ namespace NDPinSourceDetails::Read {
     }
 
     // 2. Type
-    inline std::optional<NDPinSourceDetails::Config::Type> getType(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDPinSourceDetails::Config::FullPinTypeRecord> getType(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, bit_size
-            FROM type 
+            FROM pin_type 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
@@ -228,19 +228,19 @@ namespace NDPinSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        return NDPinSourceDetails::Config::Type{
+        return NDPinSourceDetails::Config::FullPinTypeRecord{
             id,
             *contributorId,
             query.value(1).toString(),
             query.value(2).toInt()
         };
     }
-    inline std::optional<QList<NDPinSourceDetails::Config::Type>> getContributorTypes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDPinSourceDetails::Config::Type> list;
+    inline std::optional<QList<NDPinSourceDetails::Config::FullPinTypeRecord>> getContributorTypes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDPinSourceDetails::Config::FullPinTypeRecord> list;
 
         query.prepare(R"(
             SELECT id, name, bit_size
-            FROM type 
+            FROM pin_type 
             WHERE contributor_id = :contributor_id;
         )");
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(contributorId));
@@ -259,7 +259,7 @@ namespace NDPinSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinSourceDetails::Config::Type{
+            list.append(NDPinSourceDetails::Config::FullPinTypeRecord{
                 *id,
                 contributorId,
                 query.value(1).toString(),
@@ -268,12 +268,12 @@ namespace NDPinSourceDetails::Read {
         }
         return list;
     }
-    inline std::optional<QList<NDPinSourceDetails::Config::Type>> getAllTypes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDPinSourceDetails::Config::Type> list;
+    inline std::optional<QList<NDPinSourceDetails::Config::FullPinTypeRecord>> getAllTypes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDPinSourceDetails::Config::FullPinTypeRecord> list;
 
         query.prepare(R"(
             SELECT t.id, t.contributor_id, t.name, t.bit_size
-            FROM type t
+            FROM pin_type t
             INNER JOIN pin_contributor c ON t.contributor_id = c.id
             WHERE c.source_id = :source_id;
         )");
@@ -293,7 +293,7 @@ namespace NDPinSourceDetails::Read {
                 else return std::nullopt;
             }
 
-            list.append(NDPinSourceDetails::Config::Type{
+            list.append(NDPinSourceDetails::Config::FullPinTypeRecord{
                 *id,
                 *contributorId,
                 query.value(2).toString(),
@@ -304,10 +304,10 @@ namespace NDPinSourceDetails::Read {
     }
 
     // 3. Style
-    inline std::optional<NDPinSourceDetails::Config::Style> getStyle(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDPinSourceDetails::Config::FullPinStyleRecord> getStyle(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, color, wire_thickness
-            FROM style 
+            FROM pin_style 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
@@ -322,7 +322,7 @@ namespace NDPinSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        return NDPinSourceDetails::Config::Style{
+        return NDPinSourceDetails::Config::FullPinStyleRecord{
             id,
             *contributorId,
             query.value(1).toString(),
@@ -330,18 +330,18 @@ namespace NDPinSourceDetails::Read {
             query.value(3).toInt()
         };
     }
-    inline std::optional<QList<NDPinSourceDetails::Config::Style>> getContributorStyles(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDPinSourceDetails::Config::Style> list;
+    inline std::optional<QList<NDPinSourceDetails::Config::FullPinStyleRecord>> getContributorStyles(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDPinSourceDetails::Config::FullPinStyleRecord> list;
 
         query.prepare(R"(
             SELECT id, name, color, wire_thickness
-            FROM style 
+            FROM pin_style 
             WHERE contributor_id = :contributor_id;
         )");
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(contributorId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getAllStyles query:" << query.lastError().text();
+            qCritical() << "Failed to execute getContributorStyles query:" << query.lastError().text();
             return std::nullopt;
         }
 
@@ -355,7 +355,7 @@ namespace NDPinSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinSourceDetails::Config::Style{
+            list.append(NDPinSourceDetails::Config::FullPinStyleRecord{
                 *id,
                 contributorId,
                 query.value(1).toString(),
@@ -365,12 +365,12 @@ namespace NDPinSourceDetails::Read {
         }
         return list;
     }
-    inline std::optional<QList<NDPinSourceDetails::Config::Style>> getAllStyles(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDPinSourceDetails::Config::Style> list;
+    inline std::optional<QList<NDPinSourceDetails::Config::FullPinStyleRecord>> getAllStyles(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDPinSourceDetails::Config::FullPinStyleRecord> list;
 
         query.prepare(R"(
             SELECT s.id, s.contributor_id, s.name, s.color, s.wire_thickness
-            FROM style s
+            FROM pin_style s
             INNER JOIN pin_contributor c ON s.contributor_id = c.id
             WHERE c.source_id = :source_id;
         )");
@@ -390,7 +390,7 @@ namespace NDPinSourceDetails::Read {
                 else return std::nullopt;
             }
 
-            list.append(NDPinSourceDetails::Config::Style{
+            list.append(NDPinSourceDetails::Config::FullPinStyleRecord{
                 *id,
                 *contributorId,
                 query.value(2).toString(),

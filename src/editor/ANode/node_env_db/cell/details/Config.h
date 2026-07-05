@@ -43,7 +43,7 @@ namespace NDCellDetails::Config {
         std::optional<QString> name =         std::nullopt;
         std::optional<muuid::uuid> pinId =    std::nullopt;
         std::optional<muuid::uuid> widgetId = std::nullopt;
-        bool isOut = false;
+        std::optional<bool> isOut =    false;
         std::optional<short> row =     std::nullopt;
         std::optional<short> col =     std::nullopt;
         std::optional<short> rowSpan = std::nullopt;

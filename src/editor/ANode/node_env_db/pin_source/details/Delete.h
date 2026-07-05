@@ -32,7 +32,7 @@ namespace NDPinSourceDetails::Delete {
     }
     inline bool removeFlow(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            DELETE FROM flow 
+            DELETE FROM pin_flow 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
@@ -45,7 +45,7 @@ namespace NDPinSourceDetails::Delete {
     }
     inline bool removeType(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            DELETE FROM type 
+            DELETE FROM pin_type 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
@@ -58,7 +58,7 @@ namespace NDPinSourceDetails::Delete {
     }
     inline bool removeStyle(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            DELETE FROM style 
+            DELETE FROM pin_style 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));

@@ -17,7 +17,7 @@ namespace NDNodeDetails::Update {
 
         if (clauses.isEmpty()) return true;
 
-        QString updateSql = QString("UPDATE nodes SET %1 WHERE id = :id;").arg(clauses.join(", "));
+        QString updateSql = QString("UPDATE node SET %1 WHERE id = :id;").arg(clauses.join(", "));
         if (!query.prepare(updateSql)) {
             qCritical() << "Failed to prepare dynamic update query:" << query.lastError().text();
             return false;
@@ -37,7 +37,7 @@ namespace NDNodeDetails::Update {
         }
 
         if (!query.exec()) {
-            qWarning() << "Failed to update node geometry:" << query.lastError().text();
+            qWarning() << "Failed to update node:" << query.lastError().text();
             return false;
         }
         return true;

@@ -24,12 +24,12 @@ namespace NDCellDetails::Create {
         }
     
         query.prepare(R"(
-            INSERT INTO node_cells (cell_id,  node_id,  name,  layout_row,  layout_col,  layout_row_span,  layout_col_span,  pin_id,  widget_id,  is_out)
-            VALUES (               :cell_id, :node_id, :name, :layout_row, :layout_col, :layout_row_span, :layout_col_span, :pin_id, :widget_id, :is_out);
+            INSERT INTO node_cells (id,  node_id,  name,  layout_row,  layout_col,  layout_row_span,  layout_col_span,  pin_id,  widget_id,  is_out)
+            VALUES (               :id, :node_id, :name, :layout_row, :layout_col, :layout_row_span, :layout_col_span, :pin_id, :widget_id, :is_out);
         )");
         muuid::uuid newCellId = muuid::uuid::generate_unix_time_based();
 
-        query.bindValue(":cell_id",         Utility::UUID::uuidToBytes(newCellId));
+        query.bindValue(":id",         Utility::UUID::uuidToBytes(newCellId));
         query.bindValue(":node_id",         Utility::UUID::uuidToBytes(*newCell.nodeId));
         query.bindValue(":name",            newCell.name ? *newCell.name : QVariant());
         query.bindValue(":layout_row",      info.row);

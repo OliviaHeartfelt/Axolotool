@@ -8,12 +8,16 @@ namespace NDNodeDetails::Read {
     inline std::optional<NDNodeDetails::Config::FullNodeRecord> get(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h 
-            FROM nodes 
+            FROM node 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-        if (!query.exec() || !query.next()) return std::nullopt;
+        if (!query.exec()) {
+            qWarning() << "Failed to fetch node:" << query.lastError().text();
+            return std::nullopt;
+        }
+        if (!query.next()) return std::nullopt;
 
         return NDNodeDetails::Config::FullNodeRecord{
             id,
@@ -29,7 +33,7 @@ namespace NDNodeDetails::Read {
         QList<Config::FullNodeRecord> nodes;
         QString selectAll = R"(
             SELECT id, title, row_num, col_num, canvas_x, canvas_y, canvas_w, canvas_h 
-            FROM nodes;
+            FROM node;
         )";
 
         if (!query.exec(selectAll)) {

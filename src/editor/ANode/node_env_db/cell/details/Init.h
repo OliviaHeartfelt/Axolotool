@@ -5,8 +5,8 @@ namespace NDCellDetails::Init {
     inline bool createTable(QSqlQuery& query) {
         QString createCellsTable = R"(
             CREATE TABLE IF NOT EXISTS node_cells (
-                cell_id         BLOB PRIMARY KEY,
-                node_id         BLOB,
+                id              BLOB NOT NULL,
+                node_id         BLOB NOT NULL,
                 name            TEXT,
                 layout_row      SMALLINT NOT NULL,
                 layout_col      SMALLINT NOT NULL,
@@ -18,15 +18,16 @@ namespace NDCellDetails::Init {
 
                 UNIQUE(node_id, layout_row, layout_col),
 
-                FOREIGN KEY(node_id)    REFERENCES nodes(id) ON DELETE CASCADE,
-                FOREIGN KEY(pin_id)     REFERENCES pin(id)        ON DELETE SET NULL,
-                FOREIGN KEY(widget_id)  REFERENCES widget_id(id)  ON DELETE SET NULL,
+                PRIMARY KEY(id),
+                FOREIGN KEY(node_id)    REFERENCES node(id)   ON DELETE CASCADE,
+                FOREIGN KEY(pin_id)     REFERENCES pin(id)     ON DELETE SET NULL,
+                FOREIGN KEY(widget_id)  REFERENCES widget(id)  ON DELETE SET NULL,
 
-                CONSTRAINT chk_row_span         CHECK (row_span >= 1),
-                CONSTRAINT chk_col_span         CHECK (col_span >= 1),
-                CONSTRAINT chk_cell_visibility  CHECK (is_out IN (0, 1)),
+                CONSTRAINT chk_row_span        CHECK (layout_row_span >= 1),
+                CONSTRAINT chk_col_span        CHECK (layout_col_span >= 1),
+                CONSTRAINT chk_cell_visibility CHECK (is_out IN (0, 1)),
 
-                CONSTRAINT chk_exclusive_contentCHECK (
+                CONSTRAINT chk_exclusive_content CHECK (
                     (pin_id IS NULL     AND widget_id IS NULL) OR
                     (pin_id IS NOT NULL AND widget_id IS NULL) OR
                     (pin_id IS NULL     AND widget_id IS NOT NULL)

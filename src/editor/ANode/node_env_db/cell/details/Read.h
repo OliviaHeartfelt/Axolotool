@@ -9,7 +9,7 @@ namespace NDCellDetails::Read {
         query.prepare(R"(
             SELECT node_id, name, is_out, layout_row, layout_col, layout_row_span, layout_col_span, pin_id, widget_id
             FROM node_cells 
-            WHERE cell_id = :id;
+            WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
@@ -22,7 +22,7 @@ namespace NDCellDetails::Read {
         auto nodeIdOpt = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!nodeIdOpt) return std::nullopt;
 
-        NDCellDetails::Config::CellContent cellContent;
+        NDCellDetails::Config::CellContent cellContent = std::monostate{};
         if (!query.value(7).isNull()) {
             if (auto pinId = Utility::UUID::bytesToUuid(query.value(7).toByteArray()))
                 cellContent = NDCellDetails::Config::PinItemRecord{ *pinId };
@@ -48,7 +48,7 @@ namespace NDCellDetails::Read {
     inline std::optional<QList<Config::FullCellRecord>> getAllCells(QSqlQuery& query, const muuid::uuid& nodeId, const bool continueAtFail = true) {
         QList<Config::FullCellRecord> cells;
         query.prepare(R"(
-            SELECT cell_id, name, is_out, layout_row, layout_col, layout_row_span, layout_col_span, pin_id, widget_id
+            SELECT id, name, is_out, layout_row, layout_col, layout_row_span, layout_col_span, pin_id, widget_id
             FROM node_cells 
             WHERE node_id = :node_id;
         )");
@@ -69,7 +69,7 @@ namespace NDCellDetails::Read {
                     return std::nullopt;
             }
 
-            NDCellDetails::Config::CellContent cellContent;
+            NDCellDetails::Config::CellContent cellContent = std::monostate{};
             if (!query.value(7).isNull()) {
                 if (auto pinId = Utility::UUID::bytesToUuid(query.value(7).toByteArray()))
                     cellContent = NDCellDetails::Config::PinItemRecord{ *pinId };

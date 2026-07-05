@@ -16,9 +16,12 @@ namespace NDWidgetSourceDetails::Init {
     inline bool createWidgetSourceTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget_source (
-                id   BLOB PRIMARY KEY,
+                id   BLOB NOT NULL,
                 name TEXT NOT NULL,
-                UNIQUE(name)
+
+                UNIQUE(name),
+
+                PRIMARY KEY (id)
             );
         )";
 
@@ -31,10 +34,14 @@ namespace NDWidgetSourceDetails::Init {
     inline bool createWidgetContributorTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget_contributor (
-                id        BLOB PRIMARY KEY,
-                source_id BLOB NOT NULL REFERENCES widget_source(id) ON DELETE CASCADE,
+                id        BLOB NOT NULL,
+                source_id BLOB NOT NULL,
                 name      TEXT NOT NULL,
-                UNIQUE(source_id, name)
+
+                UNIQUE(source_id, name),
+
+                PRIMARY KEY (id),
+                FOREIGN KEY (source_id) REFERENCES widget_source(id) ON DELETE CASCADE
             );
         )";
 
@@ -47,11 +54,15 @@ namespace NDWidgetSourceDetails::Init {
     inline bool createWidgetTypeTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget_type (
-                id             BLOB PRIMARY KEY,
-                contributor_id BLOB NOT NULL REFERENCES widget_contributor(id) ON DELETE CASCADE,
+                id             BLOB NOT NULL,
+                contributor_id BLOB NOT NULL,
                 name           TEXT NOT NULL,
                 metadata       BLOB,
-                UNIQUE(contributor_id, name)
+
+                UNIQUE(contributor_id, name),
+
+                PRIMARY KEY (id),
+                FOREIGN KEY (contributor_id) REFERENCES widget_contributor(id) ON DELETE CASCADE
             );
         )";
 
@@ -64,11 +75,15 @@ namespace NDWidgetSourceDetails::Init {
     inline bool createWidgetDataTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget_data (
-                id             BLOB PRIMARY KEY,
-                contributor_id BLOB NOT NULL REFERENCES widget_contributor(id) ON DELETE CASCADE,
+                id             BLOB NOT NULL,
+                contributor_id BLOB NOT NULL,
                 name           TEXT NOT NULL,
                 data           BLOB,
-                UNIQUE(contributor_id, name)
+
+                UNIQUE(contributor_id, name),
+
+                PRIMARY KEY (id),
+                FOREIGN KEY (contributor_id) REFERENCES widget_contributor(id) ON DELETE CASCADE
             );
         )";
 

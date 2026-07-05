@@ -33,7 +33,11 @@ namespace NDPinDetails::Read {
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-        if (!query.exec() || !query.next()) return std::nullopt;
+        if (!query.exec()) {
+            qCritical() << "Failed to execute getPin query:" << query.lastError().text();
+            return std::nullopt;
+        }
+        if (!query.next()) return std::nullopt;
 
         auto parseNullableUUID = [](const QVariant& variant) -> std::optional<std::optional<muuid::uuid>> {
             if (variant.isNull())
