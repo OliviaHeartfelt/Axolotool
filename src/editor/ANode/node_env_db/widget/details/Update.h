@@ -10,9 +10,8 @@ namespace NDWidgetDetails::Update {
     inline bool updateWidgetCore(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetCoreRecord& newProperties) {
         QStringList clauses;
     
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.contributorId)) clauses.append("contributor_id = :contributor_id");
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId))        clauses.append("type_id = :type_id");
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.dataId))        clauses.append("data_id = :data_id");
+        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId)) clauses.append("type_id = :type_id");
+        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.dataId)) clauses.append("data_id = :data_id");
     
         if (clauses.isEmpty()) return true;
     
@@ -27,14 +26,11 @@ namespace NDWidgetDetails::Update {
         using UpdateField = std::variant<std::monostate, std::optional<muuid::uuid>>;
         auto unpackUpdateField = [](const UpdateField& field) -> QVariant {
             if (const auto* opt = std::get_if<std::optional<muuid::uuid>>(&field)) {
-                return *opt ? Utility::UUID::uuidToBytes(**opt) : QVariant(QVariant::fromValue(nullptr));
+                return *opt ? Utility::UUID::uuidToBytes(**opt) : QVariant();
             }
             return QVariant();
-            };
-    
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.contributorId)) {
-            query.bindValue(":contributor_id", unpackUpdateField(newProperties.contributorId));
-        }
+        };
+
         if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId)) {
             query.bindValue(":type_id", unpackUpdateField(newProperties.typeId));
         }
@@ -55,8 +51,8 @@ namespace NDWidgetDetails::Update {
         QStringList clauses;
     
         if (std::holds_alternative<std::optional<State>>(newProperties.state)) clauses.append("state = :state");
-        if (std::holds_alternative<std::optional<qreal>>(newProperties.w))     clauses.append("w_size = :w_size");
-        if (std::holds_alternative<std::optional<qreal>>(newProperties.h))     clauses.append("h_size = :h_size");
+        if (newProperties.width)  clauses.append("w_size = :w_size");
+        if (newProperties.height) clauses.append("h_size = :h_size");
     
         if (clauses.isEmpty()) return true;
     
@@ -75,16 +71,8 @@ namespace NDWidgetDetails::Update {
                 query.bindValue(":state", QVariant(QMetaType::fromType<QByteArray>()));
         }
 
-        if (std::holds_alternative<std::optional<qreal>>(newProperties.w)) {
-            if (const auto* opt = std::get_if<std::optional<qreal>>(&newProperties.w)) {
-                query.bindValue(":w_size", *opt ? QVariant(**opt) : QVariant(QVariant::fromValue(nullptr)));
-            }
-        }
-        if (std::holds_alternative<std::optional<qreal>>(newProperties.h)) {
-            if (const auto* opt = std::get_if<std::optional<qreal>>(&newProperties.h)) {
-                query.bindValue(":h_size", *opt ? QVariant(**opt) : QVariant(QVariant::fromValue(nullptr)));
-            }
-        }
+        if (newProperties.width)  query.bindValue(":w_size", QVariant(*newProperties.width));
+        if (newProperties.height) query.bindValue(":h_size", QVariant(*newProperties.height));
     
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update widget:" << query.lastError().text();

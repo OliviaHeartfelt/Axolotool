@@ -27,8 +27,7 @@ namespace NDWidget {
 
         QStringList existsTables(const bool value) const {
             QStringList list;
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            const QStringList currentTables = db.tables();
+            const QStringList currentTables = database().tables();
 
             if (currentTables.contains("widget_core", Qt::CaseInsensitive) == value) list.append("widget_core");
             if (currentTables.contains("widget",      Qt::CaseInsensitive) == value) list.append("widget");

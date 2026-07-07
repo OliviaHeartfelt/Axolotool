@@ -2,7 +2,13 @@
 
 namespace NDCellDetails::Init {
 
-    inline bool createTable(QSqlQuery& query) {
+    inline bool createNodeCellTable(QSqlQuery& query);
+
+    inline bool createAllTables(QSqlQuery& query) {
+        return createNodeCellTable(query);
+    }
+
+    inline bool createNodeCellTable(QSqlQuery& query) {
         QString createCellsTable = R"(
             CREATE TABLE IF NOT EXISTS node_cells (
                 id              BLOB NOT NULL,

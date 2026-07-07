@@ -30,14 +30,18 @@ namespace NDCell {
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
-        bool existsTable() const {
-            return database().tables().contains("node_cells", Qt::CaseInsensitive);
+        QStringList existsTables(const bool value) const {
+            QStringList list;
+            const QStringList currentTables = database().tables();
+
+            if (currentTables.contains("node_cells", Qt::CaseInsensitive) == value) list.append("node_cells");
+            return list;
         }
 
         // 0. Init
         bool createAllTables() {
             return NDHelpers::useQuery(database(), [](QSqlQuery& query) {
-                return NDCellDetails::Init::createTable(query);
+                return NDCellDetails::Init::createAllTables(query);
             });
         }
 

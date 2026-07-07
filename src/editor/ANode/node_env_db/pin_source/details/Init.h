@@ -2,6 +2,13 @@
 
 namespace NDPinSourceDetails::Init {
 
+    inline bool createPinSourceTable(QSqlQuery& query);
+    inline bool createPinContributorTable(QSqlQuery& query);
+    inline bool createPinFlowTable(QSqlQuery& query);
+    inline bool createPinTypeTable(QSqlQuery& query);
+    inline bool createPinStyleTable(QSqlQuery& query);
+
+
     inline bool createAllTables(QSqlQuery& query) {
         return createPinSourceTable(query)
             && createPinContributorTable(query)

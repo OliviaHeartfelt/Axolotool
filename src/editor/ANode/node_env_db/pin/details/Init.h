@@ -2,6 +2,10 @@
 
 namespace NDPinDetails::Init {
 
+    inline bool createPinTable(QSqlQuery& query);
+    inline bool createPinAllowFlowTable(QSqlQuery& query);
+    inline bool createPinAllowTypeTable(QSqlQuery& query);
+
     inline bool createAllTables(QSqlQuery& query) {
         return createPinTable(query)
             && createPinAllowFlowTable(query)

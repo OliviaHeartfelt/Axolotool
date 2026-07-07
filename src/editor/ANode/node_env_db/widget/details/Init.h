@@ -2,6 +2,9 @@
 
 namespace NDWidgetDetails::Init {
 
+    inline bool createWidgetCoreTable(QSqlQuery& query);
+    inline bool createWidgetTable(QSqlQuery& query);
+
     inline bool createAllTables(QSqlQuery& query) {
         return createWidgetCoreTable(query) 
             && createWidgetTable(query);

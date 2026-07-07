@@ -27,8 +27,7 @@ namespace NDPinSource {
 
         QStringList existsTables(const bool value) const {
             QStringList list;
-            QSqlDatabase db = parent->getDatabase(ComponentFriendTag::createKey<DBContext>());
-            const QStringList currentTables = db.tables();
+            const QStringList currentTables = database().tables();
 
             if (currentTables.contains("pin_source",      Qt::CaseInsensitive) == value) list.append("pin_source");
             if (currentTables.contains("pin_contributor", Qt::CaseInsensitive) == value) list.append("pin_contributor");
