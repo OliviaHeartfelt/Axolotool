@@ -42,13 +42,13 @@ namespace NDCell {
         }
 
         // 1. Create
-        std::optional<muuid::uuid> createCell(const muuid::uuid& nodeId, const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) -> std::optional<muuid::uuid> {
-                return NDCellDetails::Create::create(query, nodeId, newCell, overrideOnCollision);
+        bool createCell(const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
+            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+                return NDCellDetails::Create::create(query, newCell, overrideOnCollision);
             });
         }
-        std::optional<muuid::uuid> createCell(QSqlQuery& query, const muuid::uuid& nodeId, const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
-            return NDCellDetails::Create::create(query, nodeId, newCell, overrideOnCollision);
+        bool createCell(QSqlQuery& query, const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
+            return NDCellDetails::Create::create(query, newCell, overrideOnCollision);
         }
 
         // 2. Read
@@ -71,13 +71,13 @@ namespace NDCell {
         }
 
         // 3. Update
-        bool updateLayout(const muuid::uuid& id, const muuid::uuid& nodeId, const NDCellDetails::Config::UpdateCellRecord& newCellInfo, const bool overrideOnCollision = false) {
+        bool updateLayout(const muuid::uuid& id, const NDCellDetails::Config::UpdateCellRecord& newCellInfo, const bool overrideOnCollision = false) {
             return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
-                return NDCellDetails::Update::updateCell(query, id, nodeId, newCellInfo, overrideOnCollision);
+                return NDCellDetails::Update::updateCell(query, id, newCellInfo, overrideOnCollision);
             });
         }
-        bool updateLayout(QSqlQuery& query, const muuid::uuid& id, const muuid::uuid& nodeId, const NDCellDetails::Config::UpdateCellRecord& newCellInfo, const bool overrideOnCollision = false) {
-            return NDCellDetails::Update::updateCell(query, id, nodeId, newCellInfo, overrideOnCollision);
+        bool updateLayout(QSqlQuery& query, const muuid::uuid& id, const NDCellDetails::Config::UpdateCellRecord& newCellInfo, const bool overrideOnCollision = false) {
+            return NDCellDetails::Update::updateCell(query, id, newCellInfo, overrideOnCollision);
         }
 
         // 4. Delete

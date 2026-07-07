@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../../Utility/Utility.h"
+#include "../../NDHelpers.h"
 #include "Config.h"
 
 namespace NDPinDetails::Read {
@@ -39,35 +40,24 @@ namespace NDPinDetails::Read {
         }
         if (!query.next()) return std::nullopt;
 
-        auto parseNullableUUID = [](const QVariant& variant) -> std::optional<std::optional<muuid::uuid>> {
-            if (variant.isNull())
-                return std::optional<muuid::uuid>{};
-
-            auto parsed = Utility::UUID::bytesToUuid(variant.toByteArray());
-            if (!parsed) 
-                return std::nullopt;
-
-            return parsed;
-        };
-
         auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        auto flowOpt = parseNullableUUID(query.value(1));
-        if (!flowOpt) return std::nullopt;
+        const NDHelpers::NullableField<muuid::uuid> flow = NDHelpers::parseNullableUUID(query.value(1));
+        if (flow.isCorrupted()) return std::nullopt;
 
-        auto typeOpt = parseNullableUUID(query.value(2));
-        if (!typeOpt) return std::nullopt; 
+        const NDHelpers::NullableField<muuid::uuid> type = NDHelpers::parseNullableUUID(query.value(2));
+        if (type.isCorrupted()) return std::nullopt;
 
-        auto styleOpt = parseNullableUUID(query.value(3));
-        if (!styleOpt) return std::nullopt; 
+        const NDHelpers::NullableField<muuid::uuid> style = NDHelpers::parseNullableUUID(query.value(3));
+        if (style.isCorrupted()) return std::nullopt;
 
         return NDPinDetails::Config::PinRecord{
             id,
             *contributorId,
-            *flowOpt,
-            *typeOpt,
-            *styleOpt
+            flow.value,
+            type.value,
+            style.value
         };
     }
     inline std::optional<QList<muuid::uuid>> getAllowFlows(QSqlQuery& query, const muuid::uuid& pinId, const bool continueAtFail = false) {

@@ -1,12 +1,13 @@
 #pragma once
 
 #include "../../../../Utility/Utility.h"
+#include "../../NDConcepts.h"
 #include "Config.h"
 
 namespace NDWidgetDetails::Update {
 
     // 1. Widget Core
-    inline bool updateWidgetCore(QSqlQuery& query, muuid::uuid id, const NDWidgetDetails::Config::updateWidgetCoreRecord& newProperties) {
+    inline bool updateWidgetCore(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetCoreRecord& newProperties) {
         QStringList clauses;
     
         if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.contributorId)) clauses.append("contributor_id = :contributor_id");
@@ -49,8 +50,8 @@ namespace NDWidgetDetails::Update {
     }
     
     // 2. Widget
-    template<NDWidgetDetails::Config::ByteConvertible State>
-    inline bool updateWidget(QSqlQuery& query, muuid::uuid id, const NDWidgetDetails::Config::UpdateWidgetRecord<State>& newProperties) {
+    template<NDConcepts::ByteConvertible State>
+    inline bool updateWidget(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord<State>& newProperties) {
         QStringList clauses;
     
         if (std::holds_alternative<std::optional<State>>(newProperties.state)) clauses.append("state = :state");
@@ -66,12 +67,14 @@ namespace NDWidgetDetails::Update {
         }
     
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
-    
-        if (std::holds_alternative<std::optional<State>>(newProperties.state)) {
-            if (const auto* opt = std::get_if<std::optional<State>>(&newProperties.state)) {
-                query.bindValue(":state", *opt ? (*opt)->classToByteArray() : QVariant(QVariant::fromValue(nullptr)));
-            }
+
+        if (const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state)) {
+            if (optPtr->has_value())
+                query.bindValue(":state", QVariant(optPtr->value().classToByteArray()));
+            else
+                query.bindValue(":state", QVariant(QMetaType::fromType<QByteArray>()));
         }
+
         if (std::holds_alternative<std::optional<qreal>>(newProperties.w)) {
             if (const auto* opt = std::get_if<std::optional<qreal>>(&newProperties.w)) {
                 query.bindValue(":w_size", *opt ? QVariant(**opt) : QVariant(QVariant::fromValue(nullptr)));

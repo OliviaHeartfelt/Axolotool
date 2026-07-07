@@ -12,6 +12,7 @@ namespace NDNodeDetails::Config {
 		double height;
 	};
 	struct CreateNodeRecord {
+		muuid::uuid id;
 		QString title;
 		short rowNum;
 		short colNum;

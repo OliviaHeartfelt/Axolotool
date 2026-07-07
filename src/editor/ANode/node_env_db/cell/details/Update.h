@@ -5,7 +5,7 @@
 
 namespace NDCellDetails::Update {
 
-    inline bool updateCell(QSqlQuery& query, const muuid::uuid& id, const muuid::uuid& nodeId, const NDCellDetails::Config::UpdateCellRecord& newCellInfo, const bool overrideOnCollision = false) {
+    inline bool updateCell(QSqlQuery& query, const muuid::uuid& id, const NDCellDetails::Config::UpdateCellRecord& newCellInfo, const bool overrideOnCollision = false) {
 
         if (newCellInfo.pinId && newCellInfo.widgetId) {
             qWarning() << "Cell update rejected: A cell slot cannot contain both a Pin and a Widget.";
@@ -16,35 +16,30 @@ namespace NDCellDetails::Update {
         const bool becomeHidden = newCellInfo.isOut && *newCellInfo.isOut;
 
         if (!becomeHidden && layoutChanged) {
-            int currentRow = 0, currentCol = 0, currentRowSpan = 1, currentColSpan = 1;
-
-            query.prepare("SELECT layout_row, layout_col, layout_row_span, layout_col_span FROM node_cells WHERE id = :id;");
+            query.prepare("SELECT layout_row, layout_col, layout_row_span, layout_col_span, node_id FROM node_cells WHERE id = :id;");
             query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-            if (query.exec() && query.next()) {
-                currentRow = query.value(0).toInt();
-                currentCol = query.value(1).toInt();
-                currentRowSpan = query.value(2).toInt();
-                currentColSpan = query.value(3).toInt();
-            }
-            else {
+            if(!query.exec() || !query.next()) {
                 qWarning() << "Cell layout update rejected: Failed to fetch current layout state.";
                 return false;
             }
 
+            const std::optional<muuid::uuid> nodeId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            if (!nodeId) return false;
+
             const NDCellDetails::Config::CellInfo info{
-                newCellInfo.row ? *newCellInfo.row : currentRow,
-                newCellInfo.col ? *newCellInfo.col : currentCol,
-                newCellInfo.rowSpan ? *newCellInfo.rowSpan : currentRowSpan,
-                newCellInfo.colSpan ? *newCellInfo.colSpan : currentColSpan
+                newCellInfo.row     ? *newCellInfo.row     : query.value(0).toInt(),
+                newCellInfo.col     ? *newCellInfo.col     : query.value(1).toInt(),
+                newCellInfo.rowSpan ? *newCellInfo.rowSpan : query.value(2).toInt(),
+                newCellInfo.colSpan ? *newCellInfo.colSpan : query.value(3).toInt()
             };
 
-            if (!NDCellDetails::Helper::isCellAvailable(query, nodeId, info, id)) {
+            if (!NDCellDetails::Helper::isCellAvailable(query, *nodeId, info, id)) {
                 if (!overrideOnCollision) {
                     qWarning() << "Cell layout update rejected: Target region is occupied.";
                     return false;
                 }
-                if (!NDCellDetails::Helper::removeCollidingCells(query, nodeId, info)) {
+                if (!NDCellDetails::Helper::removeCollidingCells(query, *nodeId, info)) {
                     return false;
                 }
             }

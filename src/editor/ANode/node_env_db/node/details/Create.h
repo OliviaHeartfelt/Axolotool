@@ -5,14 +5,13 @@
 
 namespace NDNodeDetails::Create {
 
-    inline std::optional<muuid::uuid> create(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord& newNode) {
+    inline bool create(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord& newNode) {
         query.prepare(R"(
             INSERT INTO node (id,  title,  row_num,  col_num,  canvas_x,  canvas_y,  canvas_w,  canvas_h)
             VALUES (         :id, :title, :row_num, :col_num, :canvas_x, :canvas_y, :canvas_w, :canvas_h);
         )");
-        muuid::uuid newNodeId = muuid::uuid::generate_unix_time_based();
 
-        query.bindValue(":id",       Utility::UUID::uuidToBytes(newNodeId));
+        query.bindValue(":id",       Utility::UUID::uuidToBytes(newNode.id));
         query.bindValue(":title",    newNode.title);
         query.bindValue(":row_num",  newNode.rowNum);
         query.bindValue(":col_num",  newNode.colNum);
@@ -23,8 +22,8 @@ namespace NDNodeDetails::Create {
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node:" << query.lastError().text();
-            return std::nullopt;
+            return false;
         }
-        return newNodeId;
+        return true;
     }
 }

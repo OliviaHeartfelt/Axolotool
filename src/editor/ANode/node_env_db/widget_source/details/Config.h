@@ -1,12 +1,8 @@
 #pragma once
 
-namespace NDWidgetSourceDetails::Config {
+#include "../../NDConcepts.h"
 
-    template<typename T>
-    concept ByteConvertible = requires(const T t, QByteArray byteArray) {
-        { T::byteArrayToClass(byteArray) } -> std::same_as<std::optional<T>>;
-        { t.classToByteArray() } -> std::same_as<QByteArray>;
-    };
+namespace NDWidgetSourceDetails::Config {
 
     // 1. Source
     struct FullWidgetSourceRecord {
@@ -14,6 +10,7 @@ namespace NDWidgetSourceDetails::Config {
         QString name;
     };
     struct CreateWidgetSourceRecord {
+        muuid::uuid id;
         QString name;
     };
     struct UpdateWidgetSourceRecord {
@@ -28,6 +25,7 @@ namespace NDWidgetSourceDetails::Config {
         QString name;
     };
     struct CreateWidgetContributorRecord {
+        muuid::uuid id;
         muuid::uuid sourceId;
         QString name;
     };
@@ -37,20 +35,21 @@ namespace NDWidgetSourceDetails::Config {
 
 
     // 3. Type
-    template<NDWidgetSourceDetails::Config::ByteConvertible Metadata>
+    template<NDConcepts::ByteConvertible Metadata>
     struct FullWidgetTypeRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
         QString name;
-        Metadata metadata;
+        std::optional<Metadata> metadata;
     };
-    template<NDWidgetSourceDetails::Config::ByteConvertible Metadata>
+    template<NDConcepts::ByteConvertible Metadata>
     struct CreateWidgetTypeRecord {
+        muuid::uuid id;
         muuid::uuid contributorId;
         QString name;
         std::optional<Metadata> metadata = std::nullopt;
     };
-    template<NDWidgetSourceDetails::Config::ByteConvertible Metadata>
+    template<NDConcepts::ByteConvertible Metadata>
     struct UpdateWidgetTypeRecord {
         std::optional<QString> name = std::nullopt;
         std::variant<std::monostate, std::optional<Metadata>> metadata = std::monostate{};
@@ -58,50 +57,23 @@ namespace NDWidgetSourceDetails::Config {
 
 
     // 4. Data
-    template<NDWidgetSourceDetails::Config::ByteConvertible Data>
+    template<NDConcepts::ByteConvertible Data>
     struct FullWidgetDataRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
         QString name;
-        Data data;
+        std::optional<Data> data;
     };
-    template<NDWidgetSourceDetails::Config::ByteConvertible Data>
+    template<NDConcepts::ByteConvertible Data>
     struct CreateWidgetDataRecord {
+        muuid::uuid id;
         muuid::uuid contributorId;
         QString name;
         std::optional<Data> data = std::nullopt;
     };
-    template<NDWidgetSourceDetails::Config::ByteConvertible Data>
+    template<NDConcepts::ByteConvertible Data>
     struct UpdateWidgetDataRecord {
         std::optional<QString> name = std::nullopt;
         std::variant<std::monostate, std::optional<Data>> data = std::monostate{};
     };
 }
-
-/*
-CREATE TABLE IF NOT EXISTS widget_source (
-    id   BLOB PRIMARY KEY,
-    name TEXT NOT NULL,
-    UNIQUE(name)
-);
-CREATE TABLE IF NOT EXISTS widget_contributor (
-    id        BLOB PRIMARY KEY,
-    source_id BLOB NOT NULL REFERENCES widget_source(id) ON DELETE CASCADE,
-    name      TEXT NOT NULL,
-    UNIQUE(source_id, name)
-);
-CREATE TABLE IF NOT EXISTS widget_type (
-    id             BLOB PRIMARY KEY,
-    contributor_id BLOB NOT NULL REFERENCES widget_source(id) ON DELETE CASCADE,
-    name           TEXT NOT NULL,
-    metadata       BLOB,
-    UNIQUE(contributor_id, name)
-);
-CREATE TABLE IF NOT EXISTS widget_data (
-    id             BLOB PRIMARY KEY,
-    contributor_id BLOB NOT NULL REFERENCES widget_source(id) ON DELETE CASCADE,
-    name           TEXT NOT NULL,
-    data           BLOB,
-    UNIQUE(contributor_id, name)
-);
-*/

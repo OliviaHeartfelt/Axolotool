@@ -1,37 +1,37 @@
 #pragma once
 
 #include "../../../../Utility/Utility.h"
+#include "../../NDConcepts.h"
 #include "Config.h"
 
 namespace NDWidgetDetails::Create {
 
-    inline std::optional<muuid::uuid> createWidgetCore(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetCoreRecord& newWidgetCore) {
-        muuid::uuid coreId = muuid::uuid::generate_unix_time_based();
+    inline bool createWidgetCore(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetCoreRecord& newWidgetCore) {
         query.prepare(R"(
-            INSERT INTO widget_core (id, contributor_id, type_id, data_id)
-            VALUES (:id, :contributor_id, :flow, :type_id, :data_id);
+            INSERT INTO widget_core (id,  contributor_id,  type_id,  data_id)
+            VALUES (                :id, :contributor_id, :type_id, :data_id);
         )");
 
-        query.bindValue(":id",             Utility::UUID::uuidToBytes(coreId));
+        query.bindValue(":id",             Utility::UUID::uuidToBytes(newWidgetCore.id));
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newWidgetCore.contributorId));
         query.bindValue(":type_id",        newWidgetCore.typeId ? Utility::UUID::uuidToBytes(*newWidgetCore.typeId) : QVariant());
         query.bindValue(":data_id",        newWidgetCore.dataId ? Utility::UUID::uuidToBytes(*newWidgetCore.dataId) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert widget core:" << query.lastError().text();
-            return std::nullopt;
+            return false;
         }
-        return coreId;
+        return true;
     }
-    template<NDWidgetDetails::Config::ByteConvertible State>
-    inline std::optional<muuid::uuid> createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
-        muuid::uuid widgetId = muuid::uuid::generate_unix_time_based();
+    template<NDConcepts::ByteConvertible State>
+    inline bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
+        const muuid::uuid widgetId = muuid::uuid::generate_unix_time_based();
         query.prepare(R"(
-            INSERT INTO widget (id, core_id, state, w_size, h_size)
-            VALUES (:id, :core_id, :state, :w_size, :h_size);
+            INSERT INTO widget (id,  core_id,  state,  w_size,  h_size)
+            VALUES (           :id, :core_id, :state, :w_size, :h_size);
         )");
 
-        query.bindValue(":id",      Utility::UUID::uuidToBytes(widgetId));
+        query.bindValue(":id",      Utility::UUID::uuidToBytes(newWidget.id));
         query.bindValue(":core_id", Utility::UUID::uuidToBytes(newWidget.coreId));
         query.bindValue(":state",   newWidget.state ? QVariant(newWidget.state->classToByteArray()) : QVariant());
         query.bindValue(":w_size",  newWidget.w ? *newWidget.w : QVariant());
@@ -39,8 +39,8 @@ namespace NDWidgetDetails::Create {
 
         if (!query.exec()) {
             qCritical() << "Failed to insert widget:" << query.lastError().text();
-            return std::nullopt;
+            return false;
         }
-        return widgetId;
+        return true;
     }
 }

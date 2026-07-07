@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Utility/Utility.h"
+#include "NDConcepts.h"
 
 namespace NDHelpers {
 
@@ -53,5 +54,38 @@ namespace NDHelpers {
     auto useQuery(const QSqlDatabase& db, Func&& fn) {
         QSqlQuery query(db);
         return std::invoke(std::forward<Func>(fn), query);
+    }
+
+
+    template<typename T>
+    struct NullableField {
+        enum class State { Null, Corrupted, Valid };
+
+        State state = State::Null;
+        std::optional<T> value = std::nullopt;
+
+        bool isNull() const { return state == State::Null; }
+        bool isCorrupted() const { return state == State::Corrupted; }
+        bool isValid() const { return state == State::Valid; }
+    };
+
+    NullableField<muuid::uuid> parseNullableUUID(const QVariant& variant) {
+        if (variant.isNull())
+            return { NullableField<muuid::uuid>::State::Null, std::nullopt };
+
+        if (const auto parsed = Utility::UUID::bytesToUuid(variant.toByteArray()))
+            return { NullableField<muuid::uuid>::State::Valid, *parsed };
+
+        return { NullableField<muuid::uuid>::State::Corrupted, std::nullopt };
+    }
+    template<NDConcepts::ByteConvertible T>
+    NullableField<T> parseNullableByteConvertible(const QVariant& variant) {
+        if (variant.isNull())
+            return { NullableField<T>::State::Null, std::nullopt };
+
+        if (const auto parsed = T::byteArrayToClass(variant.toByteArray()))
+            return { NullableField<T>::State::Valid, *parsed };
+
+        return { NullableField<T>::State::Corrupted, std::nullopt };
     }
 }

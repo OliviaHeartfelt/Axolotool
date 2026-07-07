@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../../Utility/Utility.h"
+#include "../../NDHelpers.h"
 #include "Config.h"
 
 namespace NDCellDetails::Read {
@@ -22,15 +23,11 @@ namespace NDCellDetails::Read {
         auto nodeIdOpt = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!nodeIdOpt) return std::nullopt;
 
-        NDCellDetails::Config::CellContent cellContent = std::monostate{};
-        if (!query.value(7).isNull()) {
-            if (auto pinId = Utility::UUID::bytesToUuid(query.value(7).toByteArray()))
-                cellContent = NDCellDetails::Config::PinItemRecord{ *pinId };
-        }
-        else if (!query.value(8).isNull()) {
-            if (auto widgetId = Utility::UUID::bytesToUuid(query.value(8).toByteArray()))
-                cellContent = NDCellDetails::Config::WidgetRecord{ *widgetId };
-        }
+        const NDHelpers::NullableField<muuid::uuid> pinId = NDHelpers::parseNullableUUID(query.value(7));
+        if (pinId.isCorrupted()) return std::nullopt;
+
+        const NDHelpers::NullableField<muuid::uuid> widgetId = NDHelpers::parseNullableUUID(query.value(8));
+        if (widgetId.isCorrupted()) return std::nullopt;
 
         return NDCellDetails::Config::FullCellRecord{
             id,
@@ -41,7 +38,8 @@ namespace NDCellDetails::Read {
             static_cast<short>(query.value(4).toInt()),
             static_cast<short>(query.value(5).toInt()),
             static_cast<short>(query.value(6).toInt()),
-            cellContent
+            pinId.value,
+            widgetId.value
         };
     }
 
@@ -61,22 +59,14 @@ namespace NDCellDetails::Read {
 
         while (query.next()) {
             auto cellIdOpt = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const NDHelpers::NullableField<muuid::uuid> pinId = NDHelpers::parseNullableUUID(query.value(7));
+            const NDHelpers::NullableField<muuid::uuid> widgetId = NDHelpers::parseNullableUUID(query.value(8));
 
-            if (!cellIdOpt) {
+            if (!cellIdOpt || pinId.isCorrupted() || widgetId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
-            }
-
-            NDCellDetails::Config::CellContent cellContent = std::monostate{};
-            if (!query.value(7).isNull()) {
-                if (auto pinId = Utility::UUID::bytesToUuid(query.value(7).toByteArray()))
-                    cellContent = NDCellDetails::Config::PinItemRecord{ *pinId };
-            }
-            else if (!query.value(8).isNull()) {
-                if (auto widgetId = Utility::UUID::bytesToUuid(query.value(8).toByteArray()))
-                    cellContent = NDCellDetails::Config::WidgetRecord{ *widgetId };
             }
 
             cells.append(Config::FullCellRecord{
@@ -88,7 +78,8 @@ namespace NDCellDetails::Read {
                 static_cast<short>(query.value(4).toInt()),
                 static_cast<short>(query.value(5).toInt()),
                 static_cast<short>(query.value(6).toInt()),
-                cellContent
+                pinId.value,
+                widgetId.value
             });
         }
         return cells;

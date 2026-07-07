@@ -2,15 +2,6 @@
 
 namespace NDCellDetails::Config {
 
-    struct PinItemRecord { 
-        muuid::uuid id;
-    };
-    struct WidgetRecord { 
-        muuid::uuid id;
-    };
-
-    using CellContent = std::variant<std::monostate, PinItemRecord, WidgetRecord>;
-
     struct CellInfo {
         short row = -1;
         short col = -1;
@@ -26,10 +17,12 @@ namespace NDCellDetails::Config {
         short col;
         short rowSpan;
         short colSpan;
-        CellContent content;
+        std::optional<muuid::uuid> pinId;
+        std::optional<muuid::uuid> widgetId;
     };
     struct CreateCellRecord {
-        std::optional<muuid::uuid> nodeId =   std::nullopt;
+        muuid::uuid id;
+        muuid::uuid nodeId;
         std::optional<QString> name =         std::nullopt;
         std::optional<muuid::uuid> pinId =    std::nullopt;
         std::optional<muuid::uuid> widgetId = std::nullopt;

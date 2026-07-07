@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../../Utility/Utility.h"
+#include "../../NDConcepts.h"
 #include "Config.h"
 
 namespace NDWidgetSourceDetails::Update {
@@ -49,7 +50,7 @@ namespace NDWidgetSourceDetails::Update {
         }
         return true;
     }
-    template<NDWidgetSourceDetails::Config::ByteConvertible Metadata>
+    template<NDConcepts::ByteConvertible Metadata>
     inline bool updateWidgetType(QSqlQuery& query, muuid::uuid id, const NDWidgetSourceDetails::Config::UpdateWidgetTypeRecord<Metadata>& newProperties) {
         QStringList clauses;
 
@@ -68,12 +69,10 @@ namespace NDWidgetSourceDetails::Update {
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
 
         if (const auto* optPtr = std::get_if<std::optional<Metadata>>(&newProperties.metadata)) {
-            if (*optPtr) {
-                query.bindValue(":metadata", QVariant((*optPtr)->classToByteArray()));
-            }
-            else {
+            if (optPtr->has_value())
+                query.bindValue(":metadata", QVariant(optPtr->value().classToByteArray()));
+            else
                 query.bindValue(":metadata", QVariant(QMetaType::fromType<QByteArray>()));
-            }
         }
 
         if (!query.exec()) {
@@ -82,7 +81,7 @@ namespace NDWidgetSourceDetails::Update {
         }
         return true;
     }
-    template<NDWidgetSourceDetails::Config::ByteConvertible Data>
+    template<NDConcepts::ByteConvertible Data>
     inline bool updateWidgetData(QSqlQuery& query, const muuid::uuid id, const NDWidgetSourceDetails::Config::UpdateWidgetDataRecord<Data>& newProperties) {
         QStringList clauses;
 
@@ -101,12 +100,10 @@ namespace NDWidgetSourceDetails::Update {
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
 
         if (const auto* optPtr = std::get_if<std::optional<Data>>(&newProperties.data)) {
-            if (*optPtr) {
-                query.bindValue(":data", (*optPtr)->classToByteArray());
-            }
-            else {
-                query.bindValue(":data", QVariant(QMetaType::fromType<QByteArray>())); // Explicit DB NULL
-            }
+            if (optPtr->has_value())
+                query.bindValue(":data", QVariant(optPtr->value().classToByteArray()));
+            else
+                query.bindValue(":data", QVariant(QMetaType::fromType<QByteArray>()));
         }
 
         if (!query.exec()) {
@@ -116,31 +113,3 @@ namespace NDWidgetSourceDetails::Update {
         return true;
     }
 }
-
-/*
-CREATE TABLE IF NOT EXISTS widget_source (
-    id   BLOB PRIMARY KEY,
-    name TEXT NOT NULL,
-    UNIQUE(name)
-);
-CREATE TABLE IF NOT EXISTS widget_contributor (
-    id        BLOB PRIMARY KEY,
-    source_id BLOB NOT NULL REFERENCES widget_source(id) ON DELETE CASCADE,
-    name      TEXT NOT NULL,
-    UNIQUE(source_id, name)
-);
-CREATE TABLE IF NOT EXISTS widget_type (
-    id             BLOB PRIMARY KEY,
-    contributor_id BLOB NOT NULL REFERENCES widget_source(id) ON DELETE CASCADE,
-    name           TEXT NOT NULL,
-    metadata       BLOB,
-    UNIQUE(contributor_id, name)
-);
-CREATE TABLE IF NOT EXISTS widget_data (
-    id             BLOB PRIMARY KEY,
-    contributor_id BLOB NOT NULL REFERENCES widget_source(id) ON DELETE CASCADE,
-    name           TEXT NOT NULL,
-    data           BLOB,
-    UNIQUE(contributor_id, name)
-);
-*/

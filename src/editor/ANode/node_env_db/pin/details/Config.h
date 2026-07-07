@@ -19,6 +19,7 @@ namespace NDPinDetails::Config {
 		std::optional<muuid::uuid> styleId;
 	};
 	struct CreatePinRecord {
+		muuid::uuid id;
 		muuid::uuid contributorId;
 		std::optional<muuid::uuid> flowId;
 		std::optional<muuid::uuid> typeId;

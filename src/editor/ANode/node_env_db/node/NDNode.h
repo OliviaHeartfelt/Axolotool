@@ -7,7 +7,6 @@
 #include "details/Update.h"
 #include "details/Delete.h"
 
-#include "../cell/details/Create.h"
 #include "../NDConcepts.h"
 #include "../NDHelpers.h"
 
@@ -41,39 +40,13 @@ namespace NDNode {
         }
 
         // 1. Create
-        std::optional<muuid::uuid> create(const NDCellDetails::Config::CreateCellRecord newNode, QList<NDCell::Config::CreateCellRecord>& cells = {}, const bool overrideOnCollision = false, const bool continueAtFail = false) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) -> std::optional<muuid::uuid> {
-                std::optional<muuid::uuid> nodeId = NDNodeDetails::Create::create(query, newNode);
-                if (!nodeId) return std::nullopt;
-
-                for (auto& cell : cells) {
-                    cell.nodeId = *nodeId;
-
-                    if (!NDCellDetails::Create::create(query, *nodeId, cell, overrideOnCollision)) {
-                        if (continueAtFail)
-                            continue;
-                        else
-                            return std::nullopt;
-                    }
-                }
-                return nodeId;
+        bool create(const NDNodeDetails::Config::CreateNodeRecord newNode, const bool overrideOnCollision = false, const bool continueAtFail = false) {
+            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+                return NDNodeDetails::Create::create(query, newNode);
             });
         }
-        std::optional<muuid::uuid> create(QSqlQuery& query, const NDCellDetails::Config::CreateCellRecord newNode, QList<NDCell::Config::CreateCellRecord>& cells = {}, const bool overrideOnCollision = false, const bool continueAtFail = false) {
-            std::optional<muuid::uuid> nodeId = NDNodeDetails::Create::create(query, newNode);
-            if (!nodeId) return std::nullopt;
-
-            for (auto& cell : cells) {
-                cell.nodeId = *nodeId;
-
-                if (!NDCellDetails::Create::create(query, *nodeId, cell, overrideOnCollision)) {
-                    if (continueAtFail)
-                        continue;
-                    else
-                        return std::nullopt;
-                }
-            }
-            return nodeId;
+        bool create(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord newNode, const bool overrideOnCollision = false, const bool continueAtFail = false) {
+            return NDNodeDetails::Create::create(query, newNode);
         }
 
         // 2. Read

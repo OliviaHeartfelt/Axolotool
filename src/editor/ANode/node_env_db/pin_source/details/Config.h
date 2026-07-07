@@ -8,6 +8,7 @@ namespace NDPinSourceDetails::Config {
 		QString name;
 	};
 	struct CreatePinSourceRecord {
+		muuid::uuid id;
 		QString name;
 	};
 	struct UpdatePinSourceRecord {
@@ -20,6 +21,7 @@ namespace NDPinSourceDetails::Config {
 		QString name;
 	};
 	struct CreatePinContributorRecord {
+		muuid::uuid id;
 		muuid::uuid sourceId;
 		QString name;
 	};
@@ -35,6 +37,8 @@ namespace NDPinSourceDetails::Config {
         qreal degree;
 	};
 	struct CreatePinFlowRecord {
+		muuid::uuid id;
+		muuid::uuid contributorId;
 		QString name;
 		qreal degree = 0.0;
 	};
@@ -51,6 +55,8 @@ namespace NDPinSourceDetails::Config {
         int bit_size;
 	};
 	struct CreatePinTypeRecord {
+		muuid::uuid id;
+		muuid::uuid contributorId;
 		QString name;
 		int bit_size = 0;
 	};
@@ -68,6 +74,8 @@ namespace NDPinSourceDetails::Config {
         int wire_thickness;
 	};
 	struct CreatePinStyleRecord {
+		muuid::uuid id;
+		muuid::uuid contributorId;
 		QString name;
 		QColor color = Qt::gray;
 		int wire_thickness = 2;

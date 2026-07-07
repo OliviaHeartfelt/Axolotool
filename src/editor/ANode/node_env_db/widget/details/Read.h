@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../../../Utility/Utility.h"
+#include "../../NDConcepts.h"
+#include "../../NDHelpers.h"
 #include "Config.h"
 
 namespace NDWidgetDetails::Read {
@@ -23,17 +25,17 @@ namespace NDWidgetDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const auto typeId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-        if (!typeId) return std::nullopt;
+        const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(1));
+        if (typeId.isCorrupted()) return std::nullopt;
 
-        const auto dataId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
-        if (!dataId) return std::nullopt;
+        const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(2));
+        if (dataId.isCorrupted()) return std::nullopt;
 
         return NDWidgetDetails::Config::FullWidgetCoreRecord{
             id,
             *contributorId,
-            *typeId,
-            *dataId
+            typeId.value,
+            dataId.value
         };
     }
     inline std::optional<QList<NDWidgetDetails::Config::FullWidgetCoreRecord>> getContributorWidgetCores(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
@@ -53,10 +55,11 @@ namespace NDWidgetDetails::Read {
 
         while (query.next()) {
             const auto id =     Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            const auto typeId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const auto dataId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
 
-            if (!id || !typeId || !dataId) {
+            const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(1));
+            const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(2));
+
+            if (!id || typeId.isCorrupted() || dataId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -66,9 +69,9 @@ namespace NDWidgetDetails::Read {
             list.append(NDWidgetDetails::Config::FullWidgetCoreRecord{
                 *id,
                 contributorId,
-                *typeId,
-                *dataId
-                });
+                typeId.value,
+                dataId.value
+            });
         }
         return list;
     }
@@ -91,10 +94,11 @@ namespace NDWidgetDetails::Read {
         while (query.next()) {
             const auto id =            Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const auto typeId =        Utility::UUID::bytesToUuid(query.value(2).toByteArray());
-            const auto dataId =        Utility::UUID::bytesToUuid(query.value(3).toByteArray());
 
-            if (!id || !contributorId || !typeId || !dataId) {
+            const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(2));
+            const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(3));
+
+            if (!id || !contributorId || typeId.isCorrupted() || dataId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -104,15 +108,15 @@ namespace NDWidgetDetails::Read {
             list.append(NDWidgetDetails::Config::FullWidgetCoreRecord{
                 *id,
                 *contributorId,
-                *typeId,
-                *dataId
+                typeId.value,
+                dataId.value
             });
         }
         return list;
     }
 
     // 2. Widget
-    template<NDWidgetDetails::Config::ByteConvertible State>
+    template<NDConcepts::ByteConvertible State>
     inline std::optional<NDWidgetDetails::Config::FullWidgetRecord<State>> getWidget(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT core_id, state, w_size, h_size
@@ -130,19 +134,19 @@ namespace NDWidgetDetails::Read {
         const auto coreId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!coreId) return std::nullopt;
 
-        const std::optional<State> state = State::byteArrayToClass(query.value(1).toByteArray());
-        if (!state) return std::nullopt;
+        const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(1));
+        if (state.isCorrupted()) return std::nullopt;
 
         return NDWidgetDetails::Config::FullWidgetRecord<State>{
             id,
             *coreId,
-            *state,
+            state.value,
             query.value(2).toReal(),
             query.value(3).toReal()
         };
     }
 
-    template<NDWidgetDetails::Config::ByteConvertible State>
+    template<NDConcepts::ByteConvertible State>
     inline std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getContributorWidgets(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
         QList<NDWidgetDetails::Config::FullWidgetRecord<State>> list;
 
@@ -162,12 +166,13 @@ namespace NDWidgetDetails::Read {
         while (query.next()) {
             const auto id =     Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const auto state =  State::byteArrayToClass(query.value(2).toByteArray());
+
+            const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(2));
 
             const qreal w = query.value(3).toReal();
             const qreal h = query.value(4).toReal();
 
-            if (!id || !coreId || !state) {
+            if (!id || !coreId || state.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -177,7 +182,7 @@ namespace NDWidgetDetails::Read {
             list.append(NDWidgetDetails::Config::FullWidgetRecord<State>{
                 *id,
                 *coreId,
-                *state,
+                state.value,
                 w,
                 h
             });
@@ -185,7 +190,7 @@ namespace NDWidgetDetails::Read {
         return list;
     }
 
-    template<NDWidgetDetails::Config::ByteConvertible State>
+    template<NDConcepts::ByteConvertible State>
     inline std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getAllWidgets(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
         QList<NDWidgetDetails::Config::FullWidgetRecord<State>> list;
 
@@ -206,12 +211,13 @@ namespace NDWidgetDetails::Read {
         while (query.next()) {
             const auto id =     Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const auto state =  State::byteArrayToClass(query.value(2).toByteArray());
+
+            const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(2));
 
             const qreal w = query.value(3).toReal();
             const qreal h = query.value(4).toReal();
 
-            if (!id || !coreId || !state) {
+            if (!id || !coreId || state.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -221,7 +227,7 @@ namespace NDWidgetDetails::Read {
             list.append(NDWidgetDetails::Config::FullWidgetRecord<State>{
                 *id,
                 *coreId,
-                *state,
+                state.value,
                 w,
                 h
             });
