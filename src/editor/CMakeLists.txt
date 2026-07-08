@@ -55,12 +55,23 @@ set(ANODE_WIRE_MODULES
 
 # Node Environment DB
 set(ANODE_DB_MODULES
+
+    # Root
     ANode/node_env_db/ANodeEnvDB.h
     ANode/node_env_db/NDConfig.h
     ANode/node_env_db/NDConcepts.h
     ANode/node_env_db/NDHelpers.h
 
     # Node
+    ANode/node_env_db/node_source/NDNodeSource.h
+    ANode/node_env_db/node_source/details/Config.h
+    ANode/node_env_db/node_source/details/Init.h
+    ANode/node_env_db/node_source/details/Create.h
+    ANode/node_env_db/node_source/details/Read.h
+    ANode/node_env_db/node_source/details/Update.h
+    ANode/node_env_db/node_source/details/Delete.h
+
+    # Node Source
     ANode/node_env_db/node/NDNode.h
     ANode/node_env_db/node/details/Config.h
     ANode/node_env_db/node/details/Init.h

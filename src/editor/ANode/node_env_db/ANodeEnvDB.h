@@ -2,8 +2,11 @@
 
 #include "cell/NDCell.h"
 #include "node/NDNode.h"
+#include "node_source/NDNodeSource.h"
+
 #include "pin/NDPin.h"
 #include "pin_source/NDPinSource.h"
+
 #include "widget/NDWidget.h"
 #include "widget_source/NDWidgetSource.h"
 
@@ -12,11 +15,13 @@
 #include "../../Utility/Utility.h"
 
 namespace NDNode {         struct ComponentFriendTag; }
+namespace NDNodeSource {   struct ComponentFriendTag; }
 namespace NDCell {         struct ComponentFriendTag; }
 namespace NDPin {          struct ComponentFriendTag; }
 namespace NDPinSource {    struct ComponentFriendTag; }
 namespace NDWidget {       struct ComponentFriendTag; }
 namespace NDWidgetSource { struct ComponentFriendTag; }
+
 
 namespace ANodeEnvDB {
 
@@ -37,6 +42,7 @@ namespace ANodeEnvDB {
 	public:
         class StorageKey {
             friend class NDNode::ComponentFriendTag;
+            friend class NDNodeSource::ComponentFriendTag;
             friend class NDCell::ComponentFriendTag;
             friend class NDPin::ComponentFriendTag;
             friend class NDPinSource::ComponentFriendTag;
@@ -47,6 +53,7 @@ namespace ANodeEnvDB {
 
 		ANodeEnvDB(const QString& connectionName, const QString& dbPath) : connectionName(connectionName), dbPath(dbPath), 
             node(this), 
+            nodeSource(this),
             cell(this),
             pin(this),
             pinSource(this),
@@ -61,6 +68,7 @@ namespace ANodeEnvDB {
         QSqlDatabase getDatabase(StorageKey) const { return QSqlDatabase::database(connectionName); }
 
         NDNode::Component<ANodeEnvDB> node;
+        NDNodeSource::Component<ANodeEnvDB> nodeSource;
         NDCell::Component<ANodeEnvDB> cell;
         NDPin::Component<ANodeEnvDB> pin;
         NDPinSource::Component<ANodeEnvDB> pinSource;

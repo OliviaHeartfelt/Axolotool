@@ -11,6 +11,9 @@
 #include "../NDHelpers.h"
 
 namespace NDPinSource {
+
+    using namespace ::NDPinSourceDetails::Config;
+
     struct ComponentFriendTag {
         template<typename DBContext>
         static typename DBContext::StorageKey createKey() { return {}; }

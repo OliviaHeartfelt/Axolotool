@@ -12,6 +12,8 @@
 
 namespace NDWidgetSource {
 
+    using namespace ::NDWidgetSourceDetails::Config;
+
     struct ComponentFriendTag {
         template<typename DBContext>
         static typename DBContext::StorageKey createKey() { return {}; }
