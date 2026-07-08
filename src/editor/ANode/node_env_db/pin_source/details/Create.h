@@ -86,7 +86,7 @@ namespace NDPinSourceDetails::Create {
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newStyle.id));
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newStyle.contributorId));
         query.bindValue(":name",           newStyle.name);
-        query.bindValue(":color",          newStyle.color);
+        query.bindValue(":color",          newStyle.color.rgba());
         query.bindValue(":wire_thickness", newStyle.wire_thickness);
 
         if (!query.exec()) {

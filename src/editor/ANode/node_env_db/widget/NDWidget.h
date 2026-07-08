@@ -12,7 +12,9 @@
 
 namespace NDWidget {
 
-    using namespace ::NDWidgetDetails::Config;
+    namespace Config {
+        using namespace ::NDWidgetDetails::Config;
+    }
 
     struct ComponentFriendTag {
         template<typename DBContext>

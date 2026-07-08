@@ -12,7 +12,9 @@
 
 namespace NDPinSource {
 
-    using namespace ::NDPinSourceDetails::Config;
+    namespace Config {
+        using namespace ::NDPinSourceDetails::Config;
+    }
 
     struct ComponentFriendTag {
         template<typename DBContext>

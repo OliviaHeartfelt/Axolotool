@@ -326,7 +326,7 @@ namespace NDPinSourceDetails::Read {
             id,
             *contributorId,
             query.value(1).toString(),
-            QColor::fromRgba(query.value(2).toUInt()),
+            QColor::fromRgba(query.value(2).toInt()),
             query.value(3).toInt()
         };
     }
@@ -359,7 +359,7 @@ namespace NDPinSourceDetails::Read {
                 *id,
                 contributorId,
                 query.value(1).toString(),
-                QColor::fromRgba(query.value(2).toUInt()),
+                QColor::fromRgba(query.value(2).toInt()),
                 query.value(3).toInt()
             });
         }
@@ -394,7 +394,7 @@ namespace NDPinSourceDetails::Read {
                 *id,
                 *contributorId,
                 query.value(2).toString(),
-                QColor::fromRgba(query.value(3).toUInt()),
+                QColor::fromRgba(query.value(3).toInt()),
                 query.value(4).toInt()
             });
         }

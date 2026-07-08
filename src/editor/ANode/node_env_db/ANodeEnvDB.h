@@ -10,6 +10,9 @@
 #include "widget/NDWidget.h"
 #include "widget_source/NDWidgetSource.h"
 
+#include "wire/NDWire.h"
+#include "wire_source/NDWireSource.h"
+
 #include "NDConfig.h"
 #include "NDConcepts.h"
 #include "../../Utility/Utility.h"
@@ -21,6 +24,8 @@ namespace NDPin {          struct ComponentFriendTag; }
 namespace NDPinSource {    struct ComponentFriendTag; }
 namespace NDWidget {       struct ComponentFriendTag; }
 namespace NDWidgetSource { struct ComponentFriendTag; }
+
+namespace NDWireSource {   struct ComponentFriendTag; }
 
 
 namespace ANodeEnvDB {
@@ -48,6 +53,9 @@ namespace ANodeEnvDB {
             friend class NDPinSource::ComponentFriendTag;
             friend class NDWidget::ComponentFriendTag;
             friend class NDWidgetSource::ComponentFriendTag;
+
+            friend class NDWireSource::ComponentFriendTag;
+
             StorageKey() = default;
         };
 
@@ -58,7 +66,9 @@ namespace ANodeEnvDB {
             pin(this),
             pinSource(this),
             widget(this),
-            widgetSource(this)
+            widgetSource(this),
+
+            wireSource(this)
         {}
 
 		~ANodeEnvDB() {
@@ -74,6 +84,8 @@ namespace ANodeEnvDB {
         NDPinSource::Component<ANodeEnvDB> pinSource;
         NDWidget::Component<ANodeEnvDB> widget;
         NDWidgetSource::Component<ANodeEnvDB> widgetSource;
+
+        NDWireSource::Component<ANodeEnvDB> wireSource;
 
         bool open() {
             QSqlDatabase db;

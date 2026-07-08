@@ -27,7 +27,7 @@ namespace NDWidgetSourceDetails::Create {
             VALUES (                       :id, :source_id, :name);
         )");
 
-        query.bindValue(":id",        Utility::UUID::uuidToBytes(newContributor.id);
+        query.bindValue(":id",        Utility::UUID::uuidToBytes(newContributor.id));
         query.bindValue(":source_id", Utility::UUID::uuidToBytes(newContributor.sourceId));
         query.bindValue(":name",      newContributor.name);
 

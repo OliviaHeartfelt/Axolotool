@@ -12,7 +12,9 @@
 
 namespace NDNodeSource {
 
-    using namespace ::NDNodeSourceDetails::Config;
+    namespace Config {
+        using namespace ::NDNodeSourceDetails::Config;
+    }
 
     struct ComponentFriendTag {
         template<typename DBContext>

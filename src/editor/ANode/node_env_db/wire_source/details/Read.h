@@ -5,71 +5,44 @@
 #include "../../NDHelpers.h"
 #include "Config.h"
 
-namespace NDWidgetSourceDetails::Read {
+namespace NDWireSourceDetails::Read {
 
     // 1. Source
-    inline std::optional<NDWidgetSourceDetails::Config::FullWidgetSourceRecord> getWidgetSource(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDWireSourceDetails::Config::FullWireSourceRecord> getWireSource(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT name
-            FROM widget_source 
+            FROM wire_source 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getWidgetSource query:" << query.lastError().text();
+            qCritical() << "Failed to execute getWireSource query:" << query.lastError().text();
             return std::nullopt;
         }
         if (!query.next()) return std::nullopt;
 
-        return NDWidgetSourceDetails::Config::FullWidgetSourceRecord{
+        return NDWireSourceDetails::Config::FullWireSourceRecord{
             id,
             query.value(0).toString()
         };
     }
 
-    // 2. Contributor
-    inline std::optional<NDWidgetSourceDetails::Config::FullWidgetContributorRecord> getWidgetContributor(QSqlQuery& query, const muuid::uuid& id) {
-        query.prepare(R"(
-            SELECT source_id, name
-            FROM widget_contributor 
-            WHERE id = :id;
-        )");
-        query.bindValue(":id", Utility::UUID::uuidToBytes(id));
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireSourceRecord>> getAllWireSources(QSqlQuery& query, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireSourceRecord> list;
 
-        if (!query.exec()) {
-            qCritical() << "Failed to execute getWidgetContributor query:" << query.lastError().text();
-            return std::nullopt;
-        }
-        if (!query.next()) return std::nullopt;
-
-        const auto sourceId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-        if (!sourceId) return std::nullopt;
-
-        return NDWidgetSourceDetails::Config::FullWidgetContributorRecord{
-            id,
-            *sourceId,
-            query.value(1).toString()
-        };
-    }
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetContributorRecord>> getAllWidgetContributors(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetContributorRecord> list;
-        
         query.prepare(R"(
             SELECT id, name
-            FROM widget_contributor 
-            WHERE source_id = :source_id;
+            FROM wire_source;
         )");
-        query.bindValue(":source_id", Utility::UUID::uuidToBytes(sourceId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getAllWidgetContributors query:" << query.lastError().text();
+            qCritical() << "Failed to execute getAllWireSources query:" << query.lastError().text();
             return std::nullopt;
         }
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            QString name =  query.value(1).toString();
 
             if (!id) {
                 if (continueAtFail)
@@ -78,27 +51,85 @@ namespace NDWidgetSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetContributorRecord{
+            list.append(NDWireSourceDetails::Config::FullWireSourceRecord{
                 *id,
-                sourceId,
-                name
+                query.value(1).toString()
             });
         }
         return list;
     }
 
-    // 3. Type
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>> getWidgetType(QSqlQuery& query, const muuid::uuid& id) {
+    // 2. Contributor
+    inline std::optional<NDWireSourceDetails::Config::FullWireContributorRecord> getWireContributor(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT contributor_id, name, metadata
-            FROM widget_type 
+            SELECT source_id, name
+            FROM wire_contributor 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getWidgetType query:" << query.lastError().text();
+            qCritical() << "Failed to execute getWireContributor query:" << query.lastError().text();
+            return std::nullopt;
+        }
+        if (!query.next()) return std::nullopt;
+
+        const auto sourceId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+        if (!sourceId) return std::nullopt;
+
+        return NDWireSourceDetails::Config::FullWireContributorRecord{
+            id,
+            *sourceId,
+            query.value(1).toString()
+        };
+    }
+
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireContributorRecord>> getAllWireContributors(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireContributorRecord> list;
+
+        query.prepare(R"(
+            SELECT id, name
+            FROM wire_contributor
+            WHERE source_id = :source_id;
+        )");
+        query.bindValue(":source_id", Utility::UUID::uuidToBytes(sourceId));
+
+        if (!query.exec()) {
+            qCritical() << "Failed to execute getAllWireContributors query:" << query.lastError().text();
+            return std::nullopt;
+        }
+
+        while (query.next()) {
+            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+
+            if (!id) {
+                if (continueAtFail)
+                    continue;
+                else
+                    return std::nullopt;
+            }
+
+            list.append(NDWireSourceDetails::Config::FullWireContributorRecord{
+                *id,
+                sourceId,
+                query.value(1).toString()
+            });
+        }
+        return list;
+    }
+
+    // 3. Style
+    template<NDConcepts::ByteConvertible Metadata>
+    inline std::optional<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>> getWireStyle(QSqlQuery& query, const muuid::uuid& id) {
+        query.prepare(R"(
+            SELECT contributor_id, name, color, wire_thickness, metadata
+            FROM wire_style 
+            WHERE id = :id;
+        )");
+        query.bindValue(":id", Utility::UUID::uuidToBytes(id));
+
+        if (!query.exec()) {
+            qCritical() << "Failed to execute getWireStyle query:" << query.lastError().text();
             return std::nullopt;
         }
         if (!query.next()) return std::nullopt;
@@ -106,37 +137,38 @@ namespace NDWidgetSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(2));
+        const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(4));
         if (metadata.isCorrupted()) return std::nullopt;
 
-        return NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>{
+        return NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>{
             id,
             *contributorId,
             query.value(1).toString(),
+            QColor::fromRgba(query.value(2).toUInt()),
+            query.value(3).toInt(),
             metadata.value
         };
     }
+
     template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>>> getContributorWidgetTypes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>> list;
-        
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>>> getContributorWireStyles(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>> list;
+
         query.prepare(R"(
-            SELECT id, name, metadata
-            FROM widget_type 
+            SELECT id, name, color, wire_thickness, metadata
+            FROM wire_style
             WHERE contributor_id = :contributor_id;
         )");
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(contributorId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getContributorWidgetTypes query:" << query.lastError().text();
+            qCritical() << "Failed to execute getContributorWireStyles query:" << query.lastError().text();
             return std::nullopt;
         }
 
         while (query.next()) {
-            const auto id =       Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            QString name =        query.value(1).toString();
-
-            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(2));
+            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(4));
 
             if (!id || metadata.isCorrupted()) {
                 if (continueAtFail)
@@ -145,38 +177,39 @@ namespace NDWidgetSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>{
+            list.append(NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>{
                 *id,
                 contributorId,
-                name,
+                query.value(1).toString(),
+                QColor::fromRgba(query.value(2).toUInt()),
+                query.value(3).toInt(),
                 metadata.value
             });
         }
         return list;
     }
+
     template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>>> getAllWidgetTypes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>> list;
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>>> getAllWireStyles(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>> list;
 
         query.prepare(R"(
-            SELECT t.id, t.contributor_id, t.name, t.metadata
-            FROM widget_type t
-            INNER JOIN widget_contributor c ON t.contributor_id = c.id
+            SELECT ws.id, ws.contributor_id, ws.name, ws.color, ws.wire_thickness, ws.metadata
+            FROM wire_style ws
+            INNER JOIN wire_contributor c ON ws.contributor_id = c.id
             WHERE c.source_id = :source_id;
         )");
         query.bindValue(":source_id", Utility::UUID::uuidToBytes(sourceId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getAllWidgetTypes query:" << query.lastError().text();
+            qCritical() << "Failed to execute getAllWireStyles query:" << query.lastError().text();
             return std::nullopt;
         }
 
         while (query.next()) {
             const auto id =            Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            QString name =             query.value(2).toString();
-
-            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(3));
+            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(5));
 
             if (!id || !contributorId || metadata.isCorrupted()) {
                 if (continueAtFail)
@@ -185,10 +218,12 @@ namespace NDWidgetSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>{
+            list.append(NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>{
                 *id,
                 *contributorId,
-                name,
+                query.value(2).toString(),
+                QColor::fromRgba(query.value(3).toUInt()),
+                query.value(4).toInt(),
                 metadata.value
             });
         }
@@ -197,16 +232,16 @@ namespace NDWidgetSourceDetails::Read {
 
     // 4. Data
     template<NDConcepts::ByteConvertible Data>
-    inline std::optional<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>> getWidgetData(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDWireSourceDetails::Config::FullWireDataRecord<Data>> getWireData(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, data
-            FROM widget_data 
+            FROM wire_data 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getWidgetData query:" << query.lastError().text();
+            qCritical() << "Failed to execute getWireData query:" << query.lastError().text();
             return std::nullopt;
         }
         if (!query.next()) return std::nullopt;
@@ -217,33 +252,32 @@ namespace NDWidgetSourceDetails::Read {
         const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(2));
         if (data.isCorrupted()) return std::nullopt;
 
-        return NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>{
+        return NDWireSourceDetails::Config::FullWireDataRecord<Data>{
             id,
             *contributorId,
             query.value(1).toString(),
             data.value
         };
     }
+
     template<NDConcepts::ByteConvertible Data>
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>>> getContributorWidgetData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>> list;
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>>> getContributorWireData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>> list;
 
         query.prepare(R"(
             SELECT id, name, data
-            FROM widget_data 
+            FROM wire_data
             WHERE contributor_id = :contributor_id;
         )");
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(contributorId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getContributorWidgetData query:" << query.lastError().text();
+            qCritical() << "Failed to execute getContributorWireData query:" << query.lastError().text();
             return std::nullopt;
         }
 
         while (query.next()) {
-            const auto id =   Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            QString name =    query.value(1).toString();
-
+            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(2));
 
             if (!id || data.isCorrupted()) {
@@ -253,37 +287,36 @@ namespace NDWidgetSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>{
+            list.append(NDWireSourceDetails::Config::FullWireDataRecord<Data>{
                 *id,
                 contributorId,
-                name,
+                query.value(1).toString(),
                 data.value
             });
         }
         return list;
     }
+
     template<NDConcepts::ByteConvertible Data>
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>>> getAllWidgetData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>> list;
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>>> getAllWireData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>> list;
 
         query.prepare(R"(
-            SELECT d.id, d.contributor_id, d.name, d.data
-            FROM widget_data d
-            INNER JOIN widget_contributor c ON d.contributor_id = c.id
+            SELECT wd.id, wd.contributor_id, wd.name, wd.data
+            FROM wire_data wd
+            INNER JOIN wire_contributor c ON wd.contributor_id = c.id
             WHERE c.source_id = :source_id;
         )");
         query.bindValue(":source_id", Utility::UUID::uuidToBytes(sourceId));
 
         if (!query.exec()) {
-            qCritical() << "Failed to execute getAllWidgetData query:" << query.lastError().text();
+            qCritical() << "Failed to execute getAllWireData query:" << query.lastError().text();
             return std::nullopt;
         }
 
         while (query.next()) {
             const auto id =            Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            QString name =             query.value(2).toString();
-
             const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(3));
 
             if (!id || !contributorId || data.isCorrupted()) {
@@ -293,10 +326,10 @@ namespace NDWidgetSourceDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>{
+            list.append(NDWireSourceDetails::Config::FullWireDataRecord<Data>{
                 *id,
                 *contributorId,
-                name,
+                query.value(2).toString(),
                 data.value
             });
         }
