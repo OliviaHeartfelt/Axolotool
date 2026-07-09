@@ -57,7 +57,11 @@ namespace NDNodeSourceDetails::Update {
         QStringList clauses;
 
         if (newProperties.name)   clauses.append("name = :name");
-        if (std::holds_alternative<std::optional<Metadata>>(newProperties.metadata)) clauses.append("metadata = :metadata");
+
+        const auto* optPtr = std::get_if<std::optional<Metadata>>(&newProperties.metadata);
+        if (optPtr) {
+            clauses.append("metadata = :metadata");
+        }
 
         if (clauses.isEmpty()) return true;
 
@@ -69,11 +73,12 @@ namespace NDNodeSourceDetails::Update {
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
-        if (const auto* optPtr = std::get_if<std::optional<Metadata>>(&newProperties.metadata)) {
+
+        if (optPtr) {
             if (optPtr->has_value())
                 query.bindValue(":metadata", QVariant(optPtr->value().classToByteArray()));
             else
-                query.bindValue(":metadata", QVariant());
+                query.bindValue(":metadata", QVariant(QMetaType::fromType<QByteArray>()));
         }
 
         if (!query.exec()) {
@@ -88,7 +93,11 @@ namespace NDNodeSourceDetails::Update {
         QStringList clauses;
 
         if (newProperties.name)   clauses.append("name = :name");
-        if (std::holds_alternative<std::optional<Data>>(newProperties.data)) clauses.append("data = :data");
+
+        const auto* optPtr = std::get_if<std::optional<Data>>(&newProperties.data);
+        if (optPtr) {
+            clauses.append("data = :data");
+        }
 
         if (clauses.isEmpty()) return true;
 
@@ -100,11 +109,12 @@ namespace NDNodeSourceDetails::Update {
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
-        if (const auto* optPtr = std::get_if<std::optional<Data>>(&newProperties.data)) {
+
+        if (optPtr) {
             if (optPtr->has_value())
                 query.bindValue(":data", QVariant(optPtr->value().classToByteArray()));
             else
-                query.bindValue(":data", QVariant());
+                query.bindValue(":data", QVariant(QMetaType::fromType<QByteArray>()));
         }
 
         if (!query.exec()) {

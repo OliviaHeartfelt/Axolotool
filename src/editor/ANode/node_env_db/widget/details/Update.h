@@ -50,7 +50,11 @@ namespace NDWidgetDetails::Update {
     inline bool updateWidget(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord<State>& newProperties) {
         QStringList clauses;
     
-        if (std::holds_alternative<std::optional<State>>(newProperties.state)) clauses.append("state = :state");
+        const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state);
+        if (optPtr) {
+            clauses.append("state = :state");
+        }
+
         if (newProperties.width)  clauses.append("w_size = :w_size");
         if (newProperties.height) clauses.append("h_size = :h_size");
     
@@ -64,7 +68,7 @@ namespace NDWidgetDetails::Update {
     
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-        if (const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state)) {
+        if (optPtr) {
             if (optPtr->has_value())
                 query.bindValue(":state", QVariant(optPtr->value().classToByteArray()));
             else

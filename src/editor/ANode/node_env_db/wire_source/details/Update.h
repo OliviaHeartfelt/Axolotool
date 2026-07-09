@@ -57,7 +57,11 @@ namespace NDWireSourceDetails::Update {
         if (newProperties.name)          clauses.append("name = :name");
         if (newProperties.color)         clauses.append("color = :color");
         if (newProperties.wireThickness) clauses.append("wire_thickness = :wire_thickness");
-        if (std::holds_alternative<std::optional<Metadata>>(newProperties.metadata)) clauses.append("metadata = :metadata");
+
+        const auto* optPtr = std::get_if<std::optional<Metadata>>(&newProperties.metadata);
+        if (optPtr) {
+            clauses.append("metadata = :metadata");
+        }
 
         if (clauses.isEmpty()) return true;
 
@@ -72,7 +76,7 @@ namespace NDWireSourceDetails::Update {
         if (newProperties.color)         query.bindValue(":color",          static_cast<int>(newProperties.color->rgba()));
         if (newProperties.wireThickness) query.bindValue(":wire_thickness", *newProperties.wireThickness);
 
-        if (const auto* optPtr = std::get_if<std::optional<Metadata>>(&newProperties.metadata)) {
+        if (optPtr) {
             if (optPtr->has_value())
                 query.bindValue(":metadata", QVariant(optPtr->value().classToByteArray()));
             else
@@ -90,7 +94,11 @@ namespace NDWireSourceDetails::Update {
         QStringList clauses;
 
         if (newProperties.name) clauses.append("name = :name");
-        if (std::holds_alternative<std::optional<Data>>(newProperties.data)) clauses.append("data = :data");
+
+        const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.data);
+        if (optPtr) {
+            clauses.append("data = :data");
+        }
 
         if (clauses.isEmpty()) return true;
 
@@ -103,7 +111,7 @@ namespace NDWireSourceDetails::Update {
 
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
 
-        if (const auto* optPtr = std::get_if<std::optional<Data>>(&newProperties.data)) {
+        if (optPtr) {
             if (optPtr->has_value())
                 query.bindValue(":data", QVariant(optPtr->value().classToByteArray()));
             else

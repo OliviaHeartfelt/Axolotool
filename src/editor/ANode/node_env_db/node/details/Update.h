@@ -67,8 +67,10 @@ namespace NDNodeDetails::Update {
         if (newProperties.width)  clauses.append("node_w = :node_w");
         if (newProperties.height) clauses.append("node_h = :node_h");
 
-        if (std::holds_alternative<std::optional<State>>(newProperties.state))
+        const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state);
+        if (optPtr) {
             clauses.append("state = :state");
+        }
 
         if (clauses.isEmpty()) return true;
 
@@ -93,11 +95,11 @@ namespace NDNodeDetails::Update {
         if (newProperties.height) query.bindValue(":node_h", *newProperties.height);
 
 
-        if (const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state)) {
+        if (optPtr) {
             if (optPtr->has_value())
                 query.bindValue(":state", QVariant(optPtr->value().classToByteArray()));
             else
-                query.bindValue(":state", QVariant());
+                query.bindValue(":state", QVariant(QMetaType::fromType<QByteArray>()));
         }
 
         if (!query.exec()) {
