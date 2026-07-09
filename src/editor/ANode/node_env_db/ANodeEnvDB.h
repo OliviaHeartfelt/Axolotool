@@ -24,7 +24,7 @@ namespace NDPin {          struct ComponentFriendTag; }
 namespace NDPinSource {    struct ComponentFriendTag; }
 namespace NDWidget {       struct ComponentFriendTag; }
 namespace NDWidgetSource { struct ComponentFriendTag; }
-
+namespace NDWire {         struct ComponentFriendTag; }
 namespace NDWireSource {   struct ComponentFriendTag; }
 
 
@@ -49,11 +49,14 @@ namespace ANodeEnvDB {
             friend class NDNode::ComponentFriendTag;
             friend class NDNodeSource::ComponentFriendTag;
             friend class NDCell::ComponentFriendTag;
+
             friend class NDPin::ComponentFriendTag;
             friend class NDPinSource::ComponentFriendTag;
+
             friend class NDWidget::ComponentFriendTag;
             friend class NDWidgetSource::ComponentFriendTag;
 
+            friend class NDWire::ComponentFriendTag;
             friend class NDWireSource::ComponentFriendTag;
 
             StorageKey() = default;
@@ -67,7 +70,7 @@ namespace ANodeEnvDB {
             pinSource(this),
             widget(this),
             widgetSource(this),
-
+            wire(this),
             wireSource(this)
         {}
 
@@ -77,15 +80,18 @@ namespace ANodeEnvDB {
 
         QSqlDatabase getDatabase(StorageKey) const { return QSqlDatabase::database(connectionName); }
 
-        NDNode::Component<ANodeEnvDB> node;
-        NDNodeSource::Component<ANodeEnvDB> nodeSource;
-        NDCell::Component<ANodeEnvDB> cell;
-        NDPin::Component<ANodeEnvDB> pin;
-        NDPinSource::Component<ANodeEnvDB> pinSource;
-        NDWidget::Component<ANodeEnvDB> widget;
+        NDNode::Component<ANodeEnvDB>         node;
+        NDNodeSource::Component<ANodeEnvDB>   nodeSource;
+        NDCell::Component<ANodeEnvDB>         cell;
+
+        NDPin::Component<ANodeEnvDB>          pin;
+        NDPinSource::Component<ANodeEnvDB>    pinSource;
+
+        NDWidget::Component<ANodeEnvDB>       widget;
         NDWidgetSource::Component<ANodeEnvDB> widgetSource;
 
-        NDWireSource::Component<ANodeEnvDB> wireSource;
+        NDWire::Component<ANodeEnvDB>         wire;
+        NDWireSource::Component<ANodeEnvDB>   wireSource;
 
         bool open() {
             QSqlDatabase db;

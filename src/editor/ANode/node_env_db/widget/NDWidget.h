@@ -57,13 +57,13 @@ namespace NDWidget {
         }
 
         template<NDConcepts::ByteConvertible State>
-        bool createWidget(const NDWidgetDetails::Config::CreateWidgetRecord& newWidget) {
+        bool createWidget(const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
             return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
                 return NDWidgetDetails::Create::createWidget(query, newWidget);
             });
         }
         template<NDConcepts::ByteConvertible State>
-        bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord& newWidget) {
+        bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
             return NDWidgetDetails::Create::createWidget(query, newWidget);
         }
 
