@@ -153,8 +153,6 @@ set(NE_STORAGE_MODULES
     ANodeEnvironment/Storage/global_source/details/Read.h
     ANodeEnvironment/Storage/global_source/details/Update.h
     ANodeEnvironment/Storage/global_source/details/Delete.h
-
-
 )
 
 # Window
@@ -163,15 +161,11 @@ set(AWINDOW_MODULES
     AWindow/AWindow.h
 )
 
-# Style
-set(ASTYLE_MODULES
-    AStyle/ACombineStyles.h
-)
-
 # Utility
 set(UTILITY_MODULES
     Utility/Utility.h
     Utility/details/UUID.h
+    Utility/details/StylesUtility.h
     Utility/details/SqlTransaction.h
 )
 

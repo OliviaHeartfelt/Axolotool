@@ -1,12 +1,10 @@
 #include "./AWindow/AMainWindow.h"
-#include "./AStyle/ACombineStyles.h"
+#include "./Utility/Utility.h"
 
 void initCommonResources(QApplication& app) {
-    //Q_INIT_RESOURCE(ACommonResources);
     Q_INIT_RESOURCE(TablerIconsResources);
 
-    //ACommonStyles::loadStyles(app);
-    ACombineStyles::combineStyles(app, ":/icons", { "*.svg" });
+    Utility::StylesUtility::combineStyles(app, ":/icons", { "*.svg" });
 }
 
 int main(int argc, char* argv[]) {
