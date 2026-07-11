@@ -14,150 +14,151 @@ find_package(Qt6 COMPONENTS
     REQUIRED
 )
 
-# Node
-set(ANODE_CELL_MODULES
-    ANode/cell/ACell.h
-    ANode/cell/ACellItem.h
-)
+# ANodeEnvironment - View
+set(NE_vIEW_MODULES
 
-set(ANODE_NODE_MODULES
-    ANode/node/ANode.h
-    ANode/node/ANodeGrid.h
-)
+    # Canvas
+    ANodeEnvironment/View/canvas/ACanvas.h
 
-set(ANODE_PIN_MODULES
-    ANode/pin/APin.h
-    ANode/pin/APinAllowLists.h
-    ANode/pin/APinData.h
-    ANode/pin/APinDrag.h
-    ANode/pin/APinFactory.h
-    ANode/pin/APinFlags.h
-    ANode/pin/APinItem.h
-    ANode/pin/APinRegistry.h
-)
-
-set(ANODE_REGISTRY_MODULES
-    ANode/registry/ARegistry.h
-    ANode/registry/FRegistryKey.h
-    ANode/registry/IRegistry.h
-)
-
-set(ANODE_SCENE_MODULES
-    ANode/scene/ANodeScene.h
-)
-
-set(ANODE_WIRE_MODULES
-    ANode/wire/AWire.h
-    ANode/wire/AWireData.h
-    ANode/wire/AWireItem.h
-    ANode/wire/AWireTemp.h
-)
-
-# Node Environment DB
-set(ANODE_DB_MODULES
-
-    # Root
-    ANode/node_env_db/ANodeEnvDB.h
-    ANode/node_env_db/NDConfig.h
-    ANode/node_env_db/NDConcepts.h
-    ANode/node_env_db/NDHelpers.h
-    ANode/node_env_db/NDPool.h
+    # Scene
+    ANodeEnvironment/View/scene/ANodeScene.h
 
     # Node
-    ANode/node_env_db/node_source/NDNodeSource.h
-    ANode/node_env_db/node_source/details/Config.h
-    ANode/node_env_db/node_source/details/Init.h
-    ANode/node_env_db/node_source/details/Create.h
-    ANode/node_env_db/node_source/details/Read.h
-    ANode/node_env_db/node_source/details/Update.h
-    ANode/node_env_db/node_source/details/Delete.h
-
-    # Node Source
-    ANode/node_env_db/node/NDNode.h
-    ANode/node_env_db/node/details/Config.h
-    ANode/node_env_db/node/details/Init.h
-    ANode/node_env_db/node/details/Create.h
-    ANode/node_env_db/node/details/Read.h
-    ANode/node_env_db/node/details/Update.h
-    ANode/node_env_db/node/details/Delete.h
+    ANodeEnvironment/View/node/ANode.h
+    ANodeEnvironment/View/node/ANodeGrid.h
 
     # Cell
-    ANode/node_env_db/cell/NDCell.h
-    ANode/node_env_db/cell/details/Config.h
-    ANode/node_env_db/cell/details/Init.h
-    ANode/node_env_db/cell/details/Helper.h
-    ANode/node_env_db/cell/details/Create.h
-    ANode/node_env_db/cell/details/Read.h
-    ANode/node_env_db/cell/details/Update.h
-    ANode/node_env_db/cell/details/Delete.h
+    ANodeEnvironment/View/cell/ACell.h
+    ANodeEnvironment/View/cell/ACellItem.h
 
     # Pin
-    ANode/node_env_db/pin/NDPin.h
-    ANode/node_env_db/pin/details/Config.h
-    ANode/node_env_db/pin/details/Init.h
-    ANode/node_env_db/pin/details/Create.h
-    ANode/node_env_db/pin/details/Read.h
-    ANode/node_env_db/pin/details/Update.h
-    ANode/node_env_db/pin/details/Delete.h
-
-    # Pin Source
-    ANode/node_env_db/pin_source/NDPinSource.h
-    ANode/node_env_db/pin_source/details/Config.h
-    ANode/node_env_db/pin_source/details/Init.h
-    ANode/node_env_db/pin_source/details/Create.h
-    ANode/node_env_db/pin_source/details/Read.h
-    ANode/node_env_db/pin_source/details/Update.h
-    ANode/node_env_db/pin_source/details/Delete.h
-
-    # Widget
-    ANode/node_env_db/widget/NDWidget.h
-    ANode/node_env_db/widget/details/Config.h
-    ANode/node_env_db/widget/details/Init.h
-    ANode/node_env_db/widget/details/Create.h
-    ANode/node_env_db/widget/details/Read.h
-    ANode/node_env_db/widget/details/Update.h
-    ANode/node_env_db/widget/details/Delete.h
-
-    # Widget Source
-    ANode/node_env_db/widget_source/NDWidgetSource.h
-    ANode/node_env_db/widget_source/details/Config.h
-    ANode/node_env_db/widget_source/details/Init.h
-    ANode/node_env_db/widget_source/details/Create.h
-    ANode/node_env_db/widget_source/details/Read.h
-    ANode/node_env_db/widget_source/details/Update.h
-    ANode/node_env_db/widget_source/details/Delete.h
+    ANodeEnvironment/View/pin/APin.h
+    ANodeEnvironment/View/pin/APinAllowLists.h
+    ANodeEnvironment/View/pin/APinData.h
+    ANodeEnvironment/View/pin/APinDrag.h
+    ANodeEnvironment/View/pin/APinFactory.h
+    ANodeEnvironment/View/pin/APinFlags.h
+    ANodeEnvironment/View/pin/APinItem.h
+    ANodeEnvironment/View/pin/APinRegistry.h
 
     # Wire
-    ANode/node_env_db/wire/NDWire.h
-    ANode/node_env_db/wire/details/Config.h
-    ANode/node_env_db/wire/details/Init.h
-    ANode/node_env_db/wire/details/Create.h
-    ANode/node_env_db/wire/details/Read.h
-    ANode/node_env_db/wire/details/Update.h
-    ANode/node_env_db/wire/details/Delete.h
+    ANodeEnvironment/View/wire/AWire.h
+    ANodeEnvironment/View/wire/AWireData.h
+    ANodeEnvironment/View/wire/AWireItem.h
+    ANodeEnvironment/View/wire/AWireTemp.h
+
+    # Registry
+    ANodeEnvironment/View/registry/ARegistry.h
+    ANodeEnvironment/View/registry/FRegistryKey.h
+    ANodeEnvironment/View/registry/IRegistry.h
+)
+
+# ANodeEnvironment - Storage
+set(NE_STORAGE_MODULES
+
+    # Root
+    ANodeEnvironment/Storage/ANodeEnvDB.h
+    ANodeEnvironment/Storage/NDConfig.h
+    ANodeEnvironment/Storage/NDConcepts.h
+    ANodeEnvironment/Storage/NDHelpers.h
+    ANodeEnvironment/Storage/NDPool.h
+
+    # Node
+    ANodeEnvironment/Storage/node_source/NDNodeSource.h
+    ANodeEnvironment/Storage/node_source/details/Config.h
+    ANodeEnvironment/Storage/node_source/details/Init.h
+    ANodeEnvironment/Storage/node_source/details/Create.h
+    ANodeEnvironment/Storage/node_source/details/Read.h
+    ANodeEnvironment/Storage/node_source/details/Update.h
+    ANodeEnvironment/Storage/node_source/details/Delete.h
+
+    # Node Source
+    ANodeEnvironment/Storage/node/NDNode.h
+    ANodeEnvironment/Storage/node/details/Config.h
+    ANodeEnvironment/Storage/node/details/Init.h
+    ANodeEnvironment/Storage/node/details/Create.h
+    ANodeEnvironment/Storage/node/details/Read.h
+    ANodeEnvironment/Storage/node/details/Update.h
+    ANodeEnvironment/Storage/node/details/Delete.h
+
+    # Cell
+    ANodeEnvironment/Storage/cell/NDCell.h
+    ANodeEnvironment/Storage/cell/details/Config.h
+    ANodeEnvironment/Storage/cell/details/Init.h
+    ANodeEnvironment/Storage/cell/details/Helper.h
+    ANodeEnvironment/Storage/cell/details/Create.h
+    ANodeEnvironment/Storage/cell/details/Read.h
+    ANodeEnvironment/Storage/cell/details/Update.h
+    ANodeEnvironment/Storage/cell/details/Delete.h
+
+    # Pin
+    ANodeEnvironment/Storage/pin/NDPin.h
+    ANodeEnvironment/Storage/pin/details/Config.h
+    ANodeEnvironment/Storage/pin/details/Init.h
+    ANodeEnvironment/Storage/pin/details/Create.h
+    ANodeEnvironment/Storage/pin/details/Read.h
+    ANodeEnvironment/Storage/pin/details/Update.h
+    ANodeEnvironment/Storage/pin/details/Delete.h
+
+    # Pin Source
+    ANodeEnvironment/Storage/pin_source/NDPinSource.h
+    ANodeEnvironment/Storage/pin_source/details/Config.h
+    ANodeEnvironment/Storage/pin_source/details/Init.h
+    ANodeEnvironment/Storage/pin_source/details/Create.h
+    ANodeEnvironment/Storage/pin_source/details/Read.h
+    ANodeEnvironment/Storage/pin_source/details/Update.h
+    ANodeEnvironment/Storage/pin_source/details/Delete.h
+
+    # Widget
+    ANodeEnvironment/Storage/widget/NDWidget.h
+    ANodeEnvironment/Storage/widget/details/Config.h
+    ANodeEnvironment/Storage/widget/details/Init.h
+    ANodeEnvironment/Storage/widget/details/Create.h
+    ANodeEnvironment/Storage/widget/details/Read.h
+    ANodeEnvironment/Storage/widget/details/Update.h
+    ANodeEnvironment/Storage/widget/details/Delete.h
+
+    # Widget Source
+    ANodeEnvironment/Storage/widget_source/NDWidgetSource.h
+    ANodeEnvironment/Storage/widget_source/details/Config.h
+    ANodeEnvironment/Storage/widget_source/details/Init.h
+    ANodeEnvironment/Storage/widget_source/details/Create.h
+    ANodeEnvironment/Storage/widget_source/details/Read.h
+    ANodeEnvironment/Storage/widget_source/details/Update.h
+    ANodeEnvironment/Storage/widget_source/details/Delete.h
+
+    # Wire
+    ANodeEnvironment/Storage/wire/NDWire.h
+    ANodeEnvironment/Storage/wire/details/Config.h
+    ANodeEnvironment/Storage/wire/details/Init.h
+    ANodeEnvironment/Storage/wire/details/Create.h
+    ANodeEnvironment/Storage/wire/details/Read.h
+    ANodeEnvironment/Storage/wire/details/Update.h
+    ANodeEnvironment/Storage/wire/details/Delete.h
 
     # Wire Source
-    ANode/node_env_db/wire_source/NDWireSource.h
-    ANode/node_env_db/wire_source/details/Config.h
-    ANode/node_env_db/wire_source/details/Init.h
-    ANode/node_env_db/wire_source/details/Create.h
-    ANode/node_env_db/wire_source/details/Read.h
-    ANode/node_env_db/wire_source/details/Update.h
-    ANode/node_env_db/wire_source/details/Delete.h
+    ANodeEnvironment/Storage/wire_source/NDWireSource.h
+    ANodeEnvironment/Storage/wire_source/details/Config.h
+    ANodeEnvironment/Storage/wire_source/details/Init.h
+    ANodeEnvironment/Storage/wire_source/details/Create.h
+    ANodeEnvironment/Storage/wire_source/details/Read.h
+    ANodeEnvironment/Storage/wire_source/details/Update.h
+    ANodeEnvironment/Storage/wire_source/details/Delete.h
 
-    # Wire Source
-    ANode/node_env_db/global_source/NDGlobalSource.h
-    ANode/node_env_db/global_source/details/Config.h
-    ANode/node_env_db/global_source/details/Init.h
-    ANode/node_env_db/global_source/details/Create.h
-    ANode/node_env_db/global_source/details/Read.h
-    ANode/node_env_db/global_source/details/Update.h
-    ANode/node_env_db/global_source/details/Delete.h
+    # Global Source
+    ANodeEnvironment/Storage/global_source/NDGlobalSource.h
+    ANodeEnvironment/Storage/global_source/details/Config.h
+    ANodeEnvironment/Storage/global_source/details/Init.h
+    ANodeEnvironment/Storage/global_source/details/Create.h
+    ANodeEnvironment/Storage/global_source/details/Read.h
+    ANodeEnvironment/Storage/global_source/details/Update.h
+    ANodeEnvironment/Storage/global_source/details/Delete.h
+
+
 )
 
 # Window
 set(AWINDOW_MODULES
-    AWindow/ACanvas.h
     AWindow/AMainWindow.h
     AWindow/AWindow.h
 )
@@ -178,13 +179,9 @@ add_executable(axo_editor
     main.cpp
     ${CMAKE_SOURCE_DIR}/assets/tabler/icons/TablerIconsResources.qrc
     
-    ${ANODE_CELL_MODULES}
-    ${ANODE_NODE_MODULES}
-    ${ANODE_DB_MODULES}
-    ${ANODE_PIN_MODULES}
-    ${ANODE_REGISTRY_MODULES}
-    ${ANODE_SCENE_MODULES}
-    ${ANODE_WIRE_MODULES}
+    ${NE_vIEW_MODULES}
+    ${NE_STORAGE_MODULES}
+
     ${AWINDOW_MODULES}
     ${ASTYLE_MODULES}
     ${UTILITY_MODULES}
