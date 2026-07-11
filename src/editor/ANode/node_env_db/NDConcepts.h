@@ -1,10 +1,12 @@
 #pragma once
 
+#include "NDPool.h"
+
 namespace NDConcepts {
 
     template<typename T>
-    concept DatabaseProvider = requires(const T t, typename T::StorageKey key) {
-        { t.getDatabase(key) } -> std::same_as<QSqlDatabase>;
+    concept DatabaseProvider = requires(const T t) {
+        { t.getPool() } -> std::same_as<NDPool::DatabasePool&>;
     };
 
     template<typename T>

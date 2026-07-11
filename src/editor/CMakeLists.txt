@@ -61,6 +61,7 @@ set(ANODE_DB_MODULES
     ANode/node_env_db/NDConfig.h
     ANode/node_env_db/NDConcepts.h
     ANode/node_env_db/NDHelpers.h
+    ANode/node_env_db/NDPool.h
 
     # Node
     ANode/node_env_db/node_source/NDNodeSource.h
@@ -209,6 +210,8 @@ target_precompile_headers(axo_editor PRIVATE
     <string>
     <vector>
     <variant>
+    <mutex>
+    <condition_variable>
 
     # Core Qt used everywhere
     <QString>
@@ -239,6 +242,7 @@ target_precompile_headers(axo_editor PRIVATE
     <QSqlDatabase>
     <QSqlQuery>
     <QSqlError>
+    <QSqlDriver>
     
     # UI / Canvas subsystem headers
     <QWidget>

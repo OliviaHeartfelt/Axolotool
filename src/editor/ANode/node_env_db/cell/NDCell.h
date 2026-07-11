@@ -9,6 +9,7 @@
 
 #include "../NDConcepts.h"
 #include "../NDHelpers.h"
+#include "../NDPool.h"
 
 namespace NDCell {
 
@@ -25,29 +26,38 @@ namespace NDCell {
     class Component {
         DBContext* parent;
 
-        QSqlDatabase database() const { return parent->getDatabase(ComponentFriendTag::createKey<DBContext>()); }
+        NDPool::DatabasePool& pool() const { return parent->getPool(); }
 
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
-        QStringList existsTables(const bool value) const {
-            QStringList list;
-            const QStringList currentTables = database().tables();
 
-            if (currentTables.contains("node_cells", Qt::CaseInsensitive) == value) list.append("node_cells");
-            return list;
+        std::optional<QStringList> existsTables(const bool value) const {
+            return NDHelpers::useQuery(pool(), [value](QSqlQuery& query) -> std::optional<QStringList> {
+                const QSqlDriver* driver = query.driver();
+                if (!driver) return std::nullopt;
+
+                QStringList list;
+                QStringList currentTables = driver->tables(QSql::Tables);
+
+                if (currentTables.contains("node_cells", Qt::CaseInsensitive) == value) list.append("node_cells");
+                return list;
+            });
         }
 
         // 0. Init
         bool createAllTables() {
-            return NDHelpers::useQuery(database(), [](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [](QSqlQuery& query) {
                 return NDCellDetails::Init::createAllTables(query);
             });
+        }
+        bool createAllTables(QSqlQuery& query) {
+            return NDCellDetails::Init::createAllTables(query);
         }
 
         // 1. Create
         bool createCell(const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDCellDetails::Create::create(query, newCell, overrideOnCollision);
             });
         }
@@ -57,7 +67,7 @@ namespace NDCell {
 
         // 2. Read
         std::optional<NDCellDetails::Config::FullCellRecord> getCell(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDCellDetails::Read::getCell(query, id);
             });
         }
@@ -66,7 +76,7 @@ namespace NDCell {
         }
 
         std::optional<QList<NDCellDetails::Config::FullCellRecord>> getAllCells(const muuid::uuid& nodeId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDCellDetails::Read::getAllCells(query, nodeId, continueAtFail);
             });
         }
@@ -76,7 +86,7 @@ namespace NDCell {
 
         // 3. Update
         bool updateLayout(const muuid::uuid& id, const NDCellDetails::Config::UpdateCellRecord& newCellInfo, const bool overrideOnCollision = false) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDCellDetails::Update::updateCell(query, id, newCellInfo, overrideOnCollision);
             });
         }
@@ -86,7 +96,7 @@ namespace NDCell {
 
         // 4. Delete
         bool removeCell(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDCellDetails::Delete::remove(query, id);
             });
         }

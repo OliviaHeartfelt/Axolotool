@@ -9,6 +9,7 @@
 
 #include "../NDConcepts.h"
 #include "../NDHelpers.h"
+#include "../NDPool.h"
 
 namespace NDWidgetSource {
 
@@ -25,32 +26,40 @@ namespace NDWidgetSource {
     class Component {
         DBContext* parent;
 
-        QSqlDatabase database() const { return parent->getDatabase(ComponentFriendTag::createKey<DBContext>()); }
+        NDPool::DatabasePool& pool() const { return parent->getPool(); }
 
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
-        QStringList existsTables(const bool value) const {
-            QStringList list;
-            const QStringList currentTables = database().tables();
+        std::optional<QStringList> existsTables(const bool value) const {
+            return NDHelpers::useQuery(pool(), [value](QSqlQuery& query) -> std::optional<QStringList> {
+                const QSqlDriver* driver = query.driver();
+                if (!driver) return std::nullopt;
 
-            if (currentTables.contains("widget_source",      Qt::CaseInsensitive) == value) list.append("widget_source");
-            if (currentTables.contains("widget_contributor", Qt::CaseInsensitive) == value) list.append("widget_contributor");
-            if (currentTables.contains("widget_type",        Qt::CaseInsensitive) == value) list.append("widget_type");
-            if (currentTables.contains("widget_data",        Qt::CaseInsensitive) == value) list.append("widget_data");
-            return list;
+                QStringList list;
+                QStringList currentTables = driver->tables(QSql::Tables);
+
+                if (currentTables.contains("widget_source",      Qt::CaseInsensitive) == value) list.append("widget_source");
+                if (currentTables.contains("widget_contributor", Qt::CaseInsensitive) == value) list.append("widget_contributor");
+                if (currentTables.contains("widget_type",        Qt::CaseInsensitive) == value) list.append("widget_type");
+                if (currentTables.contains("widget_data",        Qt::CaseInsensitive) == value) list.append("widget_data");
+                return list;
+            });
         }
 
         // 0. Init
         bool createAllTables() {
-            return NDHelpers::useTransaction(database(), [](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Init::createAllTables(query);
             });
+        }
+        bool createAllTables(QSqlQuery& query) {
+            return NDWidgetSourceDetails::Init::createAllTables(query);
         }
 
         // 1. Create - Source
         bool createWidgetSource(const NDWidgetSourceDetails::Config::CreateWidgetSourceRecord& newSource) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Create::createWidgetSource(query, newSource);
             });
         }
@@ -60,7 +69,7 @@ namespace NDWidgetSource {
 
         // 1. Create - Contributor
         bool createWidgetContributor(const NDWidgetSourceDetails::Config::CreateWidgetContributorRecord& newContributor) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Create::createWidgetContributor(query, newContributor);
             });
         }
@@ -71,7 +80,7 @@ namespace NDWidgetSource {
         // 1. Create - Type
         template<NDConcepts::ByteConvertible Metadata>
         bool createWidgetType(const NDWidgetSourceDetails::Config::CreateWidgetTypeRecord<Metadata>& newType) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Create::createWidgetType(query, newType);
             });
         }
@@ -83,7 +92,7 @@ namespace NDWidgetSource {
         // 1. Create - Data
         template<NDConcepts::ByteConvertible Data>
         bool createWidgetData(const NDWidgetSourceDetails::Config::CreateWidgetDataRecord<Data>& newData) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Create::createWidgetData(query, newData);
             });
         }
@@ -94,7 +103,7 @@ namespace NDWidgetSource {
 
         // 2. Read - Source
         std::optional<NDWidgetSourceDetails::Config::FullWidgetSourceRecord> getWidgetSource(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getWidgetSource(query, id);
             });
         }
@@ -104,7 +113,7 @@ namespace NDWidgetSource {
 
         // 2. Read - Contributor
         std::optional<NDWidgetSourceDetails::Config::FullWidgetContributorRecord> getWidgetContributor(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getWidgetContributor(query, id);
             });
         }
@@ -113,7 +122,7 @@ namespace NDWidgetSource {
         }
 
         std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetContributorRecord>> getAllWidgetContributors(const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getAllWidgetContributors(query, sourceId, continueAtFail);
             });
         }
@@ -124,7 +133,7 @@ namespace NDWidgetSource {
         // 2. Read - Type
         template<NDConcepts::ByteConvertible Metadata>
         std::optional<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>> getWidgetType(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getWidgetType(query, id);
             });
         }
@@ -135,7 +144,7 @@ namespace NDWidgetSource {
 
         template<NDConcepts::ByteConvertible Metadata>
         std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>>> getContributorWidgetTypes(const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getContributorWidgetTypes(query, contributorId, continueAtFail);
             });
         }
@@ -146,7 +155,7 @@ namespace NDWidgetSource {
 
         template<NDConcepts::ByteConvertible Metadata>
         std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>>> getAllWidgetTypes(const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getAllWidgetTypes(query, sourceId, continueAtFail);
             });
         }
@@ -158,7 +167,7 @@ namespace NDWidgetSource {
         // 2. Read - Data
         template<NDConcepts::ByteConvertible Data>
         std::optional<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>> getWidgetData(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getWidgetData(query, id);
             });
         }
@@ -169,7 +178,7 @@ namespace NDWidgetSource {
 
         template<NDConcepts::ByteConvertible Data>
         std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>>> getContributorWidgetData(const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getContributorWidgetData(query, contributorId, continueAtFail);
             });
         }
@@ -180,7 +189,7 @@ namespace NDWidgetSource {
 
         template<NDConcepts::ByteConvertible Data>
         std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>>> getAllWidgetData(const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Read::getAllWidgetData(query, sourceId, continueAtFail);
             });
         }
@@ -191,7 +200,7 @@ namespace NDWidgetSource {
 
         // 3. Update - Source
         bool updateWidgetSource(const muuid::uuid& id, const NDWidgetSourceDetails::Config::UpdateWidgetSourceRecord& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Update::updateWidgetSource(query, id, newProperties);
             });
         }
@@ -201,7 +210,7 @@ namespace NDWidgetSource {
 
         // 3. Update - Contributor
         bool updateWidgetContributor(const muuid::uuid& id, const NDWidgetSourceDetails::Config::UpdateWidgetContributorRecord& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Update::updateWidgetContributor(query, id, newProperties);
             });
         }
@@ -212,7 +221,7 @@ namespace NDWidgetSource {
         // 3. Update - Type
         template<NDConcepts::ByteConvertible Metadata>
         bool updateWidgetType(const muuid::uuid& id, const NDWidgetSourceDetails::Config::UpdateWidgetTypeRecord<Metadata>& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Update::updateWidgetType(query, id, newProperties);
             });
         }
@@ -224,7 +233,7 @@ namespace NDWidgetSource {
         // 3. Update - Data
         template<NDConcepts::ByteConvertible Data>
         bool updateWidgetData(const muuid::uuid& id, const NDWidgetSourceDetails::Config::UpdateWidgetDataRecord<Data>& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Update::updateWidgetData(query, id, newProperties);
             });
         }
@@ -235,7 +244,7 @@ namespace NDWidgetSource {
 
         // 4. Delete - Source
         bool removeWidgetSource(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Delete::removeWidgetSource(query, id);
             });
         }
@@ -245,7 +254,7 @@ namespace NDWidgetSource {
 
         // 4. Delete - Contributor
         bool removeWidgetContributor(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Delete::removeWidgetContributor(query, id);
             });
         }
@@ -255,7 +264,7 @@ namespace NDWidgetSource {
 
         // 4. Delete - Type
         bool removeWidgetType(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Delete::removeWidgetType(query, id);
             });
         }
@@ -265,7 +274,7 @@ namespace NDWidgetSource {
 
         // 4. Delete - data
         bool removeWidgetData(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetSourceDetails::Delete::removeWidgetData(query, id);
             });
         }

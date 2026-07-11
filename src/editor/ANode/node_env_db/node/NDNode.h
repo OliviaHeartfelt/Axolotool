@@ -9,6 +9,7 @@
 
 #include "../NDConcepts.h"
 #include "../NDHelpers.h"
+#include "../NDPool.h"
 
 namespace NDNode {
 
@@ -25,30 +26,38 @@ namespace NDNode {
     class Component {
         DBContext* parent;
 
-        QSqlDatabase database() const { return parent->getDatabase(ComponentFriendTag::createKey<DBContext>()); }
+        NDPool::DatabasePool& pool() const { return parent->getPool(); }
 
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
-        QStringList existsTables(const bool value) const {
-            QStringList list;
-            const QStringList currentTables = database().tables();
+        std::optional<QStringList> existsTables(const bool value) const {
+            return NDHelpers::useQuery(pool(), [value](QSqlQuery& query) -> std::optional<QStringList> {
+                const QSqlDriver* driver = query.driver();
+                if (!driver) return std::nullopt;
 
-            if (currentTables.contains("node_core", Qt::CaseInsensitive) == value) list.append("node_core");
-            if (currentTables.contains("node",      Qt::CaseInsensitive) == value) list.append("node");
-            return list;
+                QStringList list;
+                QStringList currentTables = driver->tables(QSql::Tables);
+
+                if (currentTables.contains("node_core", Qt::CaseInsensitive) == value) list.append("node_core");
+                if (currentTables.contains("node",      Qt::CaseInsensitive) == value) list.append("node");
+                return list;
+            });
         }
 
         // 0. Init
         bool createAllTables() {
-            return NDHelpers::useQuery(database(), [](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [](QSqlQuery& query) {
                 return NDNodeDetails::Init::createAllTables(query);
             });
+        }
+        bool createAllTables(QSqlQuery& query) {
+            return NDNodeDetails::Init::createAllTables(query);
         }
 
         // 1. Create
         inline bool createNodeCore(const NDNodeDetails::Config::CreateNodeCoreRecord& newNodeCore) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Create::createNodeCore(query, newNodeCore);
             });
         }
@@ -58,7 +67,7 @@ namespace NDNode {
 
         template<NDConcepts::ByteConvertible State>
         inline bool createNode(const NDNodeDetails::Config::CreateNodeRecord<State>& newNode) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Create::createNode(query, newNode);
             });
         }
@@ -69,7 +78,7 @@ namespace NDNode {
 
         // 2. Read - Node Core
         inline std::optional<NDNodeDetails::Config::FullNodeCoreRecord> getNodeCore(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getNodeCore(query, id);
             });
         }
@@ -78,7 +87,7 @@ namespace NDNode {
         }
 
         inline std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getContributorNodeCores(const muuid::uuid& contributorId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getContributorNodeCores(query, contributorId, continueAtFail);
             });
         }
@@ -87,7 +96,7 @@ namespace NDNode {
         }
 
         inline std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getAllNodeCores(const muuid::uuid& sourceId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getAllNodeCores(query, sourceId, continueAtFail);
             });
         }
@@ -98,7 +107,7 @@ namespace NDNode {
         // 2. Read - Node
         template<NDConcepts::ByteConvertible State>
         inline std::optional<NDNodeDetails::Config::FullNodeRecord<State>> getNode(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getNode<State>(query, id);
             });
         }
@@ -109,7 +118,7 @@ namespace NDNode {
 
         template<NDConcepts::ByteConvertible State>
         inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord<State>>> getContributorNodes(const muuid::uuid& contributorId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getContributorNodes<State>(query, contributorId, continueAtFail);
             });
         }
@@ -120,7 +129,7 @@ namespace NDNode {
 
         template<NDConcepts::ByteConvertible State>
         inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord<State>>> getAllNodes(const muuid::uuid& sourceId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getAllNodes<State>(query, sourceId, continueAtFail);
             });
         }
@@ -131,7 +140,7 @@ namespace NDNode {
 
         // 3. Update
         inline bool updateNodeCore(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeCoreRecord& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Update::updateNodeCore(query, id, newProperties);
             });
         }
@@ -141,7 +150,7 @@ namespace NDNode {
 
         template<NDConcepts::ByteConvertible State>
         inline bool updateNode(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord<State>& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Update::updateNode(query, id, newProperties);
             });
         }
@@ -152,7 +161,7 @@ namespace NDNode {
 
         // 4. Delete
         inline bool removeNodeCore(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Delete::removeNodeCore(query, id);
             });
         }
@@ -161,7 +170,7 @@ namespace NDNode {
         }
 
         inline bool removeNode(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Delete::removeNode(query, id);
             });
         }

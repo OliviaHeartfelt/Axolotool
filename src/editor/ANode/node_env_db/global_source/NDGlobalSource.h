@@ -9,6 +9,7 @@
 
 #include "../NDConcepts.h"
 #include "../NDHelpers.h"
+#include "../NDPool.h"
 
 namespace NDGlobalSource {
 
@@ -25,29 +26,37 @@ namespace NDGlobalSource {
     class Component {
         DBContext* parent;
 
-        QSqlDatabase database() const { return parent->getDatabase(ComponentFriendTag::createKey<DBContext>()); }
+        NDPool::DatabasePool& pool() const { return parent->getPool(); }
 
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
-        QStringList existsTables(const bool value) const {
-            QStringList list;
-            const QStringList currentTables = database().tables();
+        std::optional<QStringList> existsTables(const bool value) const {
+            return NDHelpers::useQuery(pool(), [value](QSqlQuery& query) -> std::optional<QStringList> {
+                const QSqlDriver* driver = query.driver();
+                if (!driver) return std::nullopt;
 
-            if (currentTables.contains("global_source", Qt::CaseInsensitive) == value) list.append("global_source");
-            return list;
+                QStringList list;
+                QStringList currentTables = driver->tables(QSql::Tables);
+
+                if (currentTables.contains("global_source", Qt::CaseInsensitive) == value) list.append("global_source");
+                return list;
+            });
         }
 
         // 0. INIT
         bool createAllTables() {
-            return NDHelpers::useTransaction(database(), [](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [](QSqlQuery& query) {
                 return NDGlobalSourceDetails::Init::createAllTables(query);
                 });
+        }
+        bool createAllTables(QSqlQuery& query) {
+            return NDGlobalSourceDetails::Init::createAllTables(query);
         }
 
         // 1. CREATE
         inline bool createGlobalSource(const NDGlobalSourceDetails::Config::CreateGlobalSourceRecord& newSource) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDGlobalSourceDetails::Create::createGlobalSource(query, newSource);
                 });
         }
@@ -57,7 +66,7 @@ namespace NDGlobalSource {
         
         // 2. READ
         inline std::optional<NDGlobalSourceDetails::Config::FullGlobalSourceRecord> getGlobalSource(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDGlobalSourceDetails::Read::getGlobalSource(query, id);
                 });
         }
@@ -65,7 +74,7 @@ namespace NDGlobalSource {
                 return NDGlobalSourceDetails::Read::getGlobalSource(query, id);
         }
         inline std::optional<QList<NDGlobalSourceDetails::Config::FullGlobalSourceRecord>> getAllGlobalSources(const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDGlobalSourceDetails::Read::getAllGlobalSources(query, continueAtFail);
                 });
         }
@@ -75,7 +84,7 @@ namespace NDGlobalSource {
         
         // 3. UPDATE
         inline bool updateGlobalSource(muuid::uuid id, const NDGlobalSourceDetails::Config::UpdateGlobalSourceRecord& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDGlobalSourceDetails::Update::updateGlobalSource(query, id, newProperties);
                 });
         }
@@ -85,7 +94,7 @@ namespace NDGlobalSource {
         
         // 4. DELETE
         inline bool removeGlobalSource(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDGlobalSourceDetails::Delete::removeGlobalSource(query, id);
                 });
         }

@@ -9,6 +9,7 @@
 
 #include "../NDConcepts.h"
 #include "../NDHelpers.h"
+#include "../NDPool.h"
 
 namespace NDNodeSource {
 
@@ -25,32 +26,40 @@ namespace NDNodeSource {
     class Component {
         DBContext* parent;
 
-        QSqlDatabase database() const { return parent->getDatabase(ComponentFriendTag::createKey<DBContext>()); }
+        NDPool::DatabasePool& pool() const { return parent->getPool(); }
 
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
-        QStringList existsTables(const bool value) const {
-            QStringList list;
-            const QStringList currentTables = database().tables();
+        std::optional<QStringList> existsTables(const bool value) const {
+            return NDHelpers::useQuery(pool(), [value](QSqlQuery& query) -> std::optional<QStringList> {
+                const QSqlDriver* driver = query.driver();
+                if (!driver) return std::nullopt;
 
-            if (currentTables.contains("node_source", Qt::CaseInsensitive) == value) list.append("node_source");
-            if (currentTables.contains("node_contributor", Qt::CaseInsensitive) == value) list.append("node_contributor");
-            if (currentTables.contains("node_type", Qt::CaseInsensitive) == value) list.append("node_type");
-            if (currentTables.contains("node_data", Qt::CaseInsensitive) == value) list.append("node_data");
-            return list;
+                QStringList list;
+                QStringList currentTables = driver->tables(QSql::Tables);
+
+                if (currentTables.contains("node_source",      Qt::CaseInsensitive) == value) list.append("node_source");
+                if (currentTables.contains("node_contributor", Qt::CaseInsensitive) == value) list.append("node_contributor");
+                if (currentTables.contains("node_type",        Qt::CaseInsensitive) == value) list.append("node_type");
+                if (currentTables.contains("node_data",        Qt::CaseInsensitive) == value) list.append("node_data");
+                return list;
+            });
         }
 
         // 0. Init
         bool createAllTables() {
-            return NDHelpers::useQuery(database(), [](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [](QSqlQuery& query) {
                 return NDNodeSourceDetails::Init::createAllTables(query);
                 });
+        }
+        bool createAllTables(QSqlQuery& query) {
+            return NDNodeSourceDetails::Init::createAllTables(query);
         }
 
         // 1. Create
         inline bool createNodeSource(const NDNodeSourceDetails::Config::CreateNodeSourceRecord& newNodeSource) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Create::createNodeSource(query, newNodeSource);
                 });
         }
@@ -59,7 +68,7 @@ namespace NDNodeSource {
         }
 
         inline bool createNodeContributor(const NDNodeSourceDetails::Config::CreateNodeContributorRecord& newNodeContributor) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Create::createNodeContributor(query, newNodeContributor);
                 });
         }
@@ -70,7 +79,7 @@ namespace NDNodeSource {
 
         template<NDConcepts::ByteConvertible Metadata>
         inline bool createNodeType(const NDNodeSourceDetails::Config::CreateNodeTypeRecord<Metadata>& newNodeType) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Create::createNodeType(query, newNodeType);
                 });
         }
@@ -82,7 +91,7 @@ namespace NDNodeSource {
 
         template<NDConcepts::ByteConvertible Data>
         inline bool createNodeData(const NDNodeSourceDetails::Config::CreateNodeDataRecord<Data>& newNodeData) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Create::createNodeData(query, newNodeData);
                 });
         }
@@ -94,7 +103,7 @@ namespace NDNodeSource {
 
         // 2. Read - Node Source
         inline std::optional<NDNodeSourceDetails::Config::FullNodeSourceRecord> getNodeSource(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getNodeSource(query, id);
                 });
         }
@@ -102,7 +111,7 @@ namespace NDNodeSource {
             return NDNodeSourceDetails::Read::getNodeSource(query, id);
         }
         inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeSourceRecord>> getAllNodeSources(const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getAllNodeSources(query, continueAtFail);
                 });
         }
@@ -112,7 +121,7 @@ namespace NDNodeSource {
 
         // 2. Read - Node Contributor
         inline std::optional<NDNodeSourceDetails::Config::FullNodeContributorRecord> getNodeContributor(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getNodeContributor(query, id);
                 });
         }
@@ -120,7 +129,7 @@ namespace NDNodeSource {
             return NDNodeSourceDetails::Read::getNodeContributor(query, id);
         }
         inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeContributorRecord>> getAllNodeContributors(const muuid::uuid& sourceId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getAllNodeContributors(query, sourceId, continueAtFail);
                 });
         }
@@ -131,7 +140,7 @@ namespace NDNodeSource {
         // 2. Read - Node Type
         template<NDConcepts::ByteConvertible Metadata>
         inline std::optional<NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>> getNodeType(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getNodeType(query, id);
                 });
         }
@@ -141,7 +150,7 @@ namespace NDNodeSource {
         }
         template<NDConcepts::ByteConvertible Metadata>
         inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>>> getContributorNodeTypes(const muuid::uuid& contributorId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getContributorNodeTypes<Metadata>(query, contributorId, continueAtFail);
                 });
         }
@@ -151,7 +160,7 @@ namespace NDNodeSource {
         }
         template<NDConcepts::ByteConvertible Metadata>
         inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>>> getAllNodeTypes(const muuid::uuid& sourceId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getAllNodeTypes<Metadata>(query, sourceId, continueAtFail);
                 });
         }
@@ -163,7 +172,7 @@ namespace NDNodeSource {
         // 2. Read - Node Data
         template<NDConcepts::ByteConvertible Data>
         inline std::optional<NDNodeSourceDetails::Config::FullNodeDataRecord<Data>> getNodeData(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getNodeData(query, id);
                 });
         }
@@ -173,7 +182,7 @@ namespace NDNodeSource {
         }
         template<NDConcepts::ByteConvertible Data>
         inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeDataRecord<Data>>> getContributorNodeData(const muuid::uuid& contributorId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getContributorNodeData<Data>(query, contributorId, continueAtFail);
                 });
         }
@@ -183,7 +192,7 @@ namespace NDNodeSource {
         }
         template<NDConcepts::ByteConvertible Data>
         inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeDataRecord<Data>>> getAllNodeData(const muuid::uuid& sourceId, const bool continueAtFail = true) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Read::getAllNodeData<Data>(query, sourceId, continueAtFail);
                 });
         }
@@ -194,7 +203,7 @@ namespace NDNodeSource {
 
         // 3. Update - Node Source
         inline bool updateNodeSource(const muuid::uuid& id, const NDNodeSourceDetails::Config::UpdateNodeSourceRecord& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Update::updateNodeSource(query, id, newProperties);
                 });
         }
@@ -204,7 +213,7 @@ namespace NDNodeSource {
 
         // 3. Update - Node Contributor
         inline bool updateNodeContributor(const muuid::uuid& id, const NDNodeSourceDetails::Config::UpdateNodeContributorRecord& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Update::updateNodeContributor(query, id, newProperties);
                 });
         }
@@ -215,7 +224,7 @@ namespace NDNodeSource {
         // 3. Update - Node Type
         template<NDConcepts::ByteConvertible Metadata>
         inline bool updateNodeType(const muuid::uuid& id, const NDNodeSourceDetails::Config::UpdateNodeTypeRecord<Metadata>& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Update::updateNodeType(query, id, newProperties);
                 });
         }
@@ -227,7 +236,7 @@ namespace NDNodeSource {
         // 3. Update - Node Data
         template<NDConcepts::ByteConvertible Data>
         inline bool updateNodeData(const muuid::uuid& id, const NDNodeSourceDetails::Config::UpdateNodeDataRecord<Data>& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Update::updateNodeData(query, id, newProperties);
                 });
         }
@@ -238,7 +247,7 @@ namespace NDNodeSource {
 
         // 4. Delete - Node Source
         inline bool removeNodeSource(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Delete::removeNodeSource(query, id);
                 });
         }
@@ -248,7 +257,7 @@ namespace NDNodeSource {
 
         // 4. Delete - Node Contributor
         inline bool removeNodeContributor(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Delete::removeNodeContributor(query, id);
                 });
         }
@@ -258,7 +267,7 @@ namespace NDNodeSource {
 
         // 4. Delete - Node Type
         inline bool removeNodeType(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Delete::removeNodeType(query, id);
                 });
         }
@@ -268,7 +277,7 @@ namespace NDNodeSource {
 
         // 4. Delete - Node Data
         inline bool removeNodeData(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeSourceDetails::Delete::removeNodeData(query, id);
                 });
         }

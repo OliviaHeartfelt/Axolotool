@@ -9,6 +9,7 @@
 
 #include "../NDConcepts.h"
 #include "../NDHelpers.h"
+#include "../NDPool.h"
 
 namespace NDWire {
 
@@ -25,33 +26,41 @@ namespace NDWire {
     class Component {
         DBContext* parent;
 
-        QSqlDatabase database() const { return parent->getDatabase(ComponentFriendTag::createKey<DBContext>()); }
+        NDPool::DatabasePool& pool() const { return parent->getPool(); }
 
     public:
         explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
 
-        QStringList existsTables(const bool value) const {
-            QStringList list;
-            const QStringList currentTables = database().tables();
+        std::optional<QStringList> existsTables(const bool value) const {
+            return NDHelpers::useQuery(pool(), [value](QSqlQuery& query) -> std::optional<QStringList> {
+                const QSqlDriver* driver = query.driver();
+                if (!driver) return std::nullopt;
 
-            if (currentTables.contains("wire_core",      Qt::CaseInsensitive) == value) list.append("wire_core");
-            if (currentTables.contains("wire_temporary", Qt::CaseInsensitive) == value) list.append("wire_temporary");
-            if (currentTables.contains("wire_pins",      Qt::CaseInsensitive) == value) list.append("wire_pins");
-            if (currentTables.contains("wire_widgets",   Qt::CaseInsensitive) == value) list.append("wire_widgets");
-            if (currentTables.contains("wire_arbitrary", Qt::CaseInsensitive) == value) list.append("wire_arbitrary");
-            return list;
+                QStringList list;
+                QStringList currentTables = driver->tables(QSql::Tables);
+
+                if (currentTables.contains("wire_core",      Qt::CaseInsensitive) == value) list.append("wire_core");
+                if (currentTables.contains("wire_temporary", Qt::CaseInsensitive) == value) list.append("wire_temporary");
+                if (currentTables.contains("wire_pins",      Qt::CaseInsensitive) == value) list.append("wire_pins");
+                if (currentTables.contains("wire_widgets",   Qt::CaseInsensitive) == value) list.append("wire_widgets");
+                if (currentTables.contains("wire_arbitrary", Qt::CaseInsensitive) == value) list.append("wire_arbitrary");
+                return list;
+            });
         }
 
         // 0. INIT
         bool createAllTables() {
-            return NDHelpers::useTransaction(database(), [](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [](QSqlQuery& query) {
                 return NDWireDetails::Init::createAllTables(query);
             });
+        }
+        bool createAllTables(QSqlQuery& query) {
+            return NDWireDetails::Init::createAllTables(query);
         }
 
         // 1. Create - Wire Core
         bool createWireCore(const NDWireDetails::Config::CreateWireCoreRecord& newWireCore) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Create::createWireCore(query, newWireCore);
             });
         }
@@ -61,7 +70,7 @@ namespace NDWire {
 
         // 1. Create - Wire Temporary
         bool createWireTemporary(const NDWireDetails::Config::CreateWireTemporaryRecord& newWireTemporary) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Create::createWireTemporary(query, newWireTemporary);
             });
         }
@@ -72,7 +81,7 @@ namespace NDWire {
         // 1. Create - Wire Pins
         template<NDConcepts::ByteConvertible State>
         bool createWirePins(const NDWireDetails::Config::CreateWirePinRecord<State>& newWirePins) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Create::createWirePins(query, newWirePins);
             });
         }
@@ -84,7 +93,7 @@ namespace NDWire {
         // 1. Create - Wire Widgets
         template<NDConcepts::ByteConvertible State>
         bool createWireWidgets(const NDWireDetails::Config::CreateWireWidgetsRecord<State>& newWireWidgets) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Create::createWireWidgets(query, newWireWidgets);
             });
         }
@@ -96,7 +105,7 @@ namespace NDWire {
         // 1. Create - Wire Arbitrary
         template<NDConcepts::ByteConvertible State>
         bool createWireArbitrary(const NDWireDetails::Config::CreateWireArbitraryRecord<State>& newWireArbitrary) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Create::createWireArbitrary(query, newWireArbitrary);
             });
         }
@@ -107,7 +116,7 @@ namespace NDWire {
 
         // 2. Read - Wire Core
         std::optional<NDWireDetails::Config::FullWireCoreRecord> getWireCore(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getWireCore(query, id);
             });
         }
@@ -115,7 +124,7 @@ namespace NDWire {
             return NDWireDetails::Read::getWireCore(query, id);
         }
         std::optional<QList<NDWireDetails::Config::FullWireCoreRecord>> getContributorWireCores(const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getContributorWireCores(query, contributorId, continueAtFail);
             });
         }
@@ -123,7 +132,7 @@ namespace NDWire {
             return NDWireDetails::Read::getContributorWireCores(query, contributorId, continueAtFail);
         }
         std::optional<QList<NDWireDetails::Config::FullWireCoreRecord>> getAllWireCores(const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getAllWireCores(query, sourceId, continueAtFail);
             });
         }
@@ -133,7 +142,7 @@ namespace NDWire {
 
         // 2. Read - Wire Temporary
         std::optional<NDWireDetails::Config::FullWireTemporaryRecord> getWireTemporary(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getWireTemporary(query, id);
             });
         }
@@ -141,7 +150,7 @@ namespace NDWire {
             return NDWireDetails::Read::getWireTemporary(query, id);
         }
         std::optional<QList<NDWireDetails::Config::FullWireTemporaryRecord>> getContributorWireTemporary(const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getContributorWireTemporary(query, contributorId, continueAtFail);
             });
         }
@@ -149,7 +158,7 @@ namespace NDWire {
             return NDWireDetails::Read::getContributorWireTemporary(query, contributorId, continueAtFail);
         }
         std::optional<QList<NDWireDetails::Config::FullWireTemporaryRecord>> getAllWireTemporary(const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getAllWireTemporary(query, sourceId, continueAtFail);
             });
         }
@@ -160,7 +169,7 @@ namespace NDWire {
         // 2. Read - Wire Pins
         template<NDConcepts::ByteConvertible State>
         std::optional<NDWireDetails::Config::FullWirePinRecord<State>> getWirePins(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getWirePins(query, id);
             });
         }
@@ -170,7 +179,7 @@ namespace NDWire {
         }
         template<NDConcepts::ByteConvertible State>
         std::optional<QList<NDWireDetails::Config::FullWirePinRecord<State>>> getContributorWirePins(const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getContributorWirePins(query, contributorId, continueAtFail);
             });
         }
@@ -180,7 +189,7 @@ namespace NDWire {
         }
         template<NDConcepts::ByteConvertible State>
         std::optional<QList<NDWireDetails::Config::FullWirePinRecord<State>>> getAllWirePins(const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getAllWirePins(query, sourceId, continueAtFail);
             });
         }
@@ -191,7 +200,7 @@ namespace NDWire {
         // 2. Read - Wire Widget
         template<NDConcepts::ByteConvertible State>
         std::optional<NDWireDetails::Config::FullWireWidgetsRecord<State>> getWireWidgets(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getWireWidgets(query, id);
             });
         }
@@ -201,7 +210,7 @@ namespace NDWire {
         }
         template<NDConcepts::ByteConvertible State>
         std::optional<QList<NDWireDetails::Config::FullWireWidgetsRecord<State>>> getContributorWireWidgets(const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getContributorWireWidgets(query, contributorId, continueAtFail);
             });
         }
@@ -211,7 +220,7 @@ namespace NDWire {
         }
         template<NDConcepts::ByteConvertible State>
         std::optional<QList<NDWireDetails::Config::FullWireWidgetsRecord<State>>> getAllWireWidgets(const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getAllWireWidgets(query, sourceId, continueAtFail);
             });
         }
@@ -223,7 +232,7 @@ namespace NDWire {
         // 2. Read - Wire Arbitrary
         template<NDConcepts::ByteConvertible State>
         std::optional<NDWireDetails::Config::FullWireArbitraryRecord<State>> getWireArbitrary(const muuid::uuid& id) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getWireArbitrary(query, id);
             });
         }
@@ -233,7 +242,7 @@ namespace NDWire {
         }
         template<NDConcepts::ByteConvertible State>
         std::optional<QList<NDWireDetails::Config::FullWireArbitraryRecord<State>>> getContributorWireArbitrary(const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getContributorWireArbitrary(query, contributorId, continueAtFail);
             });
         }
@@ -243,7 +252,7 @@ namespace NDWire {
         }
         template<NDConcepts::ByteConvertible State>
         std::optional<QList<NDWireDetails::Config::FullWireArbitraryRecord<State>>> getAllWireArbitrary(const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getAllWireArbitrary(query, sourceId, continueAtFail);
             });
         }
@@ -254,7 +263,7 @@ namespace NDWire {
 
         // 3. Update - Wire Core
         bool updateWireCore(muuid::uuid id, const NDWireDetails::Config::UpdateWireCoreRecord& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Update::updateWireCore(query, id, newProperties);
             });
         }
@@ -265,7 +274,7 @@ namespace NDWire {
         // 3. Update - Wire Pins
         template<NDConcepts::ByteConvertible State>
         bool updateWirePins(muuid::uuid id, const NDWireDetails::Config::UpdateWirePinRecord<State>& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Update::updateWirePins(query, id, newProperties);
             });
         }
@@ -277,7 +286,7 @@ namespace NDWire {
         // 3. Update - Wire Widget
         template<NDConcepts::ByteConvertible State>
         bool updateWireWidgets(muuid::uuid id, const NDWireDetails::Config::UpdateWireWidgetsRecord<State>& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Update::updateWireWidgets(query, id, newProperties);
             });
         }
@@ -289,7 +298,7 @@ namespace NDWire {
         // 3. Update - Wire Arbitrary
         template<NDConcepts::ByteConvertible State>
         bool updateWireArbitrary(muuid::uuid id, const NDWireDetails::Config::UpdateWireArbitraryRecord<State>& newProperties) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Update::updateWireArbitrary(query, id, newProperties);
             });
         }
@@ -301,7 +310,7 @@ namespace NDWire {
         
         // 4. Delete - Wire Core
         bool removeWireCore(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Delete::removeWireCore(query, id);
             });
         }
@@ -311,7 +320,7 @@ namespace NDWire {
 
         // 4. Delete - Wire Temporary
         bool removeWireTemporary(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Delete::removeWireTemporary(query, id);
             });
         }
@@ -321,7 +330,7 @@ namespace NDWire {
 
         // 4. Delete - Wire Pins
         bool removeWirePins(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Delete::removeWirePins(query, id);
             });
         }
@@ -331,7 +340,7 @@ namespace NDWire {
 
         // 4. Delete - Wire Widget
         bool removeWireWidgets(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Delete::removeWireWidgets(query, id);
             });
         }
@@ -341,7 +350,7 @@ namespace NDWire {
 
         // 4. Delete - Wire Arbitrary
         bool removeWireArbitrary(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(database(), [&](QSqlQuery& query) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Delete::removeWireArbitrary(query, id);
             });
         }

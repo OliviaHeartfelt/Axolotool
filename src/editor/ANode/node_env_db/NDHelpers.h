@@ -2,6 +2,7 @@
 
 #include "../../Utility/Utility.h"
 #include "NDConcepts.h"
+#include "NDPool.h"
 
 namespace NDHelpers {
 
@@ -45,14 +46,18 @@ namespace NDHelpers {
     };
 
     template<typename Func>
-    auto useTransaction(const QSqlDatabase& db, Func&& fn) {
+    auto useTransaction(NDPool::DatabasePool& pool, Func&& fn) {
+        auto lease = pool.acquire();
+
         using ReturnType = std::invoke_result_t<Func, QSqlQuery&>;
-        return Transaction<ReturnType>::use(db, std::forward<Func>(fn));
+        return Transaction<ReturnType>::use(lease.db(), std::forward<Func>(fn));
     }
 
     template<typename Func>
-    auto useQuery(const QSqlDatabase& db, Func&& fn) {
-        QSqlQuery query(db);
+    auto useQuery(NDPool::DatabasePool& pool, Func&& fn) {
+        auto lease = pool.acquire();
+
+        QSqlQuery query(lease.db());
         return std::invoke(std::forward<Func>(fn), query);
     }
 
