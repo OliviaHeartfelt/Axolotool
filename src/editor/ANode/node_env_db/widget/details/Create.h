@@ -25,7 +25,6 @@ namespace NDWidgetDetails::Create {
     }
     template<NDConcepts::ByteConvertible State>
     inline bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
-        const muuid::uuid widgetId = muuid::uuid::generate_unix_time_based();
         query.prepare(R"(
             INSERT INTO widget (id,  core_id,  state,  w_size,  h_size)
             VALUES (           :id, :core_id, :state, :w_size, :h_size);

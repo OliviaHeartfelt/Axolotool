@@ -13,6 +13,8 @@
 #include "wire/NDWire.h"
 #include "wire_source/NDWireSource.h"
 
+#include "global_source/NDGlobalSource.h"
+
 #include "NDConfig.h"
 #include "NDConcepts.h"
 #include "../../Utility/Utility.h"
@@ -26,7 +28,7 @@ namespace NDWidget {       struct ComponentFriendTag; }
 namespace NDWidgetSource { struct ComponentFriendTag; }
 namespace NDWire {         struct ComponentFriendTag; }
 namespace NDWireSource {   struct ComponentFriendTag; }
-
+namespace NDGlobalSource { struct ComponentFriendTag; }
 
 namespace ANodeEnvDB {
 
@@ -35,16 +37,62 @@ namespace ANodeEnvDB {
 		QString dbPath;
 
         bool createCoreTables() {
+            if (!globalSource.createAllTables()) return false;
+            if (!nodeSource.createAllTables())   return false;
             if (!node.createAllTables())         return false;
             if (!cell.createAllTables())         return false;
-            if (!pin.createAllTables())          return false;
             if (!pinSource.createAllTables())    return false;
-            if (!widget.createAllTables())       return false;
+            if (!pin.createAllTables())          return false;
             if (!widgetSource.createAllTables()) return false;
+            if (!widget.createAllTables())       return false;
+            if (!wireSource.createAllTables())   return false;
+            if (!wire.createAllTables())         return false;
+            return true;
+        }
+        bool configureDatabasePragmas(QSqlQuery& query) {
+            if (!query.exec("PRAGMA foreign_keys = ON;")) {
+                qCritical() << "CRITICAL: Failed to enable Foreign Keys:" << query.lastError().text();
+                return false;
+            }
+            if (!query.exec("PRAGMA journal_mode=WAL;")) {
+                qCritical() << "CRITICAL: Failed to enable WAL mode:" << query.lastError().text();
+                return false;
+            }
             return true;
         }
 
-	public:
+
+    public:
+        struct Version {
+            static unsigned int current() {
+                return NDConfig::currentSchemaVersion();
+            }
+            static std::optional<unsigned int> tryReadSchemaVersion(QSqlQuery& query) {
+                if (!query.exec("PRAGMA user_version;")) {
+                    qCritical() << "Failed to read database schema version:" << query.lastError().text();
+                    return std::nullopt;
+                }
+
+                if (!query.next()) {
+                    qCritical() << "Database failed to return user_version row.";
+                    return std::nullopt;
+                }
+
+                return query.value(0).toUInt();
+            }
+
+            static bool checkAndRunMigration(QSqlQuery& query) {
+                const auto storedVersion = tryReadSchemaVersion(query);
+                if (!storedVersion) return false;
+
+                if (*storedVersion != current()) {
+                    /* migrate logic */
+                }
+
+                return true;
+            }
+        };
+
         class StorageKey {
             friend class NDNode::ComponentFriendTag;
             friend class NDNodeSource::ComponentFriendTag;
@@ -59,6 +107,8 @@ namespace ANodeEnvDB {
             friend class NDWire::ComponentFriendTag;
             friend class NDWireSource::ComponentFriendTag;
 
+            friend class NDGlobalSource::ComponentFriendTag;
+
             StorageKey() = default;
         };
 
@@ -71,7 +121,8 @@ namespace ANodeEnvDB {
             widget(this),
             widgetSource(this),
             wire(this),
-            wireSource(this)
+            wireSource(this),
+            globalSource(this)
         {}
 
 		~ANodeEnvDB() {
@@ -93,7 +144,17 @@ namespace ANodeEnvDB {
         NDWire::Component<ANodeEnvDB>         wire;
         NDWireSource::Component<ANodeEnvDB>   wireSource;
 
+        NDGlobalSource::Component<ANodeEnvDB> globalSource;
+
+        bool isOpen() const {
+            if (QSqlDatabase::contains(connectionName)) {
+                return QSqlDatabase::database(connectionName).isOpen();
+            }
+            return false;
+        }
         bool open() {
+            if (isOpen()) return true;
+
             QSqlDatabase db;
 
             if (QSqlDatabase::contains(connectionName)) {
@@ -110,28 +171,10 @@ namespace ANodeEnvDB {
             }
 
             QSqlQuery query(db);
-            if (!query.exec("PRAGMA foreign_keys = ON;")) { qCritical() << "Failed to enable Foreign Keys:" << query.lastError().text(); }
-            if (!query.exec("PRAGMA journal_mode=WAL;")) {  qCritical() << "Failed to enable WAL mode:"     << query.lastError().text(); }
 
-            if (!createCoreTables()) { return false; }
-
-            if (!query.exec("PRAGMA user_version;")) {
-                qCritical() << "Failed to read database schema version:" << query.lastError().text();
-                return false;
-            }
-
-            std::optional<unsigned int> storedVersion = std::nullopt;
-            if (query.next()) {
-                storedVersion = query.value(0).toInt();
-            }
-            else {
-                qCritical() << "Database failed to return user_version row.";
-                return false;
-            }
-
-            if (storedVersion < NDConfig::currentSchemaVersion()) {
-                /* upgrade logic */
-            }
+            if (!configureDatabasePragmas(query))      return false;
+            if (!createCoreTables())                   return false;
+            if (!Version::checkAndRunMigration(query)) return false;
 
             return true;
         }

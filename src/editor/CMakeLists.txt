@@ -143,6 +143,15 @@ set(ANODE_DB_MODULES
     ANode/node_env_db/wire_source/details/Read.h
     ANode/node_env_db/wire_source/details/Update.h
     ANode/node_env_db/wire_source/details/Delete.h
+
+    # Wire Source
+    ANode/node_env_db/global_source/NDGlobalSource.h
+    ANode/node_env_db/global_source/details/Config.h
+    ANode/node_env_db/global_source/details/Init.h
+    ANode/node_env_db/global_source/details/Create.h
+    ANode/node_env_db/global_source/details/Read.h
+    ANode/node_env_db/global_source/details/Update.h
+    ANode/node_env_db/global_source/details/Delete.h
 )
 
 # Window

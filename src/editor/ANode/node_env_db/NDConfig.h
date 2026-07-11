@@ -2,5 +2,5 @@
 
 namespace NDConfig {
 
-    const int currentSchemaVersion() { return 1; }
+    inline constexpr unsigned int currentSchemaVersion() { return 1; }
 }
