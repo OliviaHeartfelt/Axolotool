@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../ANode/pin/APinRegistry.h"
-#include "../ANode/node/ANode.h"
-#include "../ANode/scene/ANodeScene.h"
+#include "../pin/APinRegistry.h"
+#include "../node/ANode.h"
+#include "../scene/ANodeScene.h"
 
 namespace ACanvas {
 

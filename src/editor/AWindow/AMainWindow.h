@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ACanvas.h"
+#include "../ANodeEnvironment/View/canvas/ACanvas.h"
 
 namespace AMainWindow {
 
