@@ -40,7 +40,6 @@ namespace NDNodeDetails::Config {
 	};
 
 	// 2. Node
-	template<NDConcepts::ByteConvertible State>
 	struct FullNodeRecord {
 		muuid::uuid id;
 		muuid::uuid coreId;
@@ -50,9 +49,8 @@ namespace NDNodeDetails::Config {
 		QPointF pos;
 		double width;
 		double height;
-		std::optional<State> state;
+		std::optional<std::vector<uint8_t>> state;
 	};
-	template<NDConcepts::ByteConvertible State>
 	struct CreateNodeRecord {
 		muuid::uuid id;
 		muuid::uuid coreId;
@@ -62,7 +60,7 @@ namespace NDNodeDetails::Config {
 		QPointF pos;
 		std::optional<double> width  = std::nullopt;
 		std::optional<double> height = std::nullopt;
-		std::optional<State> state   = std::nullopt;
+		std::optional<std::vector<uint8_t>> state = std::nullopt;
 	};
 	struct FactoryNodeRecord {
 		short rowNum = 1;
@@ -71,7 +69,6 @@ namespace NDNodeDetails::Config {
 		std::optional<double> width = std::nullopt;
 		std::optional<double> height = std::nullopt;
 	};
-	template<NDConcepts::ByteConvertible State>
 	struct UpdateNodeRecord {
 		std::optional<muuid::uuid> id     = std::nullopt;
 		std::optional<muuid::uuid> coreId = std::nullopt;
@@ -81,6 +78,6 @@ namespace NDNodeDetails::Config {
 		std::optional<QPointF> pos    = std::nullopt;
 		std::optional<double>  width  = std::nullopt;
 		std::optional<double>  height = std::nullopt;
-		std::variant<std::monostate, std::optional<State>> state = std::monostate{};
+		std::variant<std::monostate, std::optional<std::vector<uint8_t>>> state = std::monostate{};
 	};
 }

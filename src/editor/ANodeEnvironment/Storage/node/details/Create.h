@@ -31,26 +31,25 @@ namespace NDNodeDetails::Create {
         return true;
     }
 
-    template<NDConcepts::ByteConvertible State>
-    inline bool createNode(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord<State>& newNode) {
+    inline bool createNode(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord& newNode) {
         query.prepare(R"(
-            INSERT INTO node (id,  core_id,  name,  row_num,  col_num,  canvas_x,  canvas_y,  node_w,  node_h,  state)
-            VALUES (         :id, :core_id, :name, :row_num, :col_num, :canvas_x, :canvas_y, :node_w, :node_h, :state);
-        )");
+        INSERT INTO node (id,  core_id,  name,  row_num,  col_num,  canvas_x,  canvas_y,  node_w,  node_h,  state)
+        VALUES (         :id, :core_id, :name, :row_num, :col_num, :canvas_x, :canvas_y, :node_w, :node_h, :state);
+    )");
 
-        query.bindValue(":id",       Utility::UUID::uuidToBytes(newNode.id));
-        query.bindValue(":core_id",  Utility::UUID::uuidToBytes(newNode.coreId));
+        query.bindValue(":id",      Utility::UUID::uuidToBytes(newNode.id));
+        query.bindValue(":core_id", Utility::UUID::uuidToBytes(newNode.coreId));
 
-        query.bindValue(":name",     newNode.name);
-        query.bindValue(":row_num",  newNode.rowNum);
-        query.bindValue(":col_num",  newNode.colNum);
+        query.bindValue(":name",    newNode.name);
+        query.bindValue(":row_num", newNode.rowNum);
+        query.bindValue(":col_num", newNode.colNum);
 
         query.bindValue(":canvas_x", newNode.pos.x());
         query.bindValue(":canvas_y", newNode.pos.y());
         query.bindValue(":node_w",   newNode.width.value_or(-1.0));
         query.bindValue(":node_h",   newNode.height.value_or(-1.0));
 
-        query.bindValue(":state", newNode.state ? QVariant(Utility::ByteArray::toQByteArray(newNode.state->classToBytes())) : QVariant());
+        query.bindValue(":state", newNode.state ? QVariant(Utility::ByteArray::toQByteArray(*newNode.state)) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node:" << query.lastError().text();

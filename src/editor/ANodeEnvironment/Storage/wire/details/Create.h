@@ -39,9 +39,7 @@ namespace NDWireDetails::Create {
         }
         return true;
     }
-
-    template<NDConcepts::ByteConvertible State>
-    inline bool createWire(QSqlQuery& query, const NDWireDetails::Config::CreateWireRecord<State>& newWirePins) {
+    inline bool createWire(QSqlQuery& query, const NDWireDetails::Config::CreateWireRecord& newWirePins) {
         query.prepare(R"(
             INSERT INTO wire (id,  core_id,  origin_id,  origin_canvas_hint_x,  origin_canvas_hint_y,  target_id,  target_canvas_hint_x,  target_canvas_hint_y,  state)
             VALUES (         :id, :core_id, :origin_id, :origin_canvas_hint_x, :origin_canvas_hint_y, :target_id, :target_canvas_hint_x, :target_canvas_hint_y, :state);
@@ -58,7 +56,7 @@ namespace NDWireDetails::Create {
         query.bindValue(":target_canvas_hint_x", newWirePins.targetHintPos.x());
         query.bindValue(":target_canvas_hint_y", newWirePins.targetHintPos.y());
 
-        query.bindValue(":state",  newWirePins.state ? QVariant(Utility::ByteArray::toQByteArray(newWirePins.state->classToBytes())) : QVariant());
+        query.bindValue(":state",  newWirePins.state ? QVariant(Utility::ByteArray::toQByteArray(*newWirePins.state)) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert wire:" << query.lastError().text();

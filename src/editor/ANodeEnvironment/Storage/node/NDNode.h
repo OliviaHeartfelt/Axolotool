@@ -62,14 +62,12 @@ namespace NDNode {
             return NDNodeDetails::Create::createNodeCore(query, newNodeCore);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        inline bool createNode(const NDNodeDetails::Config::CreateNodeRecord<State>& newNode) {
+        inline bool createNode(const NDNodeDetails::Config::CreateNodeRecord& newNode) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Create::createNode(query, newNode);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        inline bool createNode(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord<State>& newNode) {
+        inline bool createNode(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord& newNode) {
             return NDNodeDetails::Create::createNode(query, newNode);
         }
 
@@ -102,37 +100,31 @@ namespace NDNode {
         }
 
         // 2. Read - Node
-        template<NDConcepts::ByteConvertible State>
-        inline std::optional<NDNodeDetails::Config::FullNodeRecord<State>> getNode(const muuid::uuid& id) {
+        inline std::optional<NDNodeDetails::Config::FullNodeRecord> getNode(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDNodeDetails::Read::getNode<State>(query, id);
+                return NDNodeDetails::Read::getNode(query, id);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        inline std::optional<NDNodeDetails::Config::FullNodeRecord<State>> getNode(QSqlQuery& query, const muuid::uuid& id) {
-            return NDNodeDetails::Read::getNode<State>(query, id);
+        inline std::optional<NDNodeDetails::Config::FullNodeRecord> getNode(QSqlQuery& query, const muuid::uuid& id) {
+            return NDNodeDetails::Read::getNode(query, id);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord<State>>> getContributorNodes(const muuid::uuid& contributorId, const bool continueAtFail = true) {
+        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getContributorNodes(const muuid::uuid& contributorId, const bool continueAtFail = true) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDNodeDetails::Read::getContributorNodes<State>(query, contributorId, continueAtFail);
+                return NDNodeDetails::Read::getContributorNodes(query, contributorId, continueAtFail);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord<State>>> getContributorNodes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
-            return NDNodeDetails::Read::getContributorNodes<State>(query, contributorId, continueAtFail);
+        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getContributorNodes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
+            return NDNodeDetails::Read::getContributorNodes(query, contributorId, continueAtFail);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord<State>>> getAllNodes(const muuid::uuid& sourceId, const bool continueAtFail = true) {
+        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAllNodes(const muuid::uuid& sourceId, const bool continueAtFail = true) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDNodeDetails::Read::getAllNodes<State>(query, sourceId, continueAtFail);
+                return NDNodeDetails::Read::getAllNodes(query, sourceId, continueAtFail);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord<State>>> getAllNodes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
-            return NDNodeDetails::Read::getAllNodes<State>(query, sourceId, continueAtFail);
+        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAllNodes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
+            return NDNodeDetails::Read::getAllNodes(query, sourceId, continueAtFail);
         }
 
         // 3. Update
@@ -145,14 +137,12 @@ namespace NDNode {
             return NDNodeDetails::Update::updateNodeCore(query, id, newProperties);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        inline bool updateNode(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord<State>& newProperties) {
+        inline bool updateNode(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord& newProperties) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Update::updateNode(query, id, newProperties);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        inline bool updateNode(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord<State>& newProperties) {
+        inline bool updateNode(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord& newProperties) {
             return NDNodeDetails::Update::updateNode(query, id, newProperties);
         }
 

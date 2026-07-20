@@ -62,8 +62,7 @@ namespace NDWireSourceDetails::Update {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible Metadata>
-    inline bool updateWireStyle(QSqlQuery& query, muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireStyleRecord<Metadata>& newProperties) {
+    inline bool updateWireStyle(QSqlQuery& query, muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireStyleRecord& newProperties) {
         QStringList clauses;
 
         if (newProperties.id)            clauses.append("id = :new_id");
@@ -73,7 +72,7 @@ namespace NDWireSourceDetails::Update {
         if (newProperties.color)         clauses.append("color = :color");
         if (newProperties.wireThickness) clauses.append("wire_thickness = :wire_thickness");
 
-        const auto* optPtr = std::get_if<std::optional<Metadata>>(&newProperties.metadata);
+        const auto* optPtr = std::get_if<std::optional<std::vector<uint8_t>>>(&newProperties.metadata);
         if (optPtr) clauses.append("metadata = :metadata");
 
         if (clauses.isEmpty()) return true;
@@ -92,7 +91,7 @@ namespace NDWireSourceDetails::Update {
         if (newProperties.color)         query.bindValue(":color",          static_cast<int>(newProperties.color->rgba()));
         if (newProperties.wireThickness) query.bindValue(":wire_thickness", *newProperties.wireThickness);
 
-        if (optPtr) query.bindValue(":metadata", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optPtr) query.bindValue(":metadata", optPtr->has_value() ? QVariant(Utility::ByteArray::toQByteArray(optPtr->value())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update wire style:" << query.lastError().text();
@@ -100,8 +99,7 @@ namespace NDWireSourceDetails::Update {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible Data>
-    inline bool updateWireData(QSqlQuery& query, muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireDataRecord<Data>& newProperties) {
+    inline bool updateWireData(QSqlQuery& query, muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireDataRecord& newProperties) {
         QStringList clauses;
 
         if (newProperties.id)            clauses.append("id = :new_id");
@@ -109,7 +107,7 @@ namespace NDWireSourceDetails::Update {
 
         if (newProperties.name) clauses.append("name = :name");
 
-        const auto* optPtr = std::get_if<std::optional<Data>>(&newProperties.data);
+        const auto* optPtr = std::get_if<std::optional<std::vector<uint8_t>>>(&newProperties.data);
         if (optPtr) clauses.append("data = :data");
 
         if (clauses.isEmpty()) return true;
@@ -126,7 +124,7 @@ namespace NDWireSourceDetails::Update {
 
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
 
-        if (optPtr) query.bindValue(":data", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optPtr) query.bindValue(":data", optPtr->has_value() ? QVariant(Utility::ByteArray::toQByteArray(optPtr->value())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update wire data:" << query.lastError().text();

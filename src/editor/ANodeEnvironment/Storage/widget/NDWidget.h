@@ -62,14 +62,12 @@ namespace NDWidget {
             return NDWidgetDetails::Create::createWidgetCore(query, newWidgetCore);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        bool createWidget(const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
+        bool createWidget(const NDWidgetDetails::Config::CreateWidgetRecord& newWidget) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetDetails::Create::createWidget(query, newWidget);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
+        bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord& newWidget) {
             return NDWidgetDetails::Create::createWidget(query, newWidget);
         }
 
@@ -101,36 +99,30 @@ namespace NDWidget {
             return NDWidgetDetails::Read::getAllWidgetCores(query, sourceId, continueAtFail);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        std::optional<NDWidgetDetails::Config::FullWidgetRecord<State>> getWidget(const muuid::uuid& id) {
+        std::optional<NDWidgetDetails::Config::FullWidgetRecord> getWidget(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetDetails::Read::getWidget(query, id);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        std::optional<NDWidgetDetails::Config::FullWidgetRecord<State>> getWidget(QSqlQuery& query, const muuid::uuid& id) {
+        std::optional<NDWidgetDetails::Config::FullWidgetRecord> getWidget(QSqlQuery& query, const muuid::uuid& id) {
             return NDWidgetDetails::Read::getWidget(query, id);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getContributorWidgets(const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord>> getContributorWidgets(const muuid::uuid& contributorId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetDetails::Read::getContributorWidgets(query, contributorId, continueAtFail);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getContributorWidgets(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord>> getContributorWidgets(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
             return NDWidgetDetails::Read::getContributorWidgets(query, contributorId, continueAtFail);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getAllWidgets(const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord>> getAllWidgets(const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWidgetDetails::Read::getAllWidgets(query, sourceId, continueAtFail);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getAllWidgets(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord>> getAllWidgets(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDWidgetDetails::Read::getAllWidgets(query, sourceId, continueAtFail);
         }
 
@@ -144,14 +136,12 @@ namespace NDWidget {
             return NDWidgetDetails::Update::updateWidgetCore(query, id, newProperties);
         }
 
-        template<NDConcepts::ByteConvertible State>
-        bool updateWidget(const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord<State>& newProperties) {
+        bool updateWidget(const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord& newProperties) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWidgetDetails::Update::updateWidget(query, id, newProperties);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        bool updateWidget(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord<State>& newProperties) {
+        bool updateWidget(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord& newProperties) {
             return NDWidgetDetails::Update::updateWidget(query, id, newProperties);
         }
 

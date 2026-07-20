@@ -125,8 +125,7 @@ namespace NDWireSourceDetails::Read {
     }
 
     // 3. Style
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>> getWireStyle(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDWireSourceDetails::Config::FullWireStyleRecord> getWireStyle(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, color, wire_thickness, metadata
             FROM wire_style 
@@ -143,22 +142,17 @@ namespace NDWireSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(4));
-        if (metadata.isCorrupted()) return std::nullopt;
-
-        return NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>{
+        return NDWireSourceDetails::Config::FullWireStyleRecord{
             id,
             *contributorId,
             query.value(1).toString(),
             QColor::fromRgba(query.value(2).toUInt()),
             query.value(3).toInt(),
-            metadata.value
+            NDHelpers::extractRawBytes(query.value(4))
         };
     }
-
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>>> getContributorWireStyles(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>> list;
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord>> getContributorWireStyles(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireStyleRecord> list;
 
         query.prepare(R"(
             SELECT id, name, color, wire_thickness, metadata
@@ -174,30 +168,27 @@ namespace NDWireSourceDetails::Read {
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(4));
 
-            if (!id || metadata.isCorrupted()) {
+            if (!id) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>{
+            list.append(NDWireSourceDetails::Config::FullWireStyleRecord{
                 *id,
                 contributorId,
                 query.value(1).toString(),
                 QColor::fromRgba(query.value(2).toUInt()),
                 query.value(3).toInt(),
-                metadata.value
+                NDHelpers::extractRawBytes(query.value(4))
             });
         }
         return list;
     }
-
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>>> getAllWireStyles(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>> list;
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord>> getAllWireStyles(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireStyleRecord> list;
 
         query.prepare(R"(
             SELECT ws.id, ws.contributor_id, ws.name, ws.color, ws.wire_thickness, ws.metadata
@@ -215,30 +206,28 @@ namespace NDWireSourceDetails::Read {
         while (query.next()) {
             const auto id =            Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(5));
 
-            if (!id || !contributorId || metadata.isCorrupted()) {
+            if (!id || !contributorId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>{
+            list.append(NDWireSourceDetails::Config::FullWireStyleRecord{
                 *id,
                 *contributorId,
                 query.value(2).toString(),
                 QColor::fromRgba(query.value(3).toUInt()),
                 query.value(4).toInt(),
-                metadata.value
+                NDHelpers::extractRawBytes(query.value(5))
             });
         }
         return list;
     }
 
     // 4. Data
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<NDWireSourceDetails::Config::FullWireDataRecord<Data>> getWireData(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDWireSourceDetails::Config::FullWireDataRecord> getWireData(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, data
             FROM wire_data 
@@ -255,20 +244,16 @@ namespace NDWireSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(2));
-        if (data.isCorrupted()) return std::nullopt;
-
-        return NDWireSourceDetails::Config::FullWireDataRecord<Data>{
+        return NDWireSourceDetails::Config::FullWireDataRecord{
             id,
             *contributorId,
             query.value(1).toString(),
-            data.value
+            NDHelpers::extractRawBytes(query.value(2))
         };
     }
 
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>>> getContributorWireData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>> list;
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord>> getContributorWireData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireDataRecord> list;
 
         query.prepare(R"(
             SELECT id, name, data
@@ -284,28 +269,26 @@ namespace NDWireSourceDetails::Read {
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(2));
 
-            if (!id || data.isCorrupted()) {
+            if (!id) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWireSourceDetails::Config::FullWireDataRecord<Data>{
+            list.append(NDWireSourceDetails::Config::FullWireDataRecord{
                 *id,
                 contributorId,
                 query.value(1).toString(),
-                data.value
+                NDHelpers::extractRawBytes(query.value(2))
             });
         }
         return list;
     }
 
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>>> getAllWireData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>> list;
+    inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord>> getAllWireData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWireSourceDetails::Config::FullWireDataRecord> list;
 
         query.prepare(R"(
             SELECT wd.id, wd.contributor_id, wd.name, wd.data
@@ -323,20 +306,19 @@ namespace NDWireSourceDetails::Read {
         while (query.next()) {
             const auto id =            Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(3));
 
-            if (!id || !contributorId || data.isCorrupted()) {
+            if (!id || !contributorId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWireSourceDetails::Config::FullWireDataRecord<Data>{
+            list.append(NDWireSourceDetails::Config::FullWireDataRecord{
                 *id,
                 *contributorId,
                 query.value(2).toString(),
-                data.value
+                NDHelpers::extractRawBytes(query.value(3))
             });
         }
         return list;

@@ -96,4 +96,10 @@ namespace NDHelpers {
 
         return { NullableField<T>::State::Corrupted, std::nullopt };
     }
+
+    inline std::optional<std::vector<uint8_t>> extractRawBytes(const QVariant& variant) {
+        if (variant.isNull()) return std::nullopt;
+        QByteArray ba = variant.toByteArray();
+        return std::vector<uint8_t>(reinterpret_cast<const uint8_t*>(ba.constData()), reinterpret_cast<const uint8_t*>(ba.constData()) + ba.size());
+    }
 }

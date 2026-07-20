@@ -62,8 +62,7 @@ namespace NDWidgetSourceDetails::Update {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible Metadata>
-    inline bool updateWidgetType(QSqlQuery& query, muuid::uuid id, const NDWidgetSourceDetails::Config::UpdateWidgetTypeRecord<Metadata>& newProperties) {
+    inline bool updateWidgetType(QSqlQuery& query, muuid::uuid id, const NDWidgetSourceDetails::Config::UpdateWidgetTypeRecord& newProperties) {
         QStringList clauses;
 
         if (newProperties.id)            clauses.append("id = :new_id");
@@ -71,7 +70,7 @@ namespace NDWidgetSourceDetails::Update {
 
         if (newProperties.name) clauses.append("name = :name");
 
-        const auto* optPtr = std::get_if<std::optional<Metadata>>(&newProperties.metadata);
+        const auto* optPtr = std::get_if<std::optional<std::vector<uint8_t>>>(&newProperties.metadata);
         if (optPtr) clauses.append("metadata = :metadata");
 
         if (clauses.isEmpty()) return true;
@@ -88,7 +87,7 @@ namespace NDWidgetSourceDetails::Update {
 
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
 
-        if (optPtr) query.bindValue(":metadata", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optPtr) query.bindValue(":metadata", optPtr->has_value() ? QVariant(Utility::ByteArray::toQByteArray(optPtr->value())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update widget type:" << query.lastError().text();
@@ -96,8 +95,7 @@ namespace NDWidgetSourceDetails::Update {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible Data>
-    inline bool updateWidgetData(QSqlQuery& query, const muuid::uuid id, const NDWidgetSourceDetails::Config::UpdateWidgetDataRecord<Data>& newProperties) {
+    inline bool updateWidgetData(QSqlQuery& query, const muuid::uuid id, const NDWidgetSourceDetails::Config::UpdateWidgetDataRecord& newProperties) {
         QStringList clauses;
 
         if (newProperties.id)            clauses.append("id = :new_id");
@@ -105,7 +103,7 @@ namespace NDWidgetSourceDetails::Update {
 
         if (newProperties.name) clauses.append("name = :name");
 
-        const auto* optPtr = std::get_if<std::optional<Data>>(&newProperties.data);
+        const auto* optPtr = std::get_if<std::optional<std::vector<uint8_t>>>(&newProperties.data);
         if (optPtr) clauses.append("data = :data");
 
         if (clauses.isEmpty()) return true;
@@ -122,7 +120,7 @@ namespace NDWidgetSourceDetails::Update {
 
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
 
-        if (optPtr) query.bindValue(":data", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optPtr) query.bindValue(":data", optPtr->has_value() ? QVariant(Utility::ByteArray::toQByteArray(optPtr->value())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update widget data:" << query.lastError().text();

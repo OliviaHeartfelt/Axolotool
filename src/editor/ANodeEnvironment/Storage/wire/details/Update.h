@@ -39,8 +39,7 @@ namespace NDWireDetails::Update {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible State>
-    inline bool updateWire(QSqlQuery& query, muuid::uuid id, const NDWireDetails::Config::UpdateWireRecord<State>& newProperties) {
+    inline bool updateWire(QSqlQuery& query, muuid::uuid id, const NDWireDetails::Config::UpdateWireRecord& newProperties) {
         QStringList clauses;
 
         if (newProperties.id)     clauses.append("id = :new_id");
@@ -55,7 +54,7 @@ namespace NDWireDetails::Update {
             clauses.append("target_hint_pos_y = :target_hint_pos_y");
         }
 
-        const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state);
+        const auto* optPtr = std::get_if<std::optional<std::vector<uint8_t>>>(&newProperties.state);
         if (optPtr) clauses.append("state = :state");
 
         if (clauses.isEmpty()) return true;
@@ -79,7 +78,7 @@ namespace NDWireDetails::Update {
             query.bindValue(":target_hint_pos_y", newProperties.targetHintPos->y());
         }
 
-        if (optPtr) query.bindValue(":state", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optPtr) query.bindValue(":state", optPtr->has_value() ? QVariant(Utility::ByteArray::toQByteArray(optPtr->value())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update wire:" << query.lastError().text();

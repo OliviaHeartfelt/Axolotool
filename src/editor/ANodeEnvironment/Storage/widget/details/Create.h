@@ -23,8 +23,7 @@ namespace NDWidgetDetails::Create {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible State>
-    inline bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord<State>& newWidget) {
+    inline bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord& newWidget) {
         query.prepare(R"(
             INSERT INTO widget (id,  core_id,  state,  w_size,  h_size)
             VALUES (           :id, :core_id, :state, :w_size, :h_size);
@@ -32,7 +31,7 @@ namespace NDWidgetDetails::Create {
 
         query.bindValue(":id",      Utility::UUID::uuidToBytes(newWidget.id));
         query.bindValue(":core_id", Utility::UUID::uuidToBytes(newWidget.coreId));
-        query.bindValue(":state",   newWidget.state ? QVariant(Utility::ByteArray::toQByteArray(newWidget.state->classToBytes())) : QVariant());
+        query.bindValue(":state",   newWidget.state ? QVariant(Utility::ByteArray::toQByteArray(*newWidget.state)) : QVariant());
         query.bindValue(":w_size",  newWidget.w ? *newWidget.w : QVariant());
         query.bindValue(":h_size",  newWidget.h ? *newWidget.h : QVariant());
 

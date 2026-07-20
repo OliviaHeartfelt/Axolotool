@@ -64,8 +64,7 @@ namespace NDNodeSourceDetails::Update {
         return true;
     }
 
-    template<NDConcepts::ByteConvertible Metadata>
-    inline bool updateNodeType(QSqlQuery& query, const muuid::uuid& id, const NDNodeSourceDetails::Config::UpdateNodeTypeRecord<Metadata>& newProperties) {
+    inline bool updateNodeType(QSqlQuery& query, const muuid::uuid& id, const NDNodeSourceDetails::Config::UpdateNodeTypeRecord& newProperties) {
         QStringList clauses;
 
         if (newProperties.id)            clauses.append("id = :new_id");
@@ -73,7 +72,7 @@ namespace NDNodeSourceDetails::Update {
 
         if (newProperties.name)   clauses.append("name = :name");
 
-        const auto* optPtr = std::get_if<std::optional<Metadata>>(&newProperties.metadata);
+        const auto* optPtr = std::get_if<std::optional<std::vector<uint8_t>>>(&newProperties.metadata);
         if (optPtr) clauses.append("metadata = :metadata");
 
         if (clauses.isEmpty()) return true;
@@ -90,7 +89,7 @@ namespace NDNodeSourceDetails::Update {
 
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
 
-        if (optPtr) query.bindValue(":metadata", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optPtr) query.bindValue(":metadata", optPtr->has_value() ? QVariant(Utility::ByteArray::toQByteArray(optPtr->value())) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to update node type:" << query.lastError().text();
@@ -99,8 +98,7 @@ namespace NDNodeSourceDetails::Update {
         return true;
     }
 
-    template<NDConcepts::ByteConvertible Data>
-    inline bool updateNodeData(QSqlQuery& query, const muuid::uuid& id, const NDNodeSourceDetails::Config::UpdateNodeDataRecord<Data>& newProperties) {
+    inline bool updateNodeData(QSqlQuery& query, const muuid::uuid& id, const NDNodeSourceDetails::Config::UpdateNodeDataRecord& newProperties) {
         QStringList clauses;
 
         if (newProperties.id)            clauses.append("id = :new_id");
@@ -108,7 +106,7 @@ namespace NDNodeSourceDetails::Update {
 
         if (newProperties.name)   clauses.append("name = :name");
 
-        const auto* optPtr = std::get_if<std::optional<Data>>(&newProperties.data);
+        const auto* optPtr = std::get_if<std::optional<std::vector<uint8_t>>>(&newProperties.data);
         if (optPtr) clauses.append("data = :data");
 
         if (clauses.isEmpty()) return true;
@@ -125,7 +123,7 @@ namespace NDNodeSourceDetails::Update {
 
         if (newProperties.name) query.bindValue(":name", *newProperties.name);
 
-        if (optPtr) query.bindValue(":data", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optPtr) query.bindValue(":data", optPtr->has_value() ? QVariant(Utility::ByteArray::toQByteArray(optPtr->value())) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to update node data:" << query.lastError().text();

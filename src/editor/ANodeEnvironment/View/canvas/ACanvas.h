@@ -42,6 +42,8 @@ namespace ACanvas {
                 }
             }
 
+
+
             view->show();
         }
         QGraphicsView* getView() {

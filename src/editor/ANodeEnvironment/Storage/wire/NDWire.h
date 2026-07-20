@@ -74,14 +74,12 @@ namespace NDWire {
         }
 
         // 1. Create - Wire
-        template<NDConcepts::ByteConvertible State>
-        bool createWire(const NDWireDetails::Config::CreateWireRecord<State>& newWire) {
+        bool createWire(const NDWireDetails::Config::CreateWireRecord& newWire) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Create::createWire(query, newWire);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        bool createWire(QSqlQuery& query, const NDWireDetails::Config::CreateWireRecord<State>& newWire) {
+        bool createWire(QSqlQuery& query, const NDWireDetails::Config::CreateWireRecord& newWire) {
             return NDWireDetails::Create::createWire(query, newWire);
         }
 
@@ -138,34 +136,28 @@ namespace NDWire {
         }
 
         // 2. Read - Wire
-        template<NDConcepts::ByteConvertible State>
-        std::optional<NDWireDetails::Config::CreateWireRecord<State>> getWire(const muuid::uuid& id) {
+        std::optional<NDWireDetails::Config::CreateWireRecord> getWire(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getWire(query, id);
             });
         }
-        template<NDConcepts::ByteConvertible State>
-        std::optional<NDWireDetails::Config::CreateWireRecord<State>> getWire(QSqlQuery& query, const muuid::uuid& id) {
+        std::optional<NDWireDetails::Config::CreateWireRecord> getWire(QSqlQuery& query, const muuid::uuid& id) {
             return NDWireDetails::Read::getWire(query, id);
         }
-        template<NDConcepts::ByteConvertible State>
-        std::optional<QList<NDWireDetails::Config::CreateWireRecord<State>>> getContributorWires(const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::CreateWireRecord>> getContributorWires(const muuid::uuid& contributorId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getContributorWires(query, contributorId, continueAtFail);
                 });
         }
-        template<NDConcepts::ByteConvertible State>
-        std::optional<QList<NDWireDetails::Config::CreateWireRecord<State>>> getContributorWires(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::CreateWireRecord>> getContributorWires(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
             return NDWireDetails::Read::getContributorWires(query, contributorId, continueAtFail);
         }
-        template<NDConcepts::ByteConvertible State>
-        std::optional<QList<NDWireDetails::Config::CreateWireRecord<State>>> getAllWires(const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::CreateWireRecord>> getAllWires(const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getAllWires(query, sourceId, continueAtFail);
                 });
         }
-        template<NDConcepts::ByteConvertible State>
-        std::optional<QList<NDWireDetails::Config::CreateWireRecord<State>>> getAllWires(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::CreateWireRecord>> getAllWires(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDWireDetails::Read::getAllWires(query, sourceId, continueAtFail);
         }
 
@@ -180,14 +172,12 @@ namespace NDWire {
         }
 
         // 3. Update - Wire
-        template<NDConcepts::ByteConvertible State>
-        bool updateWire(muuid::uuid id, const NDWireDetails::Config::UpdateWireRecord<State>& newProperties) {
+        bool updateWire(muuid::uuid id, const NDWireDetails::Config::UpdateWireRecord& newProperties) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Update::updateWire(query, id, newProperties);
                 });
         }
-        template<NDConcepts::ByteConvertible State>
-        bool updateWire(QSqlQuery& query, muuid::uuid id, const NDWireDetails::Config::UpdateWireRecord<State>& newProperties) {
+        bool updateWire(QSqlQuery& query, muuid::uuid id, const NDWireDetails::Config::UpdateWireRecord& newProperties) {
             return NDWireDetails::Update::updateWire(query, id, newProperties);
         }
 

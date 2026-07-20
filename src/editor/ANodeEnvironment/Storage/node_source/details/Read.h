@@ -123,8 +123,7 @@ namespace NDNodeSourceDetails::Read {
     }
 
     // 3. Node Type
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>> getNodeType(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDNodeSourceDetails::Config::FullNodeTypeRecord> getNodeType(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, metadata
             FROM node_type 
@@ -141,19 +140,15 @@ namespace NDNodeSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(2));
-        if (metadata.isCorrupted()) return std::nullopt;
-
-        return NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>{
+        return NDNodeSourceDetails::Config::FullNodeTypeRecord{
             id,
             *contributorId,
             query.value(1).toString(),
-            metadata.value
+            NDHelpers::extractRawBytes(query.value(2))
         };
     }
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>>> getContributorNodeTypes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
-        QList<NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>> list;
+    inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeTypeRecord>> getContributorNodeTypes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
+        QList<NDNodeSourceDetails::Config::FullNodeTypeRecord> list;
 
         query.prepare(R"(
             SELECT id, name, metadata
@@ -169,27 +164,25 @@ namespace NDNodeSourceDetails::Read {
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(2));
 
-            if (!id || metadata.isCorrupted()) {
+            if (!id) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>{
+            list.append(NDNodeSourceDetails::Config::FullNodeTypeRecord{
                 *id,
                 contributorId,
                 query.value(1).toString(),
-                metadata.value
+                NDHelpers::extractRawBytes(query.value(2))
             });
         }
         return list;
     }
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>>> getAllNodeTypes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
-        QList<NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>> list;
+    inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeTypeRecord>> getAllNodeTypes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
+        QList<NDNodeSourceDetails::Config::FullNodeTypeRecord> list;
 
         query.prepare(R"(
             SELECT nt.id, nt.contributor_id, nt.name, nt.metadata
@@ -207,28 +200,26 @@ namespace NDNodeSourceDetails::Read {
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(3));
 
-            if (!id || !contributorId || metadata.isCorrupted()) {
+            if (!id || !contributorId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDNodeSourceDetails::Config::FullNodeTypeRecord<Metadata>{
+            list.append(NDNodeSourceDetails::Config::FullNodeTypeRecord{
                 *id,
                 *contributorId,
                 query.value(2).toString(),
-                metadata.value
+                NDHelpers::extractRawBytes(query.value(2))
             });
         }
         return list;
     }
 
     // 4. Node Data
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<NDNodeSourceDetails::Config::FullNodeDataRecord<Data>> getNodeData(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDNodeSourceDetails::Config::FullNodeDataRecord> getNodeData(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, data
             FROM node_data 
@@ -245,19 +236,15 @@ namespace NDNodeSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(2));
-        if (data.isCorrupted()) return std::nullopt;
-
-        return NDNodeSourceDetails::Config::FullNodeDataRecord<Data>{
+        return NDNodeSourceDetails::Config::FullNodeDataRecord{
             id,
             *contributorId,
             query.value(1).toString(),
-            data.value
+            NDHelpers::extractRawBytes(query.value(2))
         };
     }
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeDataRecord<Data>>> getContributorNodeData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
-        QList<NDNodeSourceDetails::Config::FullNodeDataRecord<Data>> list;
+    inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeDataRecord>> getContributorNodeData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
+        QList<NDNodeSourceDetails::Config::FullNodeDataRecord> list;
 
         query.prepare(R"(
             SELECT id, name, data
@@ -273,27 +260,25 @@ namespace NDNodeSourceDetails::Read {
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(2));
 
-            if (!id || data.isCorrupted()) {
+            if (!id) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDNodeSourceDetails::Config::FullNodeDataRecord<Data>{
+            list.append(NDNodeSourceDetails::Config::FullNodeDataRecord{
                 *id,
                 contributorId,
                 query.value(1).toString(),
-                data.value
+                NDHelpers::extractRawBytes(query.value(2))
             });
         }
         return list;
     }
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeDataRecord<Data>>> getAllNodeData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
-        QList<NDNodeSourceDetails::Config::FullNodeDataRecord<Data>> list;
+    inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeDataRecord>> getAllNodeData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
+        QList<NDNodeSourceDetails::Config::FullNodeDataRecord> list;
 
         query.prepare(R"(
             SELECT nd.id, nd.contributor_id, nd.name, nd.data
@@ -311,20 +296,19 @@ namespace NDNodeSourceDetails::Read {
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const NDHelpers::NullableField<Data> dataField = NDHelpers::parseNullableByteConvertible<Data>(query.value(3));
 
-            if (!id || !contributorId || dataField.isCorrupted()) {
+            if (!id || !contributorId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDNodeSourceDetails::Config::FullNodeDataRecord<Data>{
+            list.append(NDNodeSourceDetails::Config::FullNodeDataRecord{
                 *id,
                 *contributorId,
                 query.value(2).toString(),
-                dataField.value
+                NDHelpers::extractRawBytes(query.value(3))
             });
         }
         return list;

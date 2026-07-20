@@ -92,8 +92,7 @@ namespace NDWidgetSourceDetails::Read {
     }
 
     // 3. Type
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>> getWidgetType(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDWidgetSourceDetails::Config::FullWidgetTypeRecord> getWidgetType(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, metadata
             FROM widget_type 
@@ -110,19 +109,15 @@ namespace NDWidgetSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(2));
-        if (metadata.isCorrupted()) return std::nullopt;
-
-        return NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>{
+        return NDWidgetSourceDetails::Config::FullWidgetTypeRecord{
             id,
             *contributorId,
             query.value(1).toString(),
-            metadata.value
+            NDHelpers::extractRawBytes(query.value(2))
         };
     }
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>>> getContributorWidgetTypes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>> list;
+    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord>> getContributorWidgetTypes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord> list;
         
         query.prepare(R"(
             SELECT id, name, metadata
@@ -137,30 +132,26 @@ namespace NDWidgetSourceDetails::Read {
         }
 
         while (query.next()) {
-            const auto id =       Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            QString name =        query.value(1).toString();
+            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
 
-            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(2));
-
-            if (!id || metadata.isCorrupted()) {
+            if (!id) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>{
+            list.append(NDWidgetSourceDetails::Config::FullWidgetTypeRecord{
                 *id,
                 contributorId,
-                name,
-                metadata.value
+                query.value(1).toString(),
+                NDHelpers::extractRawBytes(query.value(2))
             });
         }
         return list;
     }
-    template<NDConcepts::ByteConvertible Metadata>
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>>> getAllWidgetTypes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>> list;
+    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord>> getAllWidgetTypes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWidgetSourceDetails::Config::FullWidgetTypeRecord> list;
 
         query.prepare(R"(
             SELECT t.id, t.contributor_id, t.name, t.metadata
@@ -178,30 +169,26 @@ namespace NDWidgetSourceDetails::Read {
         while (query.next()) {
             const auto id =            Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            QString name =             query.value(2).toString();
 
-            const NDHelpers::NullableField<Metadata> metadata = NDHelpers::parseNullableByteConvertible<Metadata>(query.value(3));
-
-            if (!id || !contributorId || metadata.isCorrupted()) {
+            if (!id || !contributorId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetTypeRecord<Metadata>{
+            list.append(NDWidgetSourceDetails::Config::FullWidgetTypeRecord{
                 *id,
                 *contributorId,
-                name,
-                metadata.value
+                query.value(2).toString(),
+                NDHelpers::extractRawBytes(query.value(3))
             });
         }
         return list;
     }
 
     // 4. Data
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>> getWidgetData(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDWidgetSourceDetails::Config::FullWidgetDataRecord> getWidgetData(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT contributor_id, name, data
             FROM widget_data 
@@ -218,19 +205,15 @@ namespace NDWidgetSourceDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(2));
-        if (data.isCorrupted()) return std::nullopt;
-
-        return NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>{
+        return NDWidgetSourceDetails::Config::FullWidgetDataRecord{
             id,
             *contributorId,
             query.value(1).toString(),
-            data.value
+            NDHelpers::extractRawBytes(query.value(2))
         };
     }
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>>> getContributorWidgetData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>> list;
+    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord>> getContributorWidgetData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord> list;
 
         query.prepare(R"(
             SELECT id, name, data
@@ -245,30 +228,26 @@ namespace NDWidgetSourceDetails::Read {
         }
 
         while (query.next()) {
-            const auto id =   Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            QString name =    query.value(1).toString();
+            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
 
-            const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(2));
-
-            if (!id || data.isCorrupted()) {
+            if (!id) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>{
+            list.append(NDWidgetSourceDetails::Config::FullWidgetDataRecord{
                 *id,
                 contributorId,
-                name,
-                data.value
+                query.value(1).toString(),
+                NDHelpers::extractRawBytes(query.value(2))
             });
         }
         return list;
     }
-    template<NDConcepts::ByteConvertible Data>
-    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>>> getAllWidgetData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>> list;
+    inline std::optional<QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord>> getAllWidgetData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWidgetSourceDetails::Config::FullWidgetDataRecord> list;
 
         query.prepare(R"(
             SELECT d.id, d.contributor_id, d.name, d.data
@@ -286,22 +265,19 @@ namespace NDWidgetSourceDetails::Read {
         while (query.next()) {
             const auto id =            Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            QString name =             query.value(2).toString();
 
-            const NDHelpers::NullableField<Data> data = NDHelpers::parseNullableByteConvertible<Data>(query.value(3));
-
-            if (!id || !contributorId || data.isCorrupted()) {
+            if (!id || !contributorId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWidgetSourceDetails::Config::FullWidgetDataRecord<Data>{
+            list.append(NDWidgetSourceDetails::Config::FullWidgetDataRecord{
                 *id,
                 *contributorId,
-                name,
-                data.value
+                query.value(2).toString(),
+                NDHelpers::extractRawBytes(query.value(3))
             });
         }
         return list;

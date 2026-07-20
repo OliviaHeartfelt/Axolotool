@@ -116,8 +116,7 @@ namespace NDWidgetDetails::Read {
     }
 
     // 2. Widget
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<NDWidgetDetails::Config::FullWidgetRecord<State>> getWidget(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDWidgetDetails::Config::FullWidgetRecord> getWidget(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT core_id, state, w_size, h_size
             FROM widget 
@@ -134,21 +133,17 @@ namespace NDWidgetDetails::Read {
         const auto coreId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!coreId) return std::nullopt;
 
-        const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(1));
-        if (state.isCorrupted()) return std::nullopt;
-
-        return NDWidgetDetails::Config::FullWidgetRecord<State>{
+        return NDWidgetDetails::Config::FullWidgetRecord{
             id,
             *coreId,
-            state.value,
+            NDHelpers::extractRawBytes(query.value(1)),
             query.value(2).toReal(),
             query.value(3).toReal()
         };
     }
 
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getContributorWidgets(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDWidgetDetails::Config::FullWidgetRecord<State>> list;
+    inline std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord>> getContributorWidgets(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDWidgetDetails::Config::FullWidgetRecord> list;
 
         query.prepare(R"(
             SELECT w.id, w.core_id, w.state, w.w_size, w.h_size
@@ -167,32 +162,26 @@ namespace NDWidgetDetails::Read {
             const auto id =     Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
 
-            const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(2));
-
-            const qreal w = query.value(3).toReal();
-            const qreal h = query.value(4).toReal();
-
-            if (!id || !coreId || state.isCorrupted()) {
+            if (!id || !coreId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWidgetDetails::Config::FullWidgetRecord<State>{
+            list.append(NDWidgetDetails::Config::FullWidgetRecord{
                 *id,
                 *coreId,
-                state.value,
-                w,
-                h
+                NDHelpers::extractRawBytes(query.value(2)),
+                query.value(3).toReal(),
+                query.value(4).toReal()
             });
         }
         return list;
     }
 
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord<State>>> getAllWidgets(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWidgetDetails::Config::FullWidgetRecord<State>> list;
+    inline std::optional<QList<NDWidgetDetails::Config::FullWidgetRecord>> getAllWidgets(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWidgetDetails::Config::FullWidgetRecord> list;
 
         query.prepare(R"(
             SELECT w.id, w.core_id, w.state, w.w_size, w.h_size
@@ -212,24 +201,19 @@ namespace NDWidgetDetails::Read {
             const auto id =     Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
 
-            const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(2));
-
-            const qreal w = query.value(3).toReal();
-            const qreal h = query.value(4).toReal();
-
-            if (!id || !coreId || state.isCorrupted()) {
+            if (!id || !coreId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWidgetDetails::Config::FullWidgetRecord<State>{
+            list.append(NDWidgetDetails::Config::FullWidgetRecord{
                 *id,
                 *coreId,
-                state.value,
-                w,
-                h
+                NDHelpers::extractRawBytes(query.value(2)),
+                query.value(3).toReal(),
+                query.value(4).toReal()
             });
         }
         return list;

@@ -39,8 +39,7 @@ namespace NDNodeSourceDetails::Create {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible Metadata>
-    inline bool createNodeType(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeTypeRecord<Metadata>& newNodeType) {
+    inline bool createNodeType(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeTypeRecord& newNodeType) {
         query.prepare(R"(
             INSERT INTO node_contributor (id,  contributor_id,  name,  metadata)
             VALUES (                     :id, :contributor_id, :name, :metadata);
@@ -50,7 +49,7 @@ namespace NDNodeSourceDetails::Create {
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newNodeType.contributorId));
 
         query.bindValue(":name",     newNodeType.name);
-        query.bindValue(":metadata", newNodeType.metadata ? QVariant(Utility::ByteArray::toQByteArray(newNodeType.metadata->classToBytes())) : QVariant());
+        query.bindValue(":metadata", newNodeType.metadata ? QVariant(Utility::ByteArray::toQByteArray(*newNodeType.metadata)) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node type:" << query.lastError().text();
@@ -58,8 +57,7 @@ namespace NDNodeSourceDetails::Create {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible Data>
-    inline bool createNodeData(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeDataRecord<Data>& newNodeData) {
+    inline bool createNodeData(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeDataRecord& newNodeData) {
         query.prepare(R"(
             INSERT INTO node_contributor (id,  contributor_id,  name,  data)
             VALUES (                     :id, :contributor_id, :name, :data);
@@ -69,7 +67,7 @@ namespace NDNodeSourceDetails::Create {
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newNodeData.contributorId));
 
         query.bindValue(":name", newNodeData.name);
-        query.bindValue(":data", newNodeData.data ? QVariant(Utility::ByteArray::toQByteArray(newNodeData.data->classToBytes())) : QVariant());
+        query.bindValue(":data", newNodeData.data ? QVariant(Utility::ByteArray::toQByteArray(*newNodeData.data)) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node data:" << query.lastError().text();

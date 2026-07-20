@@ -39,48 +39,42 @@ namespace NDNodeSourceDetails::Config {
 	};
 
 	// 3. Node Type
-	template<NDConcepts::ByteConvertible Metadata>
 	struct FullNodeTypeRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
 		QString name;
-		std::optional<Metadata> metadata;
+		std::optional<std::vector<uint8_t>> metadata;
 	};
-	template<NDConcepts::ByteConvertible Metadata>
 	struct CreateNodeTypeRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
 		QString name;
-		std::optional<Metadata> metadata = std::nullopt;
+		std::optional<std::vector<uint8_t>> metadata = std::nullopt;
 	};
-	template<NDConcepts::ByteConvertible Metadata>
 	struct UpdateNodeTypeRecord {
 		std::optional<muuid::uuid> id =            std::nullopt;
 		std::optional<muuid::uuid> contributorId = std::nullopt;
 		std::optional<QString> name =              std::nullopt;
-		std::variant<std::monostate, std::optional<Metadata>> metadata = std::monostate{};
+		std::variant<std::monostate, std::optional<std::vector<uint8_t>>> metadata = std::monostate{};
 	};
 
 	// 4. Node Data
-	template<NDConcepts::ByteConvertible Data>
 	struct FullNodeDataRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
 		QString name;
-		std::optional<Data> data;
+		std::optional<std::vector<uint8_t>> data;
 	};
-	template<NDConcepts::ByteConvertible Data>
 	struct CreateNodeDataRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
 		QString name;
-		std::optional<Data> data = std::nullopt;
+		std::optional<std::vector<uint8_t>> data = std::nullopt;
 	};
-	template<NDConcepts::ByteConvertible Data>
 	struct UpdateNodeDataRecord {
 		std::optional<muuid::uuid> id =            std::nullopt;
 		std::optional<muuid::uuid> contributorId = std::nullopt;
 		std::optional<QString> name =              std::nullopt;
-		std::variant<std::monostate, std::optional<Data>> data = std::monostate{};
+		std::variant<std::monostate, std::optional<std::vector<uint8_t>>> data = std::monostate{};
 	};
 }

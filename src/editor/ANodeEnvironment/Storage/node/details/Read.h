@@ -131,8 +131,7 @@ namespace NDNodeDetails::Read {
     }
 
     // 2. Node
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<NDNodeDetails::Config::FullNodeRecord<State>> getNode(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDNodeDetails::Config::FullNodeRecord> getNode(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT core_id, name, row_num, col_num, canvas_x, canvas_y, node_w, node_h, state
             FROM node 
@@ -149,25 +148,21 @@ namespace NDNodeDetails::Read {
         const auto coreId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!coreId) return std::nullopt;
 
-        const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(8));
-        if (state.isCorrupted()) return std::nullopt;
-
-        return NDNodeDetails::Config::FullNodeRecord<State>{
+        return NDNodeDetails::Config::FullNodeRecord{
             id,
-                * coreId,
-                query.value(1).toString(),
-                static_cast<short>(query.value(2).toInt()),
-                static_cast<short>(query.value(3).toInt()),
-                QPointF(query.value(4).toReal(), query.value(5).toReal()),
-                query.value(6).toReal(),
-                query.value(7).toReal(),
-                state.value
+            *coreId,
+            query.value(1).toString(),
+            static_cast<short>(query.value(2).toInt()),
+            static_cast<short>(query.value(3).toInt()),
+            QPointF(query.value(4).toReal(), query.value(5).toReal()),
+            query.value(6).toReal(),
+            query.value(7).toReal(),
+            NDHelpers::extractRawBytes(query.value(8))
         };
     }
 
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord<State>>> getContributorNodes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
-        QList<NDNodeDetails::Config::FullNodeRecord<State>> list;
+    inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getContributorNodes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
+        QList<NDNodeDetails::Config::FullNodeRecord> list;
 
         query.prepare(R"(
             SELECT n.id, n.core_id, n.name, n.row_num, n.col_num, n.canvas_x, n.canvas_y, n.node_w, n.node_h, n.state
@@ -178,40 +173,36 @@ namespace NDNodeDetails::Read {
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(contributorId));
 
         if (!query.exec()) {
-            qWarning() << "Failed to fetch nodes:" << query.lastError().text();
+            qWarning() << "Failed to fetch contributor nodes:" << query.lastError().text();
             return std::nullopt;
         }
 
         while (query.next()) {
             auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(9));
 
-            if (!id || !coreId || state.isCorrupted()) {
-                if (continueAtFail)
-                    continue;
-                else
-                    return std::nullopt;
+            if (!id || !coreId) {
+                if (continueAtFail) continue;
+                return std::nullopt;
             }
 
-            list.append(NDNodeDetails::Config::FullNodeRecord<State>{
+            list.append(NDNodeDetails::Config::FullNodeRecord{
                 *id,
-                    * coreId,
-                    query.value(2).toString(),
-                    static_cast<short>(query.value(3).toInt()),
-                    static_cast<short>(query.value(4).toInt()),
-                    QPointF(query.value(5).toReal(), query.value(6).toReal()),
-                    query.value(7).toReal(),
-                    query.value(8).toReal(),
-                    state.value
-            });
+                *coreId,
+                query.value(2).toString(),
+                static_cast<short>(query.value(3).toInt()),
+                static_cast<short>(query.value(4).toInt()),
+                QPointF(query.value(5).toReal(), query.value(6).toReal()),
+                query.value(7).toReal(),
+                query.value(8).toReal(),
+                NDHelpers::extractRawBytes(query.value(9))
+                });
         }
         return list;
     }
 
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord<State>>> getAllNodes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
-        QList<NDNodeDetails::Config::FullNodeRecord<State>> list;
+    inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAllNodes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
+        QList<NDNodeDetails::Config::FullNodeRecord> list;
 
         query.prepare(R"(
             SELECT n.id, n.core_id, n.name, n.row_num, n.col_num, n.canvas_x, n.canvas_y, n.node_w, n.node_h, n.state
@@ -223,33 +214,67 @@ namespace NDNodeDetails::Read {
         query.bindValue(":source_id", Utility::UUID::uuidToBytes(sourceId));
 
         if (!query.exec()) {
-            qWarning() << "Failed to fetch nodes:" << query.lastError().text();
+            qWarning() << "Failed to fetch all nodes:" << query.lastError().text();
             return std::nullopt;
         }
 
         while (query.next()) {
             auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
-            const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(9));
 
-            if (!id || !coreId || state.isCorrupted()) {
-                if (continueAtFail)
-                    continue;
-                else
-                    return std::nullopt;
+            if (!id || !coreId) {
+                if (continueAtFail) continue;
+                return std::nullopt;
             }
 
-            list.append(NDNodeDetails::Config::FullNodeRecord<State>{
+            list.append(NDNodeDetails::Config::FullNodeRecord{
                 *id,
-                    * coreId,
-                    query.value(2).toString(),
-                    static_cast<short>(query.value(3).toInt()),
-                    static_cast<short>(query.value(4).toInt()),
-                    QPointF(query.value(5).toReal(), query.value(6).toReal()),
-                    query.value(7).toReal(),
-                    query.value(8).toReal(),
-                    state.value
-            });
+                *coreId,
+                query.value(2).toString(),
+                static_cast<short>(query.value(3).toInt()),
+                static_cast<short>(query.value(4).toInt()),
+                QPointF(query.value(5).toReal(), query.value(6).toReal()),
+                query.value(7).toReal(),
+                query.value(8).toReal(),
+                NDHelpers::extractRawBytes(query.value(9))
+                });
+        }
+        return list;
+    }
+
+    inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getNodesInView(QSqlQuery& query, const bool continueAtFail = true) {
+        QList<NDNodeDetails::Config::FullNodeRecord> list;
+
+        query.prepare(R"(
+            SELECT id, core_id, name, row_num, col_num, canvas_x, canvas_y, node_w, node_h, state
+            FROM node
+        )");
+
+        if (!query.exec()) {
+            qWarning() << "Failed to fetch nodes in view:" << query.lastError().text();
+            return std::nullopt;
+        }
+
+        while (query.next()) {
+            auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+
+            if (!id || !coreId) {
+                if (continueAtFail) continue;
+                return std::nullopt;
+            }
+
+            list.append(NDNodeDetails::Config::FullNodeRecord{
+                *id,
+                *coreId,
+                query.value(2).toString(),
+                static_cast<short>(query.value(3).toInt()),
+                static_cast<short>(query.value(4).toInt()),
+                QPointF(query.value(5).toReal(), query.value(6).toReal()),
+                query.value(7).toReal(),
+                query.value(8).toReal(),
+                NDHelpers::extractRawBytes(query.value(9))
+                });
         }
         return list;
     }

@@ -42,14 +42,13 @@ namespace NDWidgetDetails::Update {
     }
     
     // 2. Widget
-    template<NDConcepts::ByteConvertible State>
-    inline bool updateWidget(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord<State>& newProperties) {
+    inline bool updateWidget(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord& newProperties) {
         QStringList clauses;
 
         if (newProperties.id)     clauses.append("id = :new_id");
         if (newProperties.coreId) clauses.append("core_id = :new_core_id");
     
-        const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state);
+        const auto* optPtr = std::get_if<std::optional<std::vector<uint8_t>>>(&newProperties.state);
         if (optPtr) clauses.append("state = :state");
 
         if (newProperties.width)  clauses.append("w_size = :w_size");
@@ -67,7 +66,7 @@ namespace NDWidgetDetails::Update {
         if (newProperties.id)     query.bindValue(":new_id",      Utility::UUID::uuidToBytes(*newProperties.id));
         if (newProperties.coreId) query.bindValue(":new_core_id", Utility::UUID::uuidToBytes(*newProperties.coreId));
 
-        if (optPtr) query.bindValue(":state", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optPtr) query.bindValue(":state", optPtr->has_value() ? QVariant(Utility::ByteArray::toQByteArray(optPtr->value())) : QVariant());
 
         if (newProperties.width)  query.bindValue(":w_size", QVariant(*newProperties.width));
         if (newProperties.height) query.bindValue(":h_size", QVariant(*newProperties.height));

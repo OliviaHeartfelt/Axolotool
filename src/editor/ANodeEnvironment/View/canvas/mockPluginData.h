@@ -69,11 +69,11 @@ namespace MockData {
             };
             const auto nodeTypeId_v = MockData::Helper::make_uuid("019f65ff-1fe9-7ac3-931a-f2c225c5267c");
             const NodeTypeMetadata nodeMetadata;
-            nodeEnvDB->nodeSource.createNodeType(query, NodeSource::CreateNodeTypeRecord<NodeTypeMetadata>{
+            nodeEnvDB->nodeSource.createNodeType(query, NodeSource::CreateNodeTypeRecord{
                 .id = nodeTypeId_v,
                 .contributorId = nodeContributorId_v,
                 .name = "Standard::Type[0]",
-                .metadata = nodeMetadata
+                .metadata = nodeMetadata.classToBytes()
             });
 
             // Node Data
@@ -84,11 +84,11 @@ namespace MockData {
             };
             const auto nodeDataId_v = MockData::Helper::make_uuid("019f65ff-1fe9-740f-8326-32b41ff95536");
             const NodeData nodeData;
-            nodeEnvDB->nodeSource.createNodeData(query, NodeSource::CreateNodeDataRecord<NodeData>{
+            nodeEnvDB->nodeSource.createNodeData(query, NodeSource::CreateNodeDataRecord{
                 .id = nodeDataId_v,
                 .contributorId = nodeContributorId_v,
                 .name = "Standard::Type[0]",
-                .data = nodeData
+                .data = nodeData.classToBytes()
             });
 
             // --------------------------------------------------------------------------------------------------------------------------------
@@ -336,11 +336,11 @@ namespace MockData {
             };
             const auto addWidgetTypeId_v = MockData::Helper::make_uuid("019f6602-b785-7caa-a507-3a9d3c2d5bf9");
             const WidgetTypeMetadata widgetMetadata; // Consistent lowercase prefix
-            nodeEnvDB->widgetSource.createWidgetType(query, WidgetSource::CreateWidgetTypeRecord<WidgetTypeMetadata>{
+            nodeEnvDB->widgetSource.createWidgetType(query, WidgetSource::CreateWidgetTypeRecord{
                 .id = addWidgetTypeId_v,
                 .contributorId = addWidgetContributorId_v,
                 .name = "Standard::Type[0]",
-                .metadata = widgetMetadata
+                .metadata = widgetMetadata.classToBytes()
             });
 
             // Widget Data
@@ -351,11 +351,11 @@ namespace MockData {
             };
             const auto addWidgetDataId_v = MockData::Helper::make_uuid("019f6602-b785-7b00-bd4e-12654d7c1c25");
             const WidgetData widgetData;
-            nodeEnvDB->widgetSource.createWidgetData(query, WidgetSource::CreateWidgetDataRecord<WidgetData>{
+            nodeEnvDB->widgetSource.createWidgetData(query, WidgetSource::CreateWidgetDataRecord{
                 .id = addWidgetDataId_v,
                 .contributorId = addWidgetContributorId_v,
                 .name = "Standard::Data[0]",
-                .data = widgetData
+                .data = widgetData.classToBytes()
             });
 
             // --------------------------------------------------------------------------------------------------------------------------------
@@ -384,11 +384,11 @@ namespace MockData {
             const WireData wireData;
 
             const auto addWireDataId_v = MockData::Helper::make_uuid("019f6602-b785-7041-9d5e-a358357e80ad");
-            nodeEnvDB->wireSource.createWireData(query, WireSource::CreateWireDataRecord<WireData>{
+            nodeEnvDB->wireSource.createWireData(query, WireSource::CreateWireDataRecord{
                 .id = addWireDataId_v,
                 .contributorId = addWireContributorId_v,
                 .name = "Standard::Data[0]",
-                .data = wireData
+                .data = wireData.classToBytes()
             });
 
             // Wire Style
@@ -400,92 +400,92 @@ namespace MockData {
             const WireStyleMetadata styleMetadata;
 
             auto addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7e98-98dc-5fade0921881");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Execution",
                 .color = MockData::Color::Execution,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7bdc-b78b-a0290117216e");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Class",
                 .color = MockData::Color::Class,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7ecb-b0e9-b8fc76efab32");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Object",
                 .color = MockData::Color::Object,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7281-a5e4-2ad08fe20595");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Bool",
                 .color = MockData::Color::Bool,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7b38-9ae3-05557a73806c");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Byte",
                 .color = MockData::Color::Byte,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7376-987c-ed1174260371");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Int",
                 .color = MockData::Color::Int,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7483-a369-f1d18efedb88");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Int64",
                 .color = MockData::Color::Int64,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7585-bd51-2875eb6d963d");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Float",
                 .color = MockData::Color::Float,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7380-9f14-e53c523b80a8");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Vector",
                 .color = MockData::Color::Vector,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7b0a-8174-f79d9f2577da");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::Name",
                 .color = MockData::Color::Name,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
             addWireStyleId_v = MockData::Helper::make_uuid("019f6602-b785-7518-bbfa-3eb397a90f63");
-            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord<WireStyleMetadata>{
+            nodeEnvDB->wireSource.createWireStyle(query, WireSource::CreateWireStyleRecord{
                 .id = addWireStyleId_v,
                 .name = "Standard::String",
                 .color = MockData::Color::String,
                 .wireThickness = 2,
-                .metadata = styleMetadata
+                .metadata = styleMetadata.classToBytes()
             });
 
             // --------------------------------------------------------------------------------------------------------------------------------
@@ -588,7 +588,7 @@ namespace MockData {
             };
 
             const NodeState state;
-            const bool isNodeValid = nodeEnvDB->node.createNode(query, Node::CreateNodeRecord<NodeState>{
+            const bool isNodeValid = nodeEnvDB->node.createNode(query, Node::CreateNodeRecord{
                 .id = nodeId,
                     .coreId = MockData::Helper::make_uuid("019f7153-ae5d-72cc-b6eb-d2077d0b5d2e"),
                     .name = "test Node",
@@ -597,7 +597,7 @@ namespace MockData {
                     .pos = pos,
                     .width = -1,
                     .height = -1,
-                    .state = state
+                    .state = state.classToBytes()
             });
             if (!isNodeValid) return false;
 
@@ -668,10 +668,10 @@ namespace MockData {
 
         const WidgetState state;
         const muuid::uuid id = muuid::uuid::generate_time_based();
-        const bool isValid = nodeEnvDB->widget.createWidget(query, Widget::CreateWidgetRecord<WidgetState>{
+        const bool isValid = nodeEnvDB->widget.createWidget(query, Widget::CreateWidgetRecord{
             .id = id,
             .coreId = MockData::Helper::make_uuid("019f7153-ae5d-7cd2-8104-e01838eb2627"),
-            .state = state,
+            .state = state.classToBytes(),
             .w = newWidget.w,
             .h = newWidget.h,
             });
@@ -724,14 +724,14 @@ namespace MockData {
             };
 
             const WireState state;
-            return nodeEnvDB->wire.createWire(query, Wire::CreateWireRecord<WireState>{
+            return nodeEnvDB->wire.createWire(query, Wire::CreateWireRecord{
                 .id = id,
                 .coreId = MockData::Helper::make_uuid("019f71b0-90be-7462-a862-696c23ff6303"),
                 .originId = newWire.originId,
                 .targetId = newWire.targetId,
                 .originHintPos = newWire.originHintPos,
                 .targetHintPos = newWire.targetHintPos,
-                .state = state
+                .state = state.classToBytes()
                 });
         });
 

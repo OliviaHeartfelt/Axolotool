@@ -212,8 +212,7 @@ namespace NDWireDetails::Read {
     }
 
     // 3. Wire Pins
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<NDWireDetails::Config::FullWireRecord<State>> getWire(QSqlQuery& query, const muuid::uuid& id) {
+    inline std::optional<NDWireDetails::Config::FullWireRecord> getWire(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT core_id, origin_id, target_id, origin_canvas_hint_x, origin_canvas_hint_y, target_canvas_hint_x, target_canvas_hint_y, state
             FROM wire
@@ -236,22 +235,18 @@ namespace NDWireDetails::Read {
         const auto targetId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
         if (!targetId) return std::nullopt;
 
-        const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(7));
-        if (state.isCorrupted()) return std::nullopt;
-
-        return NDWireDetails::Config::FullWireRecord<State>{
+        return NDWireDetails::Config::FullWireRecord{
             id,
             *coreId,
             *originId,
             *targetId,
             QPointF(query.value(3).toReal(), query.value(4).toReal()),
             QPointF(query.value(5).toReal(), query.value(6).toReal()),
-            state.value
+            NDHelpers::extractRawBytes(query.value(7))
         };
     }
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<QList<NDWireDetails::Config::FullWireRecord<State>>> getContributorWires(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDWireDetails::Config::FullWireRecord<State>> list;
+    inline std::optional<QList<NDWireDetails::Config::FullWireRecord>> getContributorWires(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDWireDetails::Config::FullWireRecord> list;
 
         query.prepare(R"(
             SELECT w.id, w.core_id, w.origin_id, w.target_id, w.origin_canvas_hint_x, w.origin_canvas_hint_y, w.target_canvas_hint_x, w.target_canvas_hint_y, w.state
@@ -267,35 +262,32 @@ namespace NDWireDetails::Read {
         }
 
         while (query.next()) {
-            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            const auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+            const auto id =       Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const auto coreId =   Utility::UUID::bytesToUuid(query.value(1).toByteArray());
             const auto originId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
             const auto targetId = Utility::UUID::bytesToUuid(query.value(3).toByteArray());
 
-            const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(8));
-
-            if (!id || !coreId || !originId || !targetId || state.isCorrupted()) {
+            if (!id || !coreId || !originId || !targetId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWireDetails::Config::FullWireRecord<State>{
+            list.append(NDWireDetails::Config::FullWireRecord{
                 *id,
                 *coreId,
                 *originId,
                 *targetId,
                 QPointF(query.value(4).toReal(), query.value(5).toReal()),
                 QPointF(query.value(6).toReal(), query.value(7).toReal()),
-                state.value
+                NDHelpers::extractRawBytes(query.value(8))
             });
         }
         return list;
     }
-    template<NDConcepts::ByteConvertible State>
-    inline std::optional<QList<NDWireDetails::Config::FullWireRecord<State>>> getAllWires(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDWireDetails::Config::FullWireRecord<State>> list;
+    inline std::optional<QList<NDWireDetails::Config::FullWireRecord>> getAllWires(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDWireDetails::Config::FullWireRecord> list;
 
         query.prepare(R"(
             SELECT w.id, w.core_id, w.origin_id, w.target_id, w.origin_canvas_hint_x, w.origin_canvas_hint_y, w.target_canvas_hint_x, w.target_canvas_hint_y, w.state
@@ -317,23 +309,21 @@ namespace NDWireDetails::Read {
             const auto originId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
             const auto targetId = Utility::UUID::bytesToUuid(query.value(3).toByteArray());
 
-            const NDHelpers::NullableField<State> state = NDHelpers::parseNullableByteConvertible<State>(query.value(8));
-
-            if (!id || !coreId || !originId || !targetId || state.isCorrupted()) {
+            if (!id || !coreId || !originId || !targetId) {
                 if (continueAtFail)
                     continue;
                 else
                     return std::nullopt;
             }
 
-            list.append(NDWireDetails::Config::FullWireRecord<State>{
+            list.append(NDWireDetails::Config::FullWireRecord{
                 *id,
                 *coreId,
                 *originId,
                 *targetId,
                 QPointF(query.value(4).toReal(), query.value(5).toReal()),
                 QPointF(query.value(6).toReal(), query.value(7).toReal()),
-                state.value
+                NDHelpers::extractRawBytes(query.value(8))
             });
         }
         return list;

@@ -41,49 +41,43 @@ namespace NDWidgetSourceDetails::Config {
 
 
     // 3. Type
-    template<NDConcepts::ByteConvertible Metadata>
     struct FullWidgetTypeRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
         QString name;
-        std::optional<Metadata> metadata;
+        std::optional<std::vector<uint8_t>> metadata;
     };
-    template<NDConcepts::ByteConvertible Metadata>
     struct CreateWidgetTypeRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
         QString name;
-        std::optional<Metadata> metadata = std::nullopt;
+        std::optional<std::vector<uint8_t>> metadata = std::nullopt;
     };
-    template<NDConcepts::ByteConvertible Metadata>
     struct UpdateWidgetTypeRecord {
         std::optional<muuid::uuid> id =            std::nullopt;
         std::optional<muuid::uuid> contributorId = std::nullopt;
         std::optional<QString> name =              std::nullopt;
-        std::variant<std::monostate, std::optional<Metadata>> metadata = std::monostate{};
+        std::variant<std::monostate, std::optional<std::vector<uint8_t>>> metadata = std::monostate{};
     };
 
 
     // 4. Data
-    template<NDConcepts::ByteConvertible Data>
     struct FullWidgetDataRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
         QString name;
-        std::optional<Data> data;
+        std::optional<std::vector<uint8_t>> data;
     };
-    template<NDConcepts::ByteConvertible Data>
     struct CreateWidgetDataRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
         QString name;
-        std::optional<Data> data = std::nullopt;
+        std::optional<std::vector<uint8_t>> data = std::nullopt;
     };
-    template<NDConcepts::ByteConvertible Data>
     struct UpdateWidgetDataRecord {
         std::optional<muuid::uuid> id =            std::nullopt;
         std::optional<muuid::uuid> contributorId = std::nullopt;
         std::optional<QString> name =              std::nullopt;
-        std::variant<std::monostate, std::optional<Data>> data = std::monostate{};
+        std::variant<std::monostate, std::optional<std::vector<uint8_t>>> data = std::monostate{};
     };
 }

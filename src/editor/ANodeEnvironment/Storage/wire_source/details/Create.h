@@ -38,8 +38,7 @@ namespace NDWireSourceDetails::Create {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible Metadata>
-    inline bool createWireStyle(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireStyleRecord<Metadata>& newStyle) {
+    inline bool createWireStyle(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireStyleRecord& newStyle) {
         query.prepare(R"(
             INSERT INTO wire_style (id,  contributor_id,  name,  color,  wire_thickness,  metadata)
             VALUES (               :id, :contributor_id, :name, :color, :wire_thickness, :metadata);
@@ -51,7 +50,7 @@ namespace NDWireSourceDetails::Create {
         query.bindValue(":name",           newStyle.name);
         query.bindValue(":color",          newStyle.color.rgba());
         query.bindValue(":wire_thickness", newStyle.wireThickness);
-        query.bindValue(":metadata",       newStyle.metadata ? QVariant(Utility::ByteArray::toQByteArray(newStyle.metadata->classToBytes())) : QVariant());
+        query.bindValue(":metadata",       newStyle.metadata ? QVariant(Utility::ByteArray::toQByteArray(*newStyle.metadata)) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert wire style:" << query.lastError().text();
@@ -59,8 +58,7 @@ namespace NDWireSourceDetails::Create {
         }
         return true;
     }
-    template<NDConcepts::ByteConvertible Data>
-    inline bool createWireData(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireDataRecord<Data>& newData) {
+    inline bool createWireData(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireDataRecord& newData) {
         query.prepare(R"(
             INSERT INTO wire_data (id,  contributor_id,  name,  color,  wire_thickness,  metadata)
             VALUES (              :id, :contributor_id, :name, :color, :wire_thickness, :metadata);
@@ -70,7 +68,7 @@ namespace NDWireSourceDetails::Create {
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newData.contributorId));
 
         query.bindValue(":name", newData.name);
-        query.bindValue(":data", newData.data ? QVariant(Utility::ByteArray::toQByteArray(newData.data->classToBytes())) : QVariant());
+        query.bindValue(":data", newData.data ? QVariant(Utility::ByteArray::toQByteArray(*newData.data)) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert wire data:" << query.lastError().text();

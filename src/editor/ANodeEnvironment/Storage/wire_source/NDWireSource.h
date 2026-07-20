@@ -73,25 +73,21 @@ namespace NDWireSource {
             return NDWireSourceDetails::Create::createWireContributor(query, newContributor);
         }
 
-        template<NDConcepts::ByteConvertible Metadata>
-        inline bool createWireStyle(const NDWireSourceDetails::Config::CreateWireStyleRecord<Metadata>& newStyle) {
+        inline bool createWireStyle(const NDWireSourceDetails::Config::CreateWireStyleRecord& newStyle) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireSourceDetails::Create::createWireStyle(query, newStyle);
             });
         }
-        template<NDConcepts::ByteConvertible Metadata>
-        inline bool createWireStyle(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireStyleRecord<Metadata>& newStyle) {
+        inline bool createWireStyle(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireStyleRecord& newStyle) {
             return NDWireSourceDetails::Create::createWireStyle(query, newStyle);
         }
 
-        template<NDConcepts::ByteConvertible Data>
-        inline bool createWireData(const NDWireSourceDetails::Config::CreateWireDataRecord<Data>& newData) {
+        inline bool createWireData(const NDWireSourceDetails::Config::CreateWireDataRecord& newData) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireSourceDetails::Create::createWireData(query, newData);
             });
         }
-        template<NDConcepts::ByteConvertible Data>
-        inline bool createWireData(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireDataRecord<Data>& newData) {
+        inline bool createWireData(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireDataRecord& newData) {
             return NDWireSourceDetails::Create::createWireData(query, newData);
         }
 
@@ -130,66 +126,54 @@ namespace NDWireSource {
             return NDWireSourceDetails::Read::getAllWireContributors(query, sourceId, continueAtFail);
         }
 
-        template<NDConcepts::ByteConvertible Metadata>
-        inline std::optional<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>> getWireStyle(const muuid::uuid& id) {
+        inline std::optional<NDWireSourceDetails::Config::FullWireStyleRecord> getWireStyle(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDWireSourceDetails::Read::getWireStyle<Metadata>(query, id);
+                return NDWireSourceDetails::Read::getWireStyle(query, id);
             });
         }
-        template<NDConcepts::ByteConvertible Metadata>
-        inline std::optional<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>> getWireStyle(QSqlQuery& query, const muuid::uuid& id) {
-            return NDWireSourceDetails::Read::getWireStyle<Metadata>(query, id);
+        inline std::optional<NDWireSourceDetails::Config::FullWireStyleRecord> getWireStyle(QSqlQuery& query, const muuid::uuid& id) {
+            return NDWireSourceDetails::Read::getWireStyle(query, id);
         }
-        template<NDConcepts::ByteConvertible Metadata>
-        inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>>> getContributorWireStyles(const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord>> getContributorWireStyles(const muuid::uuid& contributorId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDWireSourceDetails::Read::getContributorWireStyles<Metadata>(query, contributorId, continueAtFail);
+                return NDWireSourceDetails::Read::getContributorWireStyles(query, contributorId, continueAtFail);
             });
         }
-        template<NDConcepts::ByteConvertible Metadata>
-        inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>>> getContributorWireStyles(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDWireSourceDetails::Read::getContributorWireStyles<Metadata>(query, contributorId, continueAtFail);
+        inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord>> getContributorWireStyles(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+            return NDWireSourceDetails::Read::getContributorWireStyles(query, contributorId, continueAtFail);
         }
-        template<NDConcepts::ByteConvertible Metadata>
-        inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>>> getAllWireStyles(const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord>> getAllWireStyles(const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDWireSourceDetails::Read::getAllWireStyles<Metadata>(query, sourceId, continueAtFail);
+                return NDWireSourceDetails::Read::getAllWireStyles(query, sourceId, continueAtFail);
             });
         }
-        template<NDConcepts::ByteConvertible Metadata>
-        inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord<Metadata>>> getAllWireStyles(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDWireSourceDetails::Read::getAllWireStyles<Metadata>(query, sourceId, continueAtFail);
+        inline std::optional<QList<NDWireSourceDetails::Config::FullWireStyleRecord>> getAllWireStyles(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+            return NDWireSourceDetails::Read::getAllWireStyles(query, sourceId, continueAtFail);
         }
 
-        template<NDConcepts::ByteConvertible Data>
-        inline std::optional<NDWireSourceDetails::Config::FullWireDataRecord<Data>> getWireData(const muuid::uuid& id) {
+        inline std::optional<NDWireSourceDetails::Config::FullWireDataRecord> getWireData(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDWireSourceDetails::Read::getWireData<Data>(query, id);
+                return NDWireSourceDetails::Read::getWireData(query, id);
             });
         }
-        template<NDConcepts::ByteConvertible Data>
-        inline std::optional<NDWireSourceDetails::Config::FullWireDataRecord<Data>> getWireData(QSqlQuery& query, const muuid::uuid& id) {
-            return NDWireSourceDetails::Read::getWireData<Data>(query, id);
+        inline std::optional<NDWireSourceDetails::Config::FullWireDataRecord> getWireData(QSqlQuery& query, const muuid::uuid& id) {
+            return NDWireSourceDetails::Read::getWireData(query, id);
         }
-        template<NDConcepts::ByteConvertible Data>
-        inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>>> getContributorWireData(const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord>> getContributorWireData(const muuid::uuid& contributorId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDWireSourceDetails::Read::getContributorWireData<Data>(query, contributorId, continueAtFail);
+                return NDWireSourceDetails::Read::getContributorWireData(query, contributorId, continueAtFail);
             });
         }
-        template<NDConcepts::ByteConvertible Data>
-        inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>>> getContributorWireData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-            return NDWireSourceDetails::Read::getContributorWireData<Data>(query, contributorId, continueAtFail);
+        inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord>> getContributorWireData(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+            return NDWireSourceDetails::Read::getContributorWireData(query, contributorId, continueAtFail);
         }
-        template<NDConcepts::ByteConvertible Data>
-        inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>>> getAllWireData(const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord>> getAllWireData(const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDWireSourceDetails::Read::getAllWireData<Data>(query, sourceId, continueAtFail);
+                return NDWireSourceDetails::Read::getAllWireData(query, sourceId, continueAtFail);
             });
         }
-        template<NDConcepts::ByteConvertible Data>
-        inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord<Data>>> getAllWireData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-            return NDWireSourceDetails::Read::getAllWireData<Data>(query, sourceId, continueAtFail);
+        inline std::optional<QList<NDWireSourceDetails::Config::FullWireDataRecord>> getAllWireData(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+            return NDWireSourceDetails::Read::getAllWireData(query, sourceId, continueAtFail);
         }
 
         // 3. UPDATE
@@ -211,25 +195,21 @@ namespace NDWireSource {
             return NDWireSourceDetails::Update::updateWireContributor(query, id, newProperties);
         }
 
-        template<NDConcepts::ByteConvertible Metadata>
-        inline bool updateWireStyle(muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireStyleRecord<Metadata>& newProperties) {
+        inline bool updateWireStyle(muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireStyleRecord& newProperties) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireSourceDetails::Update::updateWireStyle(query, id, newProperties);
             });
         }
-        template<NDConcepts::ByteConvertible Metadata>
-        inline bool updateWireStyle(QSqlQuery& query, muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireStyleRecord<Metadata>& newProperties) {
+        inline bool updateWireStyle(QSqlQuery& query, muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireStyleRecord& newProperties) {
             return NDWireSourceDetails::Update::updateWireStyle(query, id, newProperties);
         }
 
-        template<NDConcepts::ByteConvertible Data>
-        inline bool updateWireData(muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireDataRecord<Data>& newProperties) {
+        inline bool updateWireData(muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireDataRecord& newProperties) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDWireSourceDetails::Update::updateWireData(query, id, newProperties);
             });
         }
-        template<NDConcepts::ByteConvertible Data>
-        inline bool updateWireData(QSqlQuery& query, muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireDataRecord<Data>& newProperties) {
+        inline bool updateWireData(QSqlQuery& query, muuid::uuid id, const NDWireSourceDetails::Config::UpdateWireDataRecord& newProperties) {
             return NDWireSourceDetails::Update::updateWireData(query, id, newProperties);
         }
 

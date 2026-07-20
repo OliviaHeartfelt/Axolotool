@@ -38,7 +38,6 @@ namespace NDWireDetails::Config {
     };
 
     // 2. Wire
-    template<NDConcepts::ByteConvertible State>
     struct FullWireRecord {
         muuid::uuid id;
         muuid::uuid coreId;
@@ -46,9 +45,8 @@ namespace NDWireDetails::Config {
         muuid::uuid targetId;
         QPointF originHintPos;
         QPointF targetHintPos;
-        std::optional<State> state;
+        std::optional<std::vector<uint8_t>> state;
     };
-    template<NDConcepts::ByteConvertible State>
     struct CreateWireRecord {
         muuid::uuid id;
         muuid::uuid coreId;
@@ -56,7 +54,7 @@ namespace NDWireDetails::Config {
         muuid::uuid targetId;
         QPointF originHintPos;
         QPointF targetHintPos;
-        std::optional<State> state;
+        std::optional<std::vector<uint8_t>> state = std::nullopt;
     };
     struct FactoryWireRecord {
         muuid::uuid originId;
@@ -64,12 +62,11 @@ namespace NDWireDetails::Config {
         QPointF originHintPos;
         QPointF targetHintPos;
     };
-    template<NDConcepts::ByteConvertible State>
     struct UpdateWireRecord {
         std::optional<muuid::uuid> id =        std::nullopt;
         std::optional<muuid::uuid> coreId =    std::nullopt;
         std::optional<QPointF> originHintPos = std::nullopt;
         std::optional<QPointF> targetHintPos = std::nullopt;
-        std::optional<State>   state =         std::nullopt;
+        std::variant<std::monostate, std::optional<std::vector<uint8_t>>> state = std::monostate{};
     };
 }
