@@ -19,25 +19,26 @@ namespace NDCellDetails::Init {
                 layout_row_span SMALLINT NOT NULL DEFAULT 1,
                 layout_col_span SMALLINT NOT NULL DEFAULT 1,
                 is_out          INTEGER NOT NULL DEFAULT 0,
-                pin_id          BLOB,
+
+                pin_template_id BLOB,
+                pin_instance_id BLOB,
                 widget_id       BLOB,
 
                 UNIQUE(node_id, layout_row, layout_col),
 
                 PRIMARY KEY(id),
-                FOREIGN KEY(node_id)    REFERENCES node(id)   ON DELETE CASCADE,
-                FOREIGN KEY(pin_id)     REFERENCES pin(id)     ON DELETE SET NULL,
-                FOREIGN KEY(widget_id)  REFERENCES widget(id)  ON DELETE SET NULL,
+                FOREIGN KEY(node_id)         REFERENCES node(id)     ON DELETE CASCADE  ON UPDATE CASCADE,
+                FOREIGN KEY(pin_template_id) REFERENCES pin_core(id) ON DELETE SET NULL ON UPDATE CASCADE,
+                FOREIGN KEY(pin_instance_id) REFERENCES pin(id)      ON DELETE SET NULL ON UPDATE CASCADE,
+                FOREIGN KEY(widget_id)       REFERENCES widget(id)   ON DELETE SET NULL ON UPDATE CASCADE,
 
                 CONSTRAINT chk_row_span        CHECK (layout_row_span >= 1),
                 CONSTRAINT chk_col_span        CHECK (layout_col_span >= 1),
                 CONSTRAINT chk_cell_visibility CHECK (is_out IN (0, 1)),
 
                 CONSTRAINT chk_exclusive_content CHECK (
-                    (pin_id IS NULL     AND widget_id IS NULL) OR
-                    (pin_id IS NOT NULL AND widget_id IS NULL) OR
-                    (pin_id IS NULL     AND widget_id IS NOT NULL)
-                )
+                    (pin_template_id IS NOT NULL) + (pin_instance_id IS NOT NULL) + (widget_id IS NOT NULL) <= 1
+                )   
             );
         )";
     

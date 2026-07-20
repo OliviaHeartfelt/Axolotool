@@ -19,7 +19,7 @@ namespace ANode {
                 QGraphicsItem::ItemSendsGeometryChanges);
 
             body = new ANodeGrid::Grid(this);
-            body->initGrid(2, 1);
+            body->initGrid(1, 1);
 
             //auto* label = new QGraphicsSimpleTextItem("Node");
             //label->setBrush(Qt::white);

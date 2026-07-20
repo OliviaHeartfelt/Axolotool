@@ -13,7 +13,7 @@ namespace NDHelpers {
     struct Transaction<bool> {
 
         template<typename Func>
-        static bool use(const QSqlDatabase& db, Func&& fn) {
+        static bool use(QSqlDatabase& db, Func&& fn) {
             QSqlQuery query(db);
             Utility::SqlTransaction tr(db);
 
@@ -31,7 +31,7 @@ namespace NDHelpers {
         using ReturnType = std::optional<T>;
 
         template<typename Func>
-        static ReturnType use(const QSqlDatabase& db, Func&& fn) {
+        static ReturnType use(QSqlDatabase& db, Func&& fn) {
             QSqlQuery query(db);
             Utility::SqlTransaction tr(db);
 
@@ -46,7 +46,7 @@ namespace NDHelpers {
     };
 
     template<typename Func>
-    auto useTransaction(NDPool::DatabasePool& pool, Func&& fn) {
+    inline auto useTransaction(NDPool::DatabasePool& pool, Func&& fn) {
         auto lease = pool.acquire();
 
         using ReturnType = std::invoke_result_t<Func, QSqlQuery&>;
@@ -54,7 +54,7 @@ namespace NDHelpers {
     }
 
     template<typename Func>
-    auto useQuery(NDPool::DatabasePool& pool, Func&& fn) {
+    inline auto useQuery(NDPool::DatabasePool& pool, Func&& fn) {
         auto lease = pool.acquire();
 
         QSqlQuery query(lease.db());
@@ -74,7 +74,7 @@ namespace NDHelpers {
         bool isValid() const { return state == State::Valid; }
     };
 
-    NullableField<muuid::uuid> parseNullableUUID(const QVariant& variant) {
+    inline NullableField<muuid::uuid> parseNullableUUID(const QVariant& variant) {
         if (variant.isNull())
             return { NullableField<muuid::uuid>::State::Null, std::nullopt };
 
@@ -84,11 +84,14 @@ namespace NDHelpers {
         return { NullableField<muuid::uuid>::State::Corrupted, std::nullopt };
     }
     template<NDConcepts::ByteConvertible T>
-    NullableField<T> parseNullableByteConvertible(const QVariant& variant) {
+    inline NullableField<T> parseNullableByteConvertible(const QVariant& variant) {
         if (variant.isNull())
             return { NullableField<T>::State::Null, std::nullopt };
 
-        if (const auto parsed = T::byteArrayToClass(variant.toByteArray()))
+        const QByteArray raw = variant.toByteArray();
+        const std::span<const uint8_t> bytes(reinterpret_cast<const uint8_t*>(raw.constData()), static_cast<std::size_t>(raw.size()));
+
+        if (const auto parsed = T::bytesToClass(bytes))
             return { NullableField<T>::State::Valid, *parsed };
 
         return { NullableField<T>::State::Corrupted, std::nullopt };

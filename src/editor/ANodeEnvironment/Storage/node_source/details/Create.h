@@ -8,12 +8,13 @@ namespace NDNodeSourceDetails::Create {
 
     inline bool createNodeSource(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeSourceRecord& newNodeSource) {
         query.prepare(R"(
-            INSERT INTO node_source (id,  name)
-            VALUES (                :id, :name);
+            INSERT INTO node_source (id,  global_source_id,  name)
+            VALUES (                :id, :global_source_id, :name);
         )");
 
-        query.bindValue(":id",   Utility::UUID::uuidToBytes(newNodeSource.id));
-        query.bindValue(":name", newNodeSource.name);
+        query.bindValue(":id",               Utility::UUID::uuidToBytes(newNodeSource.id));
+        query.bindValue(":global_source_id", newNodeSource.globalSourceId ? QVariant(Utility::UUID::uuidToBytes(*newNodeSource.globalSourceId)) : QVariant());
+        query.bindValue(":name",             newNodeSource.name);
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node source:" << query.lastError().text();
@@ -46,10 +47,10 @@ namespace NDNodeSourceDetails::Create {
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newNodeType.id));
-        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newNodeType.sourceId));
+        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newNodeType.contributorId));
 
         query.bindValue(":name",     newNodeType.name);
-        query.bindValue(":metadata", newNodeType.metadata ? QVariant(newNodeType.metadata->classToByteArray()) : QVariant());
+        query.bindValue(":metadata", newNodeType.metadata ? QVariant(Utility::ByteArray::toQByteArray(newNodeType.metadata->classToBytes())) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node type:" << query.lastError().text();
@@ -65,10 +66,10 @@ namespace NDNodeSourceDetails::Create {
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newNodeData.id));
-        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newNodeData.sourceId));
+        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newNodeData.contributorId));
 
         query.bindValue(":name", newNodeData.name);
-        query.bindValue(":data", newNodeData.metadata ? QVariant(newNodeData.data->classToByteArray()) : QVariant());
+        query.bindValue(":data", newNodeData.data ? QVariant(Utility::ByteArray::toQByteArray(newNodeData.data->classToBytes())) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node data:" << query.lastError().text();

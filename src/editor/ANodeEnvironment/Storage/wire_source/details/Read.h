@@ -10,7 +10,7 @@ namespace NDWireSourceDetails::Read {
     // 1. Source
     inline std::optional<NDWireSourceDetails::Config::FullWireSourceRecord> getWireSource(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT name
+            SELECT global_source_id, name
             FROM wire_source 
             WHERE id = :id;
         )");
@@ -22,9 +22,13 @@ namespace NDWireSourceDetails::Read {
         }
         if (!query.next()) return std::nullopt;
 
+        const NDHelpers::NullableField<muuid::uuid> globalSourceId = NDHelpers::parseNullableUUID(query.value(0));
+        if (globalSourceId.isCorrupted()) return std::nullopt;
+
         return NDWireSourceDetails::Config::FullWireSourceRecord{
             id,
-            query.value(0).toString()
+            globalSourceId.value,
+            query.value(1).toString()
         };
     }
 
@@ -32,7 +36,7 @@ namespace NDWireSourceDetails::Read {
         QList<NDWireSourceDetails::Config::FullWireSourceRecord> list;
 
         query.prepare(R"(
-            SELECT id, name
+            SELECT id, global_source_id, name
             FROM wire_source;
         )");
 
@@ -43,8 +47,9 @@ namespace NDWireSourceDetails::Read {
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const NDHelpers::NullableField<muuid::uuid> globalSourceId = NDHelpers::parseNullableUUID(query.value(1));
 
-            if (!id) {
+            if (!id || globalSourceId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -53,7 +58,8 @@ namespace NDWireSourceDetails::Read {
 
             list.append(NDWireSourceDetails::Config::FullWireSourceRecord{
                 *id,
-                query.value(1).toString()
+                globalSourceId.value,
+                query.value(2).toString()
             });
         }
         return list;

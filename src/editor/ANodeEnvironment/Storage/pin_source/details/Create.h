@@ -8,12 +8,13 @@ namespace NDPinSourceDetails::Create {
     // 0. Source
     inline bool createPinSource(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinSourceRecord& newSource) {
         query.prepare(R"(
-            INSERT INTO pin_source (id,  name)
-            VALUES (               :id, :name);
+            INSERT INTO pin_source (id,  global_source_id,  name)
+            VALUES (               :id, :global_source_id, :name);
         )");
 
-        query.bindValue(":id",   Utility::UUID::uuidToBytes(newSource.id));
-        query.bindValue(":name", newSource.name);
+        query.bindValue(":id",               Utility::UUID::uuidToBytes(newSource.id));
+        query.bindValue(":global_source_id", newSource.globalSourceId ? QVariant(Utility::UUID::uuidToBytes(*newSource.globalSourceId)) : QVariant());
+        query.bindValue(":name",             newSource.name);
 
         if (!query.exec()) {
             qCritical() << "Failed to insert source:" << query.lastError().text();
@@ -87,7 +88,7 @@ namespace NDPinSourceDetails::Create {
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newStyle.contributorId));
         query.bindValue(":name",           newStyle.name);
         query.bindValue(":color",          newStyle.color.rgba());
-        query.bindValue(":wire_thickness", newStyle.wire_thickness);
+        query.bindValue(":wire_thickness", newStyle.wireThickness);
 
         if (!query.exec()) {
             qCritical() << "Failed to insert style source:" << query.lastError().text();

@@ -6,7 +6,7 @@
 namespace NDCellDetails::Create {
 
     inline bool create(QSqlQuery& query, const Config::CreateCellRecord& newCell, const bool overrideOnCollision = false) {
-        if (newCell.pinId && newCell.widgetId) return false;
+        if (newCell.pinInstanceId && newCell.widgetId) return false;
 
         const NDCellDetails::Config::CellInfo info{
             newCell.row,
@@ -24,8 +24,8 @@ namespace NDCellDetails::Create {
         }
     
         query.prepare(R"(
-            INSERT INTO node_cells (id,  node_id,  name,  layout_row,  layout_col,  layout_row_span,  layout_col_span,  pin_id,  widget_id,  is_out)
-            VALUES (               :id, :node_id, :name, :layout_row, :layout_col, :layout_row_span, :layout_col_span, :pin_id, :widget_id, :is_out);
+            INSERT INTO node_cells (id,  node_id,  name,  layout_row,  layout_col,  layout_row_span,  layout_col_span,  pin_template_id,  pin_instance_id,  widget_id,  is_out)
+            VALUES (               :id, :node_id, :name, :layout_row, :layout_col, :layout_row_span, :layout_col_span, :pin_template_id, :pin_instance_id, :widget_id, :is_out);
         )");
 
         query.bindValue(":id",              Utility::UUID::uuidToBytes(newCell.id));
@@ -38,7 +38,8 @@ namespace NDCellDetails::Create {
         query.bindValue(":layout_col_span", info.colSpan);
         query.bindValue(":is_out",          newCell.isOut? 1 : 0);
 
-        query.bindValue(":pin_id",          newCell.pinId ?    Utility::UUID::uuidToBytes(*newCell.pinId) :    QVariant());
+        query.bindValue(":pin_template_id", newCell.pinTemplateId ? Utility::UUID::uuidToBytes(*newCell.pinTemplateId) : QVariant());
+        query.bindValue(":pin_instance_id", newCell.pinInstanceId ? Utility::UUID::uuidToBytes(*newCell.pinInstanceId) : QVariant());
         query.bindValue(":widget_id",       newCell.widgetId ? Utility::UUID::uuidToBytes(*newCell.widgetId) : QVariant());
     
         if (!query.exec()) {

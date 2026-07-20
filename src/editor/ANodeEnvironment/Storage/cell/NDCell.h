@@ -17,19 +17,16 @@ namespace NDCell {
         using namespace ::NDCellDetails::Config;
     }
 
-    struct ComponentFriendTag {
-        template<typename DBContext>
-        static typename DBContext::StorageKey createKey() { return {}; }
-    };
-
-    template<NDConcepts::DatabaseProvider DBContext>
+    template<typename DBContext>
     class Component {
         DBContext* parent;
 
         NDPool::DatabasePool& pool() const { return parent->getPool(); }
 
     public:
-        explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
+        explicit Component(DBContext* parentCtx) : parent(parentCtx) {
+            static_assert(NDConcepts::DatabaseProvider<DBContext>, "DBContext must satisfy DatabaseProvider"); 
+        }
 
 
         std::optional<QStringList> existsTables(const bool value) const {

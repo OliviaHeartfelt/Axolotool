@@ -8,12 +8,13 @@ namespace NDWireSourceDetails::Create {
 
     inline bool createWireSource(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireSourceRecord& newSource) {
         query.prepare(R"(
-            INSERT INTO wire_source (id,  name)
-            VALUES (                :id, :name);
+            INSERT INTO wire_source (id,  global_source_id,  name)
+            VALUES (                :id, :global_source_id, :name);
         )");
 
-        query.bindValue(":id",   Utility::UUID::uuidToBytes(newSource.id));
-        query.bindValue(":name", newSource.name);
+        query.bindValue(":id",               Utility::UUID::uuidToBytes(newSource.id));
+        query.bindValue(":global_source_id", newSource.globalSourceId ? QVariant(Utility::UUID::uuidToBytes(*newSource.globalSourceId)) : QVariant());
+        query.bindValue(":name",             newSource.name);
 
         if (!query.exec()) {
             qCritical() << "Failed to insert wire source:" << query.lastError().text();
@@ -45,12 +46,12 @@ namespace NDWireSourceDetails::Create {
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newStyle.id));
-        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newStyle.sourceId));
+        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newStyle.contributorId));
 
         query.bindValue(":name",           newStyle.name);
         query.bindValue(":color",          newStyle.color.rgba());
         query.bindValue(":wire_thickness", newStyle.wireThickness);
-        query.bindValue(":metadata",       newStyle.metadata ? QVariant(newStyle.metadata->classToByteArray()) : QVariant());
+        query.bindValue(":metadata",       newStyle.metadata ? QVariant(Utility::ByteArray::toQByteArray(newStyle.metadata->classToBytes())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert wire style:" << query.lastError().text();
@@ -66,10 +67,10 @@ namespace NDWireSourceDetails::Create {
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newData.id));
-        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newData.sourceId));
+        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newData.contributorId));
 
         query.bindValue(":name", newData.name);
-        query.bindValue(":data", newData.data ? QVariant(newData.data->classToByteArray()) : QVariant());
+        query.bindValue(":data", newData.data ? QVariant(Utility::ByteArray::toQByteArray(newData.data->classToBytes())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert wire data:" << query.lastError().text();

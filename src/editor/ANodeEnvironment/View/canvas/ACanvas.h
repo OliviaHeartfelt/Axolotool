@@ -4,41 +4,25 @@
 #include "../node/ANode.h"
 #include "../scene/ANodeScene.h"
 
+#include "../../Storage/ANodeEnvDB.h"
+
+#include "mockPluginData.h"
+
 namespace ACanvas {
 
-    class ANodeItem : public QGraphicsRectItem {
-    public:
-        ANodeItem() {
-            setRect(0, 0, 80, 40);
-            setBrush(QBrush(Qt::blue));
-            setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
-        }
-    };
-
     class Canvas {
-        QGraphicsScene* scene = nullptr;
-        QGraphicsView* view = nullptr;
+        std::unique_ptr<QGraphicsScene> scene;
+        std::unique_ptr<QGraphicsView> view;
+
+        std::unique_ptr<ANodeEnvDB::ANodeEnvDB> nodeEnvDB;
 
     public:
         Canvas() {
-            //test:
-            APinRegistry::Flow::load("Standard", {
-                { "In",  APinRegistry::FlowValue{ 0.0 } },
-                { "Out", APinRegistry::FlowValue{ 180.0 } }
-                });
-            APinRegistry::Type::load("Standard", {
-                { "Exe",  {} },
-                { "Bool", { 1 } },
-                { "Int",  { 32 } }
-                });
-            APinRegistry::Style::load("Standard", {
-                { "Exe",  {} },
-                { "Bool", { Qt::red } },
-                { "Int",  { Qt::cyan } }
-                });
 
-            scene = new ANodeScene::NodeScene();
-            view = new QGraphicsView(scene);
+            scene = std::make_unique<ANodeScene::NodeScene>();
+            view = std::make_unique<QGraphicsView>(scene.get());
+
+            nodeEnvDB = std::make_unique<ANodeEnvDB::ANodeEnvDB>("test_node_env.db", "NodeEnvPool");
 
             scene->setSceneRect(-10000, -10000, 20000, 20000);
 
@@ -46,13 +30,22 @@ namespace ACanvas {
             view->setAcceptDrops(true);
             view->setDragMode(QGraphicsView::RubberBandDrag);
 
-            scene->addItem(new ANode::ANode());
-            scene->addItem(new ANode::ANode());
+            if (nodeEnvDB) {
+
+                if (nodeEnvDB->open()) {
+                    MockData::injectMockPluginData(nodeEnvDB.get());
+                    MockData::createNodeInstance(nodeEnvDB.get(), QPointF{ 0.0, 0.0 });
+                    MockData::createNodeInstance(nodeEnvDB.get(), QPointF{ 0.0, 10.0 });
+                }
+                else {
+                    qCritical() << "Could not open Node Environment Database!";
+                }
+            }
 
             view->show();
         }
         QGraphicsView* getView() {
-            return view;
+            return view.get();
         }
     };
 }

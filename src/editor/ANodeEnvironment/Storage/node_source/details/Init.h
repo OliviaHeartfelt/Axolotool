@@ -17,12 +17,14 @@ namespace NDNodeSourceDetails::Init {
     inline bool createNodeSourceTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS node_source (
-                id   BLOB NOT NULL,
-                name TEXT NOT NULL,
+                id               BLOB NOT NULL,
+                global_source_id BLOB,
+                name             TEXT NOT NULL,
 
                 UNIQUE(name),
 
-                PRIMARY KEY (id)
+                PRIMARY KEY (id),
+                FOREIGN KEY (global_source_id) REFERENCES global_source(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -43,7 +45,7 @@ namespace NDNodeSourceDetails::Init {
                 UNIQUE(source_id, name),
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (source_id) REFERENCES node_source(id) ON DELETE CASCADE
+                FOREIGN KEY (source_id) REFERENCES node_source(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -65,7 +67,7 @@ namespace NDNodeSourceDetails::Init {
                 UNIQUE(contributor_id, name),
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE
+                FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -87,7 +89,7 @@ namespace NDNodeSourceDetails::Init {
                 UNIQUE(contributor_id, name),
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE
+                FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 

@@ -5,14 +5,18 @@ namespace NDPinSourceDetails::Config {
 	// 0. Source
 	struct FullPinSourceRecord {
 		muuid::uuid id;
+		std::optional<muuid::uuid> globalSourceId;
 		QString name;
 	};
 	struct CreatePinSourceRecord {
 		muuid::uuid id;
+		std::optional<muuid::uuid> globalSourceId = std::nullopt;
 		QString name;
 	};
 	struct UpdatePinSourceRecord {
-		std::optional<QString> name;
+		std::optional<muuid::uuid> id =             std::nullopt;
+		std::optional<muuid::uuid> globalSourceId = std::nullopt;
+		std::optional<QString> name =               std::nullopt;
 	};
 
 	struct FullPinContributorRecord {
@@ -26,7 +30,9 @@ namespace NDPinSourceDetails::Config {
 		QString name;
 	};
 	struct UpdatePinContributorRecord {
-		std::optional<QString> name;
+		std::optional<muuid::uuid> id =       std::nullopt;
+		std::optional<muuid::uuid> sourceId = std::nullopt;
+		std::optional<QString> name =         std::nullopt;
 	};
 
 	// 1. Flow
@@ -43,7 +49,9 @@ namespace NDPinSourceDetails::Config {
 		qreal degree = 0.0;
 	};
 	struct UpdatePinFlowRecord {
-		std::optional<QString> name;
+		std::optional<muuid::uuid> id =            std::nullopt;
+		std::optional<muuid::uuid> contributorId = std::nullopt;
+		std::optional<QString> name =              std::nullopt;
 		std::optional<qreal> degree = 0.0;
 	};
 
@@ -61,8 +69,10 @@ namespace NDPinSourceDetails::Config {
 		int bit_size = 0;
 	};
 	struct UpdatePinTypeRecord {
-		std::optional<QString> name;
-		std::optional<int> bit_size;
+		std::optional<muuid::uuid> id =            std::nullopt;
+		std::optional<muuid::uuid> contributorId = std::nullopt;
+		std::optional<QString> name =              std::nullopt;
+		std::optional<int> bit_size =              std::nullopt;
 	};
 
 	// 3. Style
@@ -71,18 +81,20 @@ namespace NDPinSourceDetails::Config {
 		muuid::uuid contributorId;
 		QString name;
         QColor color;
-        int wire_thickness;
+        int wireThickness;
 	};
 	struct CreatePinStyleRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
 		QString name;
 		QColor color = Qt::gray;
-		int wire_thickness = 2;
+		int wireThickness = 2;
 	};
 	struct UpdatePinStyleRecord {
-		std::optional<QString> name;
-		std::optional<QColor> color;
-		std::optional<int> wire_thickness;
+		std::optional<muuid::uuid> id =            std::nullopt;
+		std::optional<muuid::uuid> contributorId = std::nullopt;
+		std::optional<QString> name =              std::nullopt;
+		std::optional<QColor> color =              std::nullopt;
+		std::optional<int> wireThickness =         std::nullopt;
 	};
 }

@@ -28,6 +28,8 @@ namespace NDNodeDetails::Config {
 		double defaultNodeHeight = -1.0;
 	};
 	struct UpdateNodeCoreRecord {
+		std::optional<muuid::uuid> id            = std::nullopt;
+		std::optional<muuid::uuid> contributorId = std::nullopt;
 		std::variant<std::monostate, std::optional<muuid::uuid>> typeId = std::monostate{};
 		std::variant<std::monostate, std::optional<muuid::uuid>> dataId = std::monostate{};
 		std::optional<QString> name             = std::nullopt;
@@ -62,8 +64,17 @@ namespace NDNodeDetails::Config {
 		std::optional<double> height = std::nullopt;
 		std::optional<State> state   = std::nullopt;
 	};
+	struct FactoryNodeRecord {
+		short rowNum = 1;
+		short colNum = 1;
+		QPointF pos;
+		std::optional<double> width = std::nullopt;
+		std::optional<double> height = std::nullopt;
+	};
 	template<NDConcepts::ByteConvertible State>
 	struct UpdateNodeRecord {
+		std::optional<muuid::uuid> id     = std::nullopt;
+		std::optional<muuid::uuid> coreId = std::nullopt;
 		std::optional<QString> name   = std::nullopt;
 		std::optional<short>   rowNum = std::nullopt;
 		std::optional<short>   colNum = std::nullopt;

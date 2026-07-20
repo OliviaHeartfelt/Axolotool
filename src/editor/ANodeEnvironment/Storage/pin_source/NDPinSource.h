@@ -17,19 +17,16 @@ namespace NDPinSource {
         using namespace ::NDPinSourceDetails::Config;
     }
 
-    struct ComponentFriendTag {
-        template<typename DBContext>
-        static typename DBContext::StorageKey createKey() { return {}; }
-    };
-
-    template<NDConcepts::DatabaseProvider DBContext>
+    template<typename DBContext>
     class Component {
         DBContext* parent;
 
         NDPool::DatabasePool& pool() const { return parent->getPool(); }
 
     public:
-        explicit Component(DBContext* parentCtx) : parent(parentCtx) {}
+        explicit Component(DBContext* parentCtx) : parent(parentCtx) {
+            static_assert(NDConcepts::DatabaseProvider<DBContext>, "DBContext must satisfy DatabaseProvider");
+        }
 
         std::optional<QStringList> existsTables(const bool value) const {
             return NDHelpers::useQuery(pool(), [value](QSqlQuery& query) -> std::optional<QStringList> {
@@ -59,12 +56,12 @@ namespace NDPinSource {
         }
 
         // 1. Create - Source
-        bool createSource(const NDPinSourceDetails::Config::CreatePinSourceRecord& sourceInfo) {
+        bool createPinSource(const NDPinSourceDetails::Config::CreatePinSourceRecord& sourceInfo) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDPinSourceDetails::Create::createPinSource(query, sourceInfo);
             });
         }
-        bool createSource(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinSourceRecord& sourceInfo) {
+        bool createPinSource(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinSourceRecord& sourceInfo) {
             return NDPinSourceDetails::Create::createPinSource(query, sourceInfo);
         }
 
@@ -79,33 +76,33 @@ namespace NDPinSource {
         }
 
         // 1. Create - Flow
-        bool createFlow(const muuid::uuid& contributorId, const NDPinSourceDetails::Config::CreatePinFlowRecord& flowInfo) {
+        bool createFlow(const NDPinSourceDetails::Config::CreatePinFlowRecord& flowInfo) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDPinSourceDetails::Create::createPinFlowSource(query, contributorId, flowInfo);
+                return NDPinSourceDetails::Create::createPinFlowSource(query, flowInfo);
             });
         }
-        bool createFlow(QSqlQuery& query, const muuid::uuid& contributorId, const NDPinSourceDetails::Config::CreatePinFlowRecord& flowInfo) {
-            return NDPinSourceDetails::Create::createPinFlowSource(query, contributorId, flowInfo);
+        bool createFlow(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinFlowRecord& flowInfo) {
+            return NDPinSourceDetails::Create::createPinFlowSource(query, flowInfo);
         }
 
         // 1. Create - Type
-        bool createType(const muuid::uuid& contributorId, const NDPinSourceDetails::Config::CreatePinTypeRecord& typeInfo) {
+        bool createType(const NDPinSourceDetails::Config::CreatePinTypeRecord& typeInfo) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDPinSourceDetails::Create::createPinTypeSource(query, contributorId, typeInfo);
+                return NDPinSourceDetails::Create::createPinTypeSource(query, typeInfo);
             });
         }
-        bool createType(QSqlQuery& query, const muuid::uuid& contributorId, const NDPinSourceDetails::Config::CreatePinTypeRecord& typeInfo) {
-            return NDPinSourceDetails::Create::createPinTypeSource(query, contributorId, typeInfo);
+        bool createType(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinTypeRecord& typeInfo) {
+            return NDPinSourceDetails::Create::createPinTypeSource(query, typeInfo);
         }
 
         // 1. Create - Style
-        bool createStyle(const muuid::uuid& contributorId, const NDPinSourceDetails::Config::CreatePinStyleRecord& styleInfo) {
+        bool createStyle(const NDPinSourceDetails::Config::CreatePinStyleRecord& styleInfo) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDPinSourceDetails::Create::createPinStyleSource(query, contributorId, styleInfo);
+                return NDPinSourceDetails::Create::createPinStyleSource(query, styleInfo);
             });
         }
-        bool createStyle(QSqlQuery& query, const muuid::uuid& contributorId, const NDPinSourceDetails::Config::CreatePinStyleRecord& styleInfo) {
-            return NDPinSourceDetails::Create::createPinStyleSource(query, contributorId, styleInfo);
+        bool createStyle(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinStyleRecord& styleInfo) {
+            return NDPinSourceDetails::Create::createPinStyleSource(query, styleInfo);
         }
 
         // 2. Read - Source

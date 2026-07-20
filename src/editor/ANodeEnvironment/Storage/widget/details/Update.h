@@ -9,9 +9,15 @@ namespace NDWidgetDetails::Update {
     // 1. Widget Core
     inline bool updateWidgetCore(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetCoreRecord& newProperties) {
         QStringList clauses;
+
+        if (newProperties.id)            clauses.append("id = :new_id");
+        if (newProperties.contributorId) clauses.append("contributor_id = :new_contributor_id");
+
+        const auto* optTypePtr = std::get_if<std::optional<muuid::uuid>>(&newProperties.typeId);
+        if (optTypePtr) clauses.append("type_id = :type_id");
     
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId)) clauses.append("type_id = :type_id");
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.dataId)) clauses.append("data_id = :data_id");
+        const auto* optDataPtr = std::get_if<std::optional<muuid::uuid>>(&newProperties.dataId);
+        if (optDataPtr) clauses.append("data_id = :data_id");
     
         if (clauses.isEmpty()) return true;
     
@@ -20,23 +26,13 @@ namespace NDWidgetDetails::Update {
             qCritical() << "Failed to prepare dynamic update query:" << query.lastError().text();
             return false;
         }
-    
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
-    
-        using UpdateField = std::variant<std::monostate, std::optional<muuid::uuid>>;
-        auto unpackUpdateField = [](const UpdateField& field) -> QVariant {
-            if (const auto* opt = std::get_if<std::optional<muuid::uuid>>(&field)) {
-                return *opt ? Utility::UUID::uuidToBytes(**opt) : QVariant();
-            }
-            return QVariant();
-        };
 
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId)) {
-            query.bindValue(":type_id", unpackUpdateField(newProperties.typeId));
-        }
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.dataId)) {
-            query.bindValue(":data_id", unpackUpdateField(newProperties.dataId));
-        }
+        if (newProperties.id)            query.bindValue(":new_id",         Utility::UUID::uuidToBytes(*newProperties.id));
+        if (newProperties.contributorId) query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(*newProperties.contributorId));
+
+        if (optTypePtr) query.bindValue(":type_id", optTypePtr->has_value() ? Utility::UUID::uuidToBytes(optTypePtr->value()) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optDataPtr) query.bindValue(":type_id", optDataPtr->has_value() ? Utility::UUID::uuidToBytes(optDataPtr->value()) : QVariant(QMetaType::fromType<QByteArray>()));
     
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update widget core:" << query.lastError().text();
@@ -49,11 +45,12 @@ namespace NDWidgetDetails::Update {
     template<NDConcepts::ByteConvertible State>
     inline bool updateWidget(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetRecord<State>& newProperties) {
         QStringList clauses;
+
+        if (newProperties.id)     clauses.append("id = :new_id");
+        if (newProperties.coreId) clauses.append("core_id = :new_core_id");
     
         const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state);
-        if (optPtr) {
-            clauses.append("state = :state");
-        }
+        if (optPtr) clauses.append("state = :state");
 
         if (newProperties.width)  clauses.append("w_size = :w_size");
         if (newProperties.height) clauses.append("h_size = :h_size");
@@ -65,15 +62,12 @@ namespace NDWidgetDetails::Update {
             qCritical() << "Failed to prepare dynamic update query:" << query.lastError().text();
             return false;
         }
-    
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-        if (optPtr) {
-            if (optPtr->has_value())
-                query.bindValue(":state", QVariant(optPtr->value().classToByteArray()));
-            else
-                query.bindValue(":state", QVariant(QMetaType::fromType<QByteArray>()));
-        }
+        if (newProperties.id)     query.bindValue(":new_id",      Utility::UUID::uuidToBytes(*newProperties.id));
+        if (newProperties.coreId) query.bindValue(":new_core_id", Utility::UUID::uuidToBytes(*newProperties.coreId));
+
+        if (optPtr) query.bindValue(":state", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
 
         if (newProperties.width)  query.bindValue(":w_size", QVariant(*newProperties.width));
         if (newProperties.height) query.bindValue(":h_size", QVariant(*newProperties.height));

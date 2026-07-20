@@ -7,14 +7,18 @@ namespace NDWireSourceDetails::Config {
     // 1. Wire Source
     struct FullWireSourceRecord {
         muuid::uuid id;
+        std::optional<muuid::uuid> globalSourceId;
         QString name;
     };
     struct CreateWireSourceRecord {
         muuid::uuid id;
+        std::optional<muuid::uuid> globalSourceId = std::nullopt;
         QString name;
     };
     struct UpdateWireSourceRecord {
-        std::optional<QString> name = std::nullopt;
+        std::optional<muuid::uuid> id =             std::nullopt;
+        std::optional<muuid::uuid> globalSourceId = std::nullopt;
+        std::optional<QString> name =               std::nullopt;
     };
 
     // 2. Wire Contributor
@@ -29,7 +33,9 @@ namespace NDWireSourceDetails::Config {
         QString name;
     };
     struct UpdateWireContributorRecord {
-        std::optional<QString> name = std::nullopt;
+        std::optional<muuid::uuid> id =       std::nullopt;
+        std::optional<muuid::uuid> sourceId = std::nullopt;
+        std::optional<QString> name =         std::nullopt;
     };
 
     // 3. Wire Style
@@ -53,9 +59,11 @@ namespace NDWireSourceDetails::Config {
     };
     template<NDConcepts::ByteConvertible Metadata>
     struct UpdateWireStyleRecord {
-        std::optional<QString> name = std::nullopt;
-        std::optional<QColor> color = std::nullopt;
-        std::optional<int> wireThickness = std::nullopt;
+        std::optional<muuid::uuid> id =            std::nullopt;
+        std::optional<muuid::uuid> contributorId = std::nullopt;
+        std::optional<QString> name =              std::nullopt;
+        std::optional<QColor> color =              std::nullopt;
+        std::optional<int> wireThickness =         std::nullopt;
         std::variant<std::monostate, std::optional<Metadata>> metadata = std::monostate{};
     };
 
@@ -76,6 +84,8 @@ namespace NDWireSourceDetails::Config {
     };
     template<NDConcepts::ByteConvertible Data>
     struct UpdateWireDataRecord {
+        std::optional<muuid::uuid> id = std::nullopt;
+        std::optional<muuid::uuid> contributorId = std::nullopt;
         std::optional<QString> name = std::nullopt;
         std::variant<std::monostate, std::optional<Data>> data = std::monostate{};
     };

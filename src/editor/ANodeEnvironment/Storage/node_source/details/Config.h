@@ -7,14 +7,18 @@ namespace NDNodeSourceDetails::Config {
 	// 1. Node Source
 	struct FullNodeSourceRecord {
 		muuid::uuid id;
+		std::optional<muuid::uuid> globalSourceId;
 		QString name;
 	};
 	struct CreateNodeSourceRecord {
 		muuid::uuid id;
+		std::optional<muuid::uuid> globalSourceId = std::nullopt;
 		QString name;
 	};
 	struct UpdateNodeSourceRecord {
-		std::optional<QString> name = std::nullopt;
+		std::optional<muuid::uuid> id =             std::nullopt;
+		std::optional<muuid::uuid> globalSourceId = std::nullopt;
+		std::optional<QString> name =               std::nullopt;
 	};
 
 	// 2. Node Contributor
@@ -29,7 +33,9 @@ namespace NDNodeSourceDetails::Config {
 		QString name;
 	};
 	struct UpdateNodeContributorRecord {
-		std::optional<QString> name = std::nullopt;
+		std::optional<muuid::uuid> id =       std::nullopt;
+		std::optional<muuid::uuid> sourceId = std::nullopt;
+		std::optional<QString> name =         std::nullopt;
 	};
 
 	// 3. Node Type
@@ -49,7 +55,9 @@ namespace NDNodeSourceDetails::Config {
 	};
 	template<NDConcepts::ByteConvertible Metadata>
 	struct UpdateNodeTypeRecord {
-		std::optional<QString> name = std::nullopt;
+		std::optional<muuid::uuid> id =            std::nullopt;
+		std::optional<muuid::uuid> contributorId = std::nullopt;
+		std::optional<QString> name =              std::nullopt;
 		std::variant<std::monostate, std::optional<Metadata>> metadata = std::monostate{};
 	};
 
@@ -70,7 +78,9 @@ namespace NDNodeSourceDetails::Config {
 	};
 	template<NDConcepts::ByteConvertible Data>
 	struct UpdateNodeDataRecord {
-		std::optional<QString> name = std::nullopt;
+		std::optional<muuid::uuid> id =            std::nullopt;
+		std::optional<muuid::uuid> contributorId = std::nullopt;
+		std::optional<QString> name =              std::nullopt;
 		std::variant<std::monostate, std::optional<Data>> data = std::monostate{};
 	};
 }

@@ -8,7 +8,7 @@ namespace NDPinSourceDetails::Read {
     // 0. Source
     inline std::optional<NDPinSourceDetails::Config::FullPinSourceRecord> getSource(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT name
+            SELECT global_source_id, name
             FROM pin_source 
             WHERE id = :id;
         )");
@@ -18,19 +18,22 @@ namespace NDPinSourceDetails::Read {
             qCritical() << "Failed to execute getSource query:" << query.lastError().text();
             return std::nullopt;
         }
-
         if (!query.next()) return std::nullopt;
+
+        const NDHelpers::NullableField<muuid::uuid> globalSourceId = NDHelpers::parseNullableUUID(query.value(0));
+        if (globalSourceId.isCorrupted()) return std::nullopt;
 
         return NDPinSourceDetails::Config::FullPinSourceRecord{
             id,
-            query.value(0).toString()
+            globalSourceId.value,
+            query.value(1).toString()
         };
     }
     inline std::optional<QList<NDPinSourceDetails::Config::FullPinSourceRecord>> getAllSources(QSqlQuery& query, const bool continueAtFail = false) {
         QList<NDPinSourceDetails::Config::FullPinSourceRecord> list;
 
         query.prepare(R"(
-            SELECT id, name
+            SELECT id, global_source_id, name
             FROM pin_source
         )");
 
@@ -41,7 +44,9 @@ namespace NDPinSourceDetails::Read {
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            if (!id) {
+            const NDHelpers::NullableField<muuid::uuid> globalSourceId = NDHelpers::parseNullableUUID(query.value(1));
+
+            if (!id || globalSourceId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -50,7 +55,8 @@ namespace NDPinSourceDetails::Read {
 
             list.append(NDPinSourceDetails::Config::FullPinSourceRecord{
                 *id,
-                query.value(1).toString()
+                globalSourceId.value,
+                query.value(2).toString()
             });
         }
         return list;

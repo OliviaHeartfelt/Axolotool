@@ -19,12 +19,14 @@ namespace NDPinSourceDetails::Init {
     inline bool createPinSourceTable(QSqlQuery& query) {
         QString createPinSourceTable = R"(
             CREATE TABLE IF NOT EXISTS pin_source (
-                id   BLOB NOT NULL,
-                name TEXT NOT NULL,
+                id               BLOB NOT NULL,
+                global_source_id BLOB,
+                name             TEXT NOT NULL,
 
                 UNIQUE(name),
 
-                PRIMARY KEY (id)
+                PRIMARY KEY (id),
+                FOREIGN KEY (global_source_id) REFERENCES global_source(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -44,7 +46,7 @@ namespace NDPinSourceDetails::Init {
                 UNIQUE(source_id, name),
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (source_id) REFERENCES pin_source(id) ON DELETE CASCADE
+                FOREIGN KEY (source_id) REFERENCES pin_source(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -66,7 +68,7 @@ namespace NDPinSourceDetails::Init {
                 UNIQUE(contributor_id, name),
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE
+                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -87,7 +89,7 @@ namespace NDPinSourceDetails::Init {
                 UNIQUE(contributor_id, name),
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE
+                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -109,7 +111,7 @@ namespace NDPinSourceDetails::Init {
                 UNIQUE(contributor_id, name),
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE
+                FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 

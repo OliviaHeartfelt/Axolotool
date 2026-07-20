@@ -32,7 +32,7 @@ namespace NDWidgetDetails::Create {
 
         query.bindValue(":id",      Utility::UUID::uuidToBytes(newWidget.id));
         query.bindValue(":core_id", Utility::UUID::uuidToBytes(newWidget.coreId));
-        query.bindValue(":state",   newWidget.state ? QVariant(newWidget.state->classToByteArray()) : QVariant());
+        query.bindValue(":state",   newWidget.state ? QVariant(Utility::ByteArray::toQByteArray(newWidget.state->classToBytes())) : QVariant());
         query.bindValue(":w_size",  newWidget.w ? *newWidget.w : QVariant());
         query.bindValue(":h_size",  newWidget.h ? *newWidget.h : QVariant());
 

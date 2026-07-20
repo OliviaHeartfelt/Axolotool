@@ -31,41 +31,15 @@ namespace NDWireDetails::Delete {
         return true;
     }
 
-    inline bool removeWirePins(QSqlQuery& query, const muuid::uuid& id) {
+    inline bool removeWire(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            DELETE FROM wire_pins 
+            DELETE FROM wire 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
         if (!query.exec()) {
-            qCritical() << "Failed to delete wire pins:" << query.lastError().text();
-            return false;
-        }
-        return true;
-    }
-    inline bool removeWireWidgets(QSqlQuery& query, const muuid::uuid& id) {
-        query.prepare(R"(
-            DELETE FROM wire_widgets 
-            WHERE id = :id;
-        )");
-        query.bindValue(":id", Utility::UUID::uuidToBytes(id));
-
-        if (!query.exec()) {
-            qCritical() << "Failed to delete wire widgets:" << query.lastError().text();
-            return false;
-        }
-        return true;
-    }
-    inline bool removeWireArbitrary(QSqlQuery& query, const muuid::uuid& id) {
-        query.prepare(R"(
-            DELETE FROM wire_arbitrary 
-            WHERE id = :id;
-        )");
-        query.bindValue(":id", Utility::UUID::uuidToBytes(id));
-
-        if (!query.exec()) {
-            qCritical() << "Failed to delete wire arbitrary:" << query.lastError().text();
+            qCritical() << "Failed to delete wire:" << query.lastError().text();
             return false;
         }
         return true;

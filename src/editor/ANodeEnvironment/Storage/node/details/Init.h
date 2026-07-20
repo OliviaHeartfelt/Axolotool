@@ -24,9 +24,9 @@ namespace NDNodeDetails::Init {
                 default_node_h  REAL DEFAULT -1.0,
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE,
-                FOREIGN KEY (type_id)        REFERENCES node_type(id)        ON SET NULL,
-                FOREIGN KEY (data_id)        REFERENCES node_data(id)        ON SET NULL,
+                FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE,
+                FOREIGN KEY (type_id)        REFERENCES node_type(id)        ON SET NULL       ON UPDATE CASCADE,
+                FOREIGN KEY (data_id)        REFERENCES node_data(id)        ON SET NULL       ON UPDATE CASCADE,
 
                 CONSTRAINT chk_row_num CHECK (default_row_num >= 1),
                 CONSTRAINT chk_col_num CHECK (default_col_num >= 1)
@@ -55,7 +55,7 @@ namespace NDNodeDetails::Init {
                 state    BLOB,
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (core_id) REFERENCES node_core(id) ON DELETE CASCADE,
+                FOREIGN KEY (core_id) REFERENCES node_core(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
                 CONSTRAINT chk_row_num CHECK (row_num >= 1),
                 CONSTRAINT chk_col_num CHECK (col_num >= 1)

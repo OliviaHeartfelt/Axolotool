@@ -7,14 +7,18 @@ namespace NDWidgetSourceDetails::Config {
     // 1. Source
     struct FullWidgetSourceRecord {
         muuid::uuid id;
+        std::optional<muuid::uuid> globalSourceId;
         QString name;
     };
     struct CreateWidgetSourceRecord {
         muuid::uuid id;
+        std::optional<muuid::uuid> globalSourceId = std::nullopt;
         QString name;
     };
     struct UpdateWidgetSourceRecord {
-        std::optional<QString> name = std::nullopt;
+        std::optional<muuid::uuid> id =             std::nullopt;
+        std::optional<muuid::uuid> globalSourceId = std::nullopt;
+        std::optional<QString> name =               std::nullopt;
     };
 
 
@@ -30,7 +34,9 @@ namespace NDWidgetSourceDetails::Config {
         QString name;
     };
     struct UpdateWidgetContributorRecord {
-        std::optional<QString> name = std::nullopt;
+        std::optional<muuid::uuid> id =       std::nullopt;
+        std::optional<muuid::uuid> sourceId = std::nullopt;
+        std::optional<QString> name =         std::nullopt;
     };
 
 
@@ -51,7 +57,9 @@ namespace NDWidgetSourceDetails::Config {
     };
     template<NDConcepts::ByteConvertible Metadata>
     struct UpdateWidgetTypeRecord {
-        std::optional<QString> name = std::nullopt;
+        std::optional<muuid::uuid> id =            std::nullopt;
+        std::optional<muuid::uuid> contributorId = std::nullopt;
+        std::optional<QString> name =              std::nullopt;
         std::variant<std::monostate, std::optional<Metadata>> metadata = std::monostate{};
     };
 
@@ -73,7 +81,9 @@ namespace NDWidgetSourceDetails::Config {
     };
     template<NDConcepts::ByteConvertible Data>
     struct UpdateWidgetDataRecord {
-        std::optional<QString> name = std::nullopt;
+        std::optional<muuid::uuid> id =            std::nullopt;
+        std::optional<muuid::uuid> contributorId = std::nullopt;
+        std::optional<QString> name =              std::nullopt;
         std::variant<std::monostate, std::optional<Data>> data = std::monostate{};
     };
 }

@@ -9,6 +9,9 @@ namespace NDNodeDetails::Update {
     inline bool updateNodeCore(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeCoreRecord& newProperties) {
         QStringList clauses;
 
+        if (newProperties.id)            clauses.append("id = :new_id");
+        if (newProperties.contributorId) clauses.append("contributor_id = :new_contributor_id");
+
         if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId)) clauses.append("type_id = :type_id");
         if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.dataId)) clauses.append("data_id = :data_id");
         if (newProperties.name)   clauses.append("name = :name");
@@ -27,6 +30,9 @@ namespace NDNodeDetails::Update {
         }
 
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
+
+        if (newProperties.id)            query.bindValue(":new_id",             Utility::UUID::uuidToBytes(*newProperties.id));
+        if (newProperties.contributorId) query.bindValue(":new_contributor_id", Utility::UUID::uuidToBytes(*newProperties.contributorId));
 
         using UpdateField = std::variant<std::monostate, std::optional<muuid::uuid>>;
         auto unpackUpdateField = [](const UpdateField& field) -> QVariant {
@@ -60,6 +66,9 @@ namespace NDNodeDetails::Update {
     inline bool updateNode(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord<State>& newProperties) {
         QStringList clauses;
 
+        if (newProperties.id)     clauses.append("id = :new_id");
+        if (newProperties.coreId) clauses.append("core_id = :new_core_id");
+
         if (newProperties.name)   clauses.append("name = :name");
         if (newProperties.rowNum) clauses.append("row_num = :row_num");
         if (newProperties.colNum) clauses.append("col_num = :col_num");
@@ -68,9 +77,7 @@ namespace NDNodeDetails::Update {
         if (newProperties.height) clauses.append("node_h = :node_h");
 
         const auto* optPtr = std::get_if<std::optional<State>>(&newProperties.state);
-        if (optPtr) {
-            clauses.append("state = :state");
-        }
+        if (optPtr) clauses.append("state = :state");
 
         if (clauses.isEmpty()) return true;
 
@@ -82,7 +89,10 @@ namespace NDNodeDetails::Update {
 
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-        if (newProperties.name)   query.bindValue(":name", *newProperties.name);
+        if (newProperties.id)     query.bindValue(":new_id",      Utility::UUID::uuidToBytes(*newProperties.id));
+        if (newProperties.coreId) query.bindValue(":new_core_id", Utility::UUID::uuidToBytes(*newProperties.coreId));
+
+        if (newProperties.name)   query.bindValue(":name",    *newProperties.name);
         if (newProperties.rowNum) query.bindValue(":row_num", *newProperties.rowNum);
         if (newProperties.colNum) query.bindValue(":col_num", *newProperties.colNum);
 
@@ -94,13 +104,7 @@ namespace NDNodeDetails::Update {
         if (newProperties.width)  query.bindValue(":node_w", *newProperties.width);
         if (newProperties.height) query.bindValue(":node_h", *newProperties.height);
 
-
-        if (optPtr) {
-            if (optPtr->has_value())
-                query.bindValue(":state", QVariant(optPtr->value().classToByteArray()));
-            else
-                query.bindValue(":state", QVariant(QMetaType::fromType<QByteArray>()));
-        }
+        if (optPtr) query.bindValue(":state", optPtr->has_value() ? Utility::UUID::uuidToBytes(optPtr->value().classToBytes()) : QVariant(QMetaType::fromType<QByteArray>()));
 
         if (!query.exec()) {
             qWarning() << "Failed to update node:" << query.lastError().text();

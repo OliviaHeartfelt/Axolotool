@@ -16,11 +16,14 @@ namespace NDWireSourceDetails::Init {
     inline bool createWireSourceTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS wire_source (
-                id   BLOB NOT NULL,
-                name TEXT NOT NULL,
+                id               BLOB NOT NULL,
+                global_source_id BLOB,
+                name             TEXT NOT NULL,
             
                 UNIQUE(name),
-                PRIMARY KEY (id)
+
+                PRIMARY KEY (id),
+                FOREIGN KEY (global_source_id) REFERENCES global_source(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -39,7 +42,7 @@ namespace NDWireSourceDetails::Init {
             
                 UNIQUE(source_id, name),
                 PRIMARY KEY (id),
-                FOREIGN KEY (source_id) REFERENCES wire_source(id) ON DELETE CASCADE
+                FOREIGN KEY (source_id) REFERENCES wire_source(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -61,7 +64,7 @@ namespace NDWireSourceDetails::Init {
             
                 UNIQUE(contributor_id, name),
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES wire_contributor(id) ON DELETE CASCADE
+                FOREIGN KEY (contributor_id) REFERENCES wire_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -81,7 +84,7 @@ namespace NDWireSourceDetails::Init {
             
                 UNIQUE(contributor_id, name),
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES wire_contributor(id) ON DELETE CASCADE
+                FOREIGN KEY (contributor_id) REFERENCES wire_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 

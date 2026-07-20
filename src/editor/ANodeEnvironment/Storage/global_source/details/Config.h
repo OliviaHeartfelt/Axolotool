@@ -15,7 +15,8 @@ namespace NDGlobalSourceDetails::Config {
         std::optional<QString> dsc = std::nullopt;
     };
     struct UpdateGlobalSourceRecord {
-        std::optional<QString> name = std::nullopt;
-        std::optional<QString> dsc =  std::nullopt;
+        std::optional<muuid::uuid> id = std::nullopt;
+        std::optional<QString> name =   std::nullopt;
+        std::variant<std::monostate, std::optional<QString>> dsc = std::monostate{};
     };
 }

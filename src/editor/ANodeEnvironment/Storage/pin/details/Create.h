@@ -5,26 +5,44 @@
 
 namespace NDPinDetails::Create {
 
-    inline bool create( QSqlQuery& query, const NDPinDetails::Config::CreatePinRecord& newPin) {
+    inline bool createAllowFlows(QSqlQuery& query, const muuid::uuid pinId, const QList<muuid::uuid>& newAllowedFlows);
+    inline bool createAllowTypes(QSqlQuery& query, const muuid::uuid pinId, const QList<muuid::uuid>& newAllowedTypes);
+
+    inline bool createPinCore( QSqlQuery& query, const NDPinDetails::Config::CreatePinCoreRecord& newPinCore) {
         query.prepare(R"(
-            INSERT INTO pin (id,  contributor_id,  flow_id,  type_id,  style_id)
-            VALUES (        :id, :contributor_id, :flow_id, :type_id, :style_id);
+            INSERT INTO pin_core (id,  contributor_id,  flow_id,  type_id,  style_id)
+            VALUES (             :id, :contributor_id, :flow_id, :type_id, :style_id);
         )");
 
-        query.bindValue(":id",             Utility::UUID::uuidToBytes(newPin.id));
-        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newPin.contributorId));
-        query.bindValue(":flow_id",        newPin.flowId ? Utility::UUID::uuidToBytes(*newPin.flowId) : QVariant());
-        query.bindValue(":type_id",        newPin.typeId ? Utility::UUID::uuidToBytes(*newPin.typeId) : QVariant());
-        query.bindValue(":style_id",       newPin.styleId ? Utility::UUID::uuidToBytes(*newPin.styleId) : QVariant());
+        query.bindValue(":id",             Utility::UUID::uuidToBytes(newPinCore.id));
+        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newPinCore.contributorId));
+        query.bindValue(":flow_id",        newPinCore.flowId  ? Utility::UUID::uuidToBytes(*newPinCore.flowId)  : QVariant());
+        query.bindValue(":type_id",        newPinCore.typeId  ? Utility::UUID::uuidToBytes(*newPinCore.typeId)  : QVariant());
+        query.bindValue(":style_id",       newPinCore.styleId ? Utility::UUID::uuidToBytes(*newPinCore.styleId) : QVariant());
+
+        if (!query.exec()) {
+            qCritical() << "Failed to insert pin core:" << query.lastError().text();
+            return false;
+        }
+
+        if (!createAllowFlows(query, newPinCore.id, newPinCore.allowFlowList)) return false;
+        if (!createAllowTypes(query, newPinCore.id, newPinCore.allowTypeList)) return false;
+
+        return true;
+    }
+    inline bool createPin(QSqlQuery& query, const NDPinDetails::Config::CreatePinRecord& newPin) {
+        query.prepare(R"(
+            INSERT INTO pin (id,  core_id)
+            VALUES (        :id, :core_id);
+        )");
+
+        query.bindValue(":id",      Utility::UUID::uuidToBytes(newPin.id));
+        query.bindValue(":core_id", Utility::UUID::uuidToBytes(newPin.coreId));
 
         if (!query.exec()) {
             qCritical() << "Failed to insert pin:" << query.lastError().text();
             return false;
         }
-
-        if (!createAllowFlows(query, newPin.id, newPin.allowFlowList)) return false;
-        if (!createAllowTypes(query, newPin.id, newPin.allowTypeList)) return false;
-
         return true;
     }
     inline bool createAllowFlows(QSqlQuery& query, const muuid::uuid pinId, const QList<muuid::uuid>& newAllowedFlows) {

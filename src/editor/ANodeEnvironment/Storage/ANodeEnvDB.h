@@ -13,9 +13,27 @@
 
 #include "NDConfig.h"
 #include "NDConcepts.h"
+#include "NDHelpers.h"
 #include "NDPool.h"
 
 namespace ANodeEnvDB {
+
+    namespace Helpers {
+        using namespace ::NDHelpers;
+    }
+
+    namespace Config {
+        namespace GlobalSource {using namespace ::NDGlobalSource::Config; }
+        namespace NodeSource {  using namespace ::NDNodeSource::Config; }
+        namespace Node {        using namespace ::NDNode::Config; }
+        namespace Cell {        using namespace ::NDCell::Config; }
+        namespace PinSource {   using namespace ::NDPinSource::Config; }
+        namespace Pin {         using namespace ::NDPin::Config; }
+        namespace WidgetSource {using namespace ::NDWidgetSource::Config; }
+        namespace Widget {      using namespace ::NDWidget::Config; }
+        namespace WireSource {  using namespace ::NDWireSource::Config; }
+        namespace Wire {        using namespace ::NDWire::Config; }
+    }
 
 	class ANodeEnvDB {
 		QString connectionBaseName;
@@ -70,8 +88,8 @@ namespace ANodeEnvDB {
             }
         };
 
-		ANodeEnvDB(const QString& connectionBaseName, const QString& dbPath) : 
-            connectionBaseName(connectionBaseName), dbPath(dbPath), 
+		ANodeEnvDB(const QString& dbPath, const QString& connectionBaseName) :
+            dbPath(dbPath), connectionBaseName(connectionBaseName),
             node(this), nodeSource(this), cell(this), pin(this), pinSource(this), widget(this), widgetSource(this), wire(this), wireSource(this), globalSource(this)
         {}
 

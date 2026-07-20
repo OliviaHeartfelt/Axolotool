@@ -50,7 +50,7 @@ namespace NDNodeDetails::Create {
         query.bindValue(":node_w",   newNode.width.value_or(-1.0));
         query.bindValue(":node_h",   newNode.height.value_or(-1.0));
 
-        query.bindValue(":state", newNode.state ? QVariant(newNode.state->classToByteArray()) : QVariant());
+        query.bindValue(":state", newNode.state ? QVariant(Utility::ByteArray::toQByteArray(newNode.state->classToBytes())) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node:" << query.lastError().text();

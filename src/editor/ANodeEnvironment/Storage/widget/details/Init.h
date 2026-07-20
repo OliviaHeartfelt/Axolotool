@@ -18,9 +18,9 @@ namespace NDWidgetDetails::Init {
                 data_id        BLOB,
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES widget_contributor(id) ON DELETE CASCADE,
-                FOREIGN KEY (type_id)        REFERENCES widget_type(id)        ON DELETE CASCADE,
-                FOREIGN KEY (data_id)        REFERENCES widget_data(id)        ON DELETE CASCADE
+                FOREIGN KEY (contributor_id) REFERENCES widget_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE,
+                FOREIGN KEY (type_id)        REFERENCES widget_type(id)        ON DELETE CASCADE ON UPDATE CASCADE,
+                FOREIGN KEY (data_id)        REFERENCES widget_data(id)        ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 
@@ -40,7 +40,7 @@ namespace NDWidgetDetails::Init {
                 h_size  REAL DEFAULT 0.0,
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (core_id) REFERENCES widget_core(id) ON DELETE CASCADE
+                FOREIGN KEY (core_id) REFERENCES widget_core(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 

@@ -19,6 +19,7 @@ set(NE_vIEW_MODULES
 
     # Canvas
     ANodeEnvironment/View/canvas/ACanvas.h
+    ANodeEnvironment/View/canvas/mockPluginData.h
 
     # Scene
     ANodeEnvironment/View/scene/ANodeScene.h
@@ -167,6 +168,7 @@ set(UTILITY_MODULES
     Utility/details/UUID.h
     Utility/details/StylesUtility.h
     Utility/details/SqlTransaction.h
+    Utility/details/ByteArray.h
 )
 
 add_executable(axo_editor 
@@ -203,6 +205,7 @@ target_precompile_headers(axo_editor PRIVATE
     <variant>
     <mutex>
     <condition_variable>
+    <cassert>
 
     # Core Qt used everywhere
     <QString>

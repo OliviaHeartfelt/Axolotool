@@ -48,18 +48,20 @@ namespace APinItem {
             APinData::PinData originPinData = APinDrag::Drag::finishDrag(event);
             
             if (!isConnectable(originPinData)) return false;
-            
-            auto sourceFlow = APinRegistry::Flow::at(sourceData->flow());
-            if (!sourceFlow) return false;
-            
-            auto targetFlow = APinRegistry::Flow::at(data->flow());
-            if (!targetFlow) return false;
+
+            //auto sourceFlow = APinRegistry::Flow::at(sourceData->flow());
+            //if (!sourceFlow) return false;
+
+            //auto targetFlow = APinRegistry::Flow::at(data->flow());
+            //if (!targetFlow) return false;
             
             AWire::WireItem* permanentWire = new AWire::WireItem(
                 sourcePin,
                 this,
-                sourceFlow.value().degree,
-                targetFlow.value().degree
+                //sourceFlow.value().degree,
+                //targetFlow.value().degree
+                0,
+                0
             );
             
             scene()->addItem(permanentWire);

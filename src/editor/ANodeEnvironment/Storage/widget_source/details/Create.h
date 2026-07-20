@@ -8,12 +8,13 @@ namespace NDWidgetSourceDetails::Create {
 
     inline bool createWidgetSource(QSqlQuery& query, const NDWidgetSourceDetails::Config::CreateWidgetSourceRecord& newSource) {
         query.prepare(R"(
-            INSERT INTO widget_source (id,  name)
-            VALUES (                  :id, :name);
+            INSERT INTO widget_source (id,  global_source_id,  name)
+            VALUES (                  :id, :global_source_id, :name);
         )");
 
-        query.bindValue(":id",   Utility::UUID::uuidToBytes(newSource.id));
-        query.bindValue(":name", newSource.name);
+        query.bindValue(":id",               Utility::UUID::uuidToBytes(newSource.id));
+        query.bindValue(":global_source_id", newSource.globalSourceId ? QVariant(Utility::UUID::uuidToBytes(*newSource.globalSourceId)) : QVariant());
+        query.bindValue(":name",             newSource.name);
 
         if (!query.exec()) {
             qCritical() << "Failed to insert widget source:" << query.lastError().text();
@@ -47,7 +48,7 @@ namespace NDWidgetSourceDetails::Create {
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newType.id));
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newType.contributorId));
         query.bindValue(":name",           newType.name);
-        query.bindValue(":metadata",       newType.metadata ? QVariant(newType.metadata->classToByteArray()) : QVariant());
+        query.bindValue(":metadata",       newType.metadata ? QVariant(Utility::ByteArray::toQByteArray(newType.metadata->classToBytes())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert widget type:" << query.lastError().text();
@@ -65,7 +66,7 @@ namespace NDWidgetSourceDetails::Create {
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newData.id));
         query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newData.contributorId));
         query.bindValue(":name",           newData.name);
-        query.bindValue(":data",           newData.data ? QVariant(newData.data->classToByteArray()) : QVariant());
+        query.bindValue(":data",           newData.data ? QVariant(Utility::ByteArray::toQByteArray(newData.data->classToBytes())) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert widget data:" << query.lastError().text();

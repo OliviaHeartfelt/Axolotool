@@ -18,6 +18,8 @@ namespace NDWidgetDetails::Config {
         std::optional<muuid::uuid> dataId = std::nullopt;
     };
     struct UpdateWidgetCoreRecord {
+        std::optional<muuid::uuid> id =            std::nullopt;
+        std::optional<muuid::uuid> contributorId = std::nullopt;
         std::variant<std::monostate, std::optional<muuid::uuid>> typeId = std::monostate{};
         std::variant<std::monostate, std::optional<muuid::uuid>> dataId = std::monostate{};
     };
@@ -39,8 +41,14 @@ namespace NDWidgetDetails::Config {
         std::optional<qreal> w = std::nullopt;
         std::optional<qreal> h = std::nullopt;
     };
+    struct FactoryWidgetRecord {
+        std::optional<qreal> w = std::nullopt;
+        std::optional<qreal> h = std::nullopt;
+    };
     template<NDConcepts::ByteConvertible State>
     struct UpdateWidgetRecord {
+        std::optional<muuid::uuid> id =     std::nullopt;
+        std::optional<muuid::uuid> coreId = std::nullopt;
         std::variant<std::monostate, std::optional<State>> state = std::monostate{};
         std::optional<qreal> width  = std::nullopt;
         std::optional<qreal> height = std::nullopt;

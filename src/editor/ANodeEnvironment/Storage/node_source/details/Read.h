@@ -10,7 +10,7 @@ namespace NDNodeSourceDetails::Read {
     // 1. Node Source
     inline std::optional<NDNodeSourceDetails::Config::FullNodeSourceRecord> getNodeSource(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT name
+            SELECT global_source_id, name
             FROM node_source 
             WHERE id = :id;
         )");
@@ -22,16 +22,20 @@ namespace NDNodeSourceDetails::Read {
         }
         if (!query.next()) return std::nullopt;
 
+        const NDHelpers::NullableField<muuid::uuid> globalSourceId = NDHelpers::parseNullableUUID(query.value(0));
+        if (globalSourceId.isCorrupted()) return std::nullopt;
+
         return NDNodeSourceDetails::Config::FullNodeSourceRecord{
             id,
-            query.value(0).toString()
+            globalSourceId.value,
+            query.value(1).toString()
         };
     }
     inline std::optional<QList<NDNodeSourceDetails::Config::FullNodeSourceRecord>> getAllNodeSources(QSqlQuery& query, const bool continueAtFail = true) {
         QList<NDNodeSourceDetails::Config::FullNodeSourceRecord> list;
 
         query.prepare(R"(
-            SELECT id, name
+            SELECT id, global_source_id, name
             FROM node_source;
         )");
 
@@ -42,7 +46,9 @@ namespace NDNodeSourceDetails::Read {
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            if (!id) {
+            const NDHelpers::NullableField<muuid::uuid> globalSourceId = NDHelpers::parseNullableUUID(query.value(1));
+
+            if (!id || globalSourceId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -51,7 +57,8 @@ namespace NDNodeSourceDetails::Read {
 
             list.append(NDNodeSourceDetails::Config::FullNodeSourceRecord{
                 *id,
-                query.value(1).toString()
+                globalSourceId.value,
+                query.value(2).toString()
             });
         }
         return list;

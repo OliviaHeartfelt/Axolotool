@@ -10,7 +10,7 @@ namespace NDWidgetSourceDetails::Read {
     // 1. Source
     inline std::optional<NDWidgetSourceDetails::Config::FullWidgetSourceRecord> getWidgetSource(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT name
+            SELECT global_source_id, name
             FROM widget_source 
             WHERE id = :id;
         )");
@@ -22,9 +22,13 @@ namespace NDWidgetSourceDetails::Read {
         }
         if (!query.next()) return std::nullopt;
 
+        const NDHelpers::NullableField<muuid::uuid> globalSourceId = NDHelpers::parseNullableUUID(query.value(0));
+        if (globalSourceId.isCorrupted()) return std::nullopt;
+
         return NDWidgetSourceDetails::Config::FullWidgetSourceRecord{
             id,
-            query.value(0).toString()
+            globalSourceId.value,
+            query.value(1).toString()
         };
     }
 

@@ -20,9 +20,11 @@ namespace NDWireDetails::Config {
         QString name;
     };
     struct UpdateWireCoreRecord {
-        std::optional<muuid::uuid> styleId;
-        std::optional<muuid::uuid> dataId;
-        std::optional<QString>     name;
+        std::optional<muuid::uuid> id =            std::nullopt;
+        std::optional<muuid::uuid> contributorId = std::nullopt;
+        std::optional<muuid::uuid> styleId =       std::nullopt;
+        std::optional<muuid::uuid> dataId =        std::nullopt;
+        std::optional<QString> name =              std::nullopt;
     };
 
     // 1. Wire Temporary
@@ -35,9 +37,9 @@ namespace NDWireDetails::Config {
         muuid::uuid coreId;
     };
 
-    // 2. Wire Pins
+    // 2. Wire
     template<NDConcepts::ByteConvertible State>
-    struct FullWirePinRecord {
+    struct FullWireRecord {
         muuid::uuid id;
         muuid::uuid coreId;
         muuid::uuid originId;
@@ -47,7 +49,7 @@ namespace NDWireDetails::Config {
         std::optional<State> state;
     };
     template<NDConcepts::ByteConvertible State>
-    struct CreateWirePinRecord {
+    struct CreateWireRecord {
         muuid::uuid id;
         muuid::uuid coreId;
         muuid::uuid originId;
@@ -56,74 +58,18 @@ namespace NDWireDetails::Config {
         QPointF targetHintPos;
         std::optional<State> state;
     };
-    template<NDConcepts::ByteConvertible State>
-    struct UpdateWirePinRecord {
-        std::optional<QPointF> originHintPos;
-        std::optional<QPointF> targetHintPos;
-        std::optional<State>   state;
-    };
-
-    // 3. Wire Widgets
-    template<NDConcepts::ByteConvertible State>
-    struct FullWireWidgetsRecord {
-        muuid::uuid id;
-        muuid::uuid coreId;
+    struct FactoryWireRecord {
         muuid::uuid originId;
         muuid::uuid targetId;
         QPointF originHintPos;
         QPointF targetHintPos;
-        std::optional<State> state;
     };
     template<NDConcepts::ByteConvertible State>
-    struct CreateWireWidgetsRecord {
-        muuid::uuid id;
-        muuid::uuid coreId;
-        muuid::uuid originId;
-        muuid::uuid targetId;
-        QPointF originHintPos;
-        QPointF targetHintPos;
-        std::optional<State> state;
-    };
-    template<NDConcepts::ByteConvertible State>
-    struct UpdateWireWidgetsRecord {
-        std::optional<QPointF> originHintPos;
-        std::optional<QPointF> targetHintPos;
-        std::optional<State>   state;
-    };
-
-    //4. Wire Arbitrary
-    struct PinVertex {
-        muuid::uuid id;
-    };
-    struct WidgetVertex {
-        muuid::uuid id;
-    };
-    using Vertex = std::variant<PinVertex, WidgetVertex>;
-
-    template<NDConcepts::ByteConvertible State>
-    struct FullWireArbitraryRecord {
-        muuid::uuid id;
-        muuid::uuid coreId;
-        Vertex origin;
-        Vertex target;
-        QPointF originHintPos;
-        QPointF targetHintPos;
-        std::optional<State> state;
-    };
-    template<NDConcepts::ByteConvertible State>
-    struct CreateWireArbitraryRecord {
-        muuid::uuid id;
-        muuid::uuid coreId;
-        Vertex origin;
-        Vertex target;
-        QPointF originHintPos;
-        QPointF targetHintPos;
-        std::optional<State> state;
-    };
-    template<NDConcepts::ByteConvertible State>
-    struct UpdateWireArbitraryRecord {
-        std::optional<QPointF> originHintPos;
-        std::optional<QPointF> targetHintPos;
-        std::optional<State>   state;
+    struct UpdateWireRecord {
+        std::optional<muuid::uuid> id =        std::nullopt;
+        std::optional<muuid::uuid> coreId =    std::nullopt;
+        std::optional<QPointF> originHintPos = std::nullopt;
+        std::optional<QPointF> targetHintPos = std::nullopt;
+        std::optional<State>   state =         std::nullopt;
     };
 }

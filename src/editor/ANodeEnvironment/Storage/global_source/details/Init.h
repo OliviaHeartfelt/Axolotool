@@ -12,7 +12,7 @@ namespace NDGlobalSourceDetails::Init {
             CREATE TABLE IF NOT EXISTS global_source (
                 id   BLOB NOT NULL,
                 name TEXT NOT NULL,
-                name TEXT,
+                dsc  TEXT,
             
                 UNIQUE(name),
                 PRIMARY KEY (id)
