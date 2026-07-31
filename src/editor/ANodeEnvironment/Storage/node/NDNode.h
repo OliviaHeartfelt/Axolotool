@@ -53,115 +53,124 @@ namespace NDNode {
         }
 
         // 1. Create
-        inline bool createNodeCore(const NDNodeDetails::Config::CreateNodeCoreRecord& newNodeCore) {
+        bool createNodeCore(const NDNodeDetails::Config::CreateNodeCoreRecord& newNodeCore) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Create::createNodeCore(query, newNodeCore);
             });
         }
-        inline bool createNodeCore(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeCoreRecord& newNodeCore) {
+        bool createNodeCore(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeCoreRecord& newNodeCore) {
             return NDNodeDetails::Create::createNodeCore(query, newNodeCore);
         }
 
-        inline bool createNode(const NDNodeDetails::Config::CreateNodeRecord& newNode) {
+        bool createNode(const NDNodeDetails::Config::CreateNodeRecord& newNode) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Create::createNode(query, newNode);
             });
         }
-        inline bool createNode(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord& newNode) {
+        bool createNode(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord& newNode) {
             return NDNodeDetails::Create::createNode(query, newNode);
         }
 
         // 2. Read - Node Core
-        inline std::optional<NDNodeDetails::Config::FullNodeCoreRecord> getNodeCore(const muuid::uuid& id) {
+        std::optional<NDNodeDetails::Config::FullNodeCoreRecord> getNodeCore(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getNodeCore(query, id);
             });
         }
-        inline std::optional<NDNodeDetails::Config::FullNodeCoreRecord> getNodeCore(QSqlQuery& query, const muuid::uuid& id) {
+        std::optional<NDNodeDetails::Config::FullNodeCoreRecord> getNodeCore(QSqlQuery& query, const muuid::uuid& id) {
             return NDNodeDetails::Read::getNodeCore(query, id);
         }
 
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getContributorNodeCores(const muuid::uuid& contributorId, const bool continueAtFail = true) {
+        std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getContributorNodeCores(const muuid::uuid& contributorId, const bool continueAtFail = true) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getContributorNodeCores(query, contributorId, continueAtFail);
             });
         }
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getContributorNodeCores(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
+        std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getContributorNodeCores(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
             return NDNodeDetails::Read::getContributorNodeCores(query, contributorId, continueAtFail);
         }
 
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getAllNodeCores(const muuid::uuid& sourceId, const bool continueAtFail = true) {
+        std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getAllNodeCores(const muuid::uuid& sourceId, const bool continueAtFail = true) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getAllNodeCores(query, sourceId, continueAtFail);
             });
         }
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getAllNodeCores(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
+        std::optional<QList<NDNodeDetails::Config::FullNodeCoreRecord>> getAllNodeCores(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
             return NDNodeDetails::Read::getAllNodeCores(query, sourceId, continueAtFail);
         }
 
         // 2. Read - Node
-        inline std::optional<NDNodeDetails::Config::FullNodeRecord> getNode(const muuid::uuid& id) {
+        std::optional<NDNodeDetails::Config::FullNodeRecord> getNode(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getNode(query, id);
             });
         }
-        inline std::optional<NDNodeDetails::Config::FullNodeRecord> getNode(QSqlQuery& query, const muuid::uuid& id) {
+        std::optional<NDNodeDetails::Config::FullNodeRecord> getNode(QSqlQuery& query, const muuid::uuid& id) {
             return NDNodeDetails::Read::getNode(query, id);
         }
 
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getContributorNodes(const muuid::uuid& contributorId, const bool continueAtFail = true) {
+        std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getContributorNodes(const muuid::uuid& contributorId, const bool continueAtFail = true) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getContributorNodes(query, contributorId, continueAtFail);
             });
         }
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getContributorNodes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
+        std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getContributorNodes(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = true) {
             return NDNodeDetails::Read::getContributorNodes(query, contributorId, continueAtFail);
         }
 
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAllNodes(const muuid::uuid& sourceId, const bool continueAtFail = true) {
+        std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAllNodes(const muuid::uuid& sourceId, const bool continueAtFail = true) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Read::getAllNodes(query, sourceId, continueAtFail);
             });
         }
-        inline std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAllNodes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
+        std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getAllNodes(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = true) {
             return NDNodeDetails::Read::getAllNodes(query, sourceId, continueAtFail);
         }
 
+        std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getNodesInView(const bool continueAtFail = true) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
+                return NDNodeDetails::Read::getNodesInView(query, continueAtFail);
+            });
+        }
+        std::optional<QList<NDNodeDetails::Config::FullNodeRecord>> getNodesInView(QSqlQuery& query, const bool continueAtFail = true) {
+            return NDNodeDetails::Read::getNodesInView(query, continueAtFail);
+        }
+
         // 3. Update
-        inline bool updateNodeCore(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeCoreRecord& newProperties) {
+        bool updateNodeCore(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeCoreRecord& newProperties) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Update::updateNodeCore(query, id, newProperties);
             });
         }
-        inline bool updateNodeCore(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeCoreRecord& newProperties) {
+        bool updateNodeCore(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeCoreRecord& newProperties) {
             return NDNodeDetails::Update::updateNodeCore(query, id, newProperties);
         }
 
-        inline bool updateNode(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord& newProperties) {
+        bool updateNode(const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord& newProperties) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Update::updateNode(query, id, newProperties);
             });
         }
-        inline bool updateNode(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord& newProperties) {
+        bool updateNode(QSqlQuery& query, const muuid::uuid& id, const NDNodeDetails::Config::UpdateNodeRecord& newProperties) {
             return NDNodeDetails::Update::updateNode(query, id, newProperties);
         }
 
         // 4. Delete
-        inline bool removeNodeCore(const muuid::uuid& id) {
+        bool removeNodeCore(const muuid::uuid& id) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Delete::removeNodeCore(query, id);
             });
         }
-        inline bool removeNodeCore(QSqlQuery& query, const muuid::uuid& id) {
+        bool removeNodeCore(QSqlQuery& query, const muuid::uuid& id) {
             return NDNodeDetails::Delete::removeNodeCore(query, id);
         }
 
-        inline bool removeNode(const muuid::uuid& id) {
+        bool removeNode(const muuid::uuid& id) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
                 return NDNodeDetails::Delete::removeNode(query, id);
             });
         }
-        inline bool removeNode(QSqlQuery& query, const muuid::uuid& id) {
+        bool removeNode(QSqlQuery& query, const muuid::uuid& id) {
             return NDNodeDetails::Delete::removeNode(query, id);
         }
     };

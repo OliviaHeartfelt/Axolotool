@@ -328,4 +328,43 @@ namespace NDWireDetails::Read {
         }
         return list;
     }
+
+    inline std::optional<QList<NDWireDetails::Config::FullWireRecord>> getWiresInView(QSqlQuery& query, const bool continueAtFail = false) {
+        QList<NDWireDetails::Config::FullWireRecord> list;
+
+        query.prepare(R"(
+            SELECT id, core_id, origin_id, target_id, origin_canvas_hint_x, origin_canvas_hint_y, target_canvas_hint_x, target_canvas_hint_y, state
+            FROM wire
+        )");
+
+        if (!query.exec()) {
+            qCritical() << "Failed to execute getWiresInView query:" << query.lastError().text();
+            return std::nullopt;
+        }
+
+        while (query.next()) {
+            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const auto coreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+            const auto originId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
+            const auto targetId = Utility::UUID::bytesToUuid(query.value(3).toByteArray());
+
+            if (!id || !coreId || !originId || !targetId) {
+                if (continueAtFail)
+                    continue;
+                else
+                    return std::nullopt;
+            }
+
+            list.append(NDWireDetails::Config::FullWireRecord{
+                *id,
+                *coreId,
+                *originId,
+                *targetId,
+                QPointF(query.value(4).toReal(), query.value(5).toReal()),
+                QPointF(query.value(6).toReal(), query.value(7).toReal()),
+                NDHelpers::extractRawBytes(query.value(8))
+                });
+        }
+        return list;
+    }
 }

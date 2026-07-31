@@ -136,29 +136,37 @@ namespace NDWire {
         }
 
         // 2. Read - Wire
-        std::optional<NDWireDetails::Config::CreateWireRecord> getWire(const muuid::uuid& id) {
+        std::optional<NDWireDetails::Config::FullWireRecord> getWire(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getWire(query, id);
             });
         }
-        std::optional<NDWireDetails::Config::CreateWireRecord> getWire(QSqlQuery& query, const muuid::uuid& id) {
+        std::optional<NDWireDetails::Config::FullWireRecord> getWire(QSqlQuery& query, const muuid::uuid& id) {
             return NDWireDetails::Read::getWire(query, id);
         }
-        std::optional<QList<NDWireDetails::Config::CreateWireRecord>> getContributorWires(const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::FullWireRecord>> getContributorWires(const muuid::uuid& contributorId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getContributorWires(query, contributorId, continueAtFail);
                 });
         }
-        std::optional<QList<NDWireDetails::Config::CreateWireRecord>> getContributorWires(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::FullWireRecord>> getContributorWires(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
             return NDWireDetails::Read::getContributorWires(query, contributorId, continueAtFail);
         }
-        std::optional<QList<NDWireDetails::Config::CreateWireRecord>> getAllWires(const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::FullWireRecord>> getAllWires(const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getAllWires(query, sourceId, continueAtFail);
                 });
         }
-        std::optional<QList<NDWireDetails::Config::CreateWireRecord>> getAllWires(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::FullWireRecord>> getAllWires(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDWireDetails::Read::getAllWires(query, sourceId, continueAtFail);
+        }
+        inline std::optional<QList<NDWireDetails::Config::FullWireRecord>> getWiresInView(const bool continueAtFail = false) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
+                return NDWireDetails::Read::getWiresInView(query, continueAtFail);
+            });
+        }
+        inline std::optional<QList<NDWireDetails::Config::FullWireRecord>> getWiresInView(QSqlQuery& query, const bool continueAtFail = false) {
+            return NDWireDetails::Read::getWiresInView(query, continueAtFail);
         }
 
         // 3. Update - Wire Core

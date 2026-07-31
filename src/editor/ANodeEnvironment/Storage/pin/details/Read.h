@@ -6,7 +6,8 @@
 
 namespace NDPinDetails::Read {
 
-    inline std::optional<NDPinDetails::Config::FullPinCoreRecord> getPin(QSqlQuery& query, const muuid::uuid& id) {
+    // Pin
+    inline std::optional<NDPinDetails::Config::FullPinRecord> getPin(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT core_id
             FROM pin 
@@ -23,13 +24,13 @@ namespace NDPinDetails::Read {
         auto coreId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!coreId) return std::nullopt;
 
-        return NDPinDetails::Config::FullPinCoreRecord{
+        return NDPinDetails::Config::FullPinRecord{
             id,
             *coreId
         };
     }
-    inline std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getCorePins(QSqlQuery& query, const muuid::uuid& coreId, const bool continueAtFail = false) {
-        QList<NDPinDetails::Config::FullPinCoreRecord> list;
+    inline std::optional<QList<NDPinDetails::Config::FullPinRecord>> getCorePins(QSqlQuery& query, const muuid::uuid& coreId, const bool continueAtFail = false) {
+        QList<NDPinDetails::Config::FullPinRecord> list;
         
         query.prepare(R"(
             SELECT id
@@ -53,15 +54,15 @@ namespace NDPinDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinDetails::Config::FullPinCoreRecord{
+            list.append(NDPinDetails::Config::FullPinRecord{
                 *id,
                 coreId
             });
         }
         return list;
     }
-    inline std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getContributorPins(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
-        QList<NDPinDetails::Config::FullPinCoreRecord> list;
+    inline std::optional<QList<NDPinDetails::Config::FullPinRecord>> getContributorPins(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
+        QList<NDPinDetails::Config::FullPinRecord> list;
 
         query.prepare(R"(
             SELECT p.id, p.core_id
@@ -87,15 +88,15 @@ namespace NDPinDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinDetails::Config::FullPinCoreRecord{
+            list.append(NDPinDetails::Config::FullPinRecord{
                 *id,
                 *coreId
                 });
         }
         return list;
     }
-    inline std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getAllPins(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
-        QList<NDPinDetails::Config::FullPinCoreRecord> list;
+    inline std::optional<QList<NDPinDetails::Config::FullPinRecord>> getAllPins(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
+        QList<NDPinDetails::Config::FullPinRecord> list;
 
         query.prepare(R"(
             SELECT p.id, p.core_id
@@ -122,7 +123,7 @@ namespace NDPinDetails::Read {
                     return std::nullopt;
             }
 
-            list.append(NDPinDetails::Config::FullPinCoreRecord{
+            list.append(NDPinDetails::Config::FullPinRecord{
                 *id,
                 *coreId
                 });
@@ -130,12 +131,12 @@ namespace NDPinDetails::Read {
         return list;
     }
 
-
+    // Pin Core
     inline std::optional<NDPinDetails::Config::FullPinCoreRecord> getPinCore(QSqlQuery& query, const muuid::uuid& id);
     inline std::optional<QList<muuid::uuid>> getAllowFlows(QSqlQuery& query, const muuid::uuid& pinId, const bool continueAtFail = false);
     inline std::optional<QList<muuid::uuid>> getAllowTypes(QSqlQuery& query, const muuid::uuid& pinId, const bool continueAtFail = false);
 	
-    inline std::optional<NDPinDetails::Config::CreatePinCoreRecord> getFullPinCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+    inline std::optional<NDPinDetails::Config::CompletePinCore> getFullPinCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
         const auto pinData = getPinCore(query, id);
         if (!pinData) return std::nullopt;
 
@@ -145,7 +146,7 @@ namespace NDPinDetails::Read {
         const auto allowTypes = getAllowTypes(query, id, continueAtFail);
         if (!allowTypes) return std::nullopt;
 
-        return (NDPinDetails::Config::CreatePinCoreRecord{
+        return (NDPinDetails::Config::CompletePinCore{
             pinData->id,
             pinData->contributorId,
             pinData->flowId,

@@ -91,69 +91,69 @@ namespace NDPin {
         }
 
         // 2. Read
-        std::optional<NDPinDetails::Config::FullPinRecord> getFullPinCore(const muuid::uuid& id, const bool continueAtFail = false) {
-            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) -> std::optional<NDPinDetails::Config::FullPinRecord> {
+        std::optional<NDPinDetails::Config::CompletePinCore> getFullPinCore(const muuid::uuid& id, const bool continueAtFail = false) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) -> std::optional<NDPinDetails::Config::CompletePinCore> {
                 return NDPinDetails::Read::getFullPinCore(query, id, continueAtFail);
             });
         }
-        std::optional<NDPinDetails::Config::FullPinRecord> getFullPinCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<NDPinDetails::Config::CompletePinCore> getFullPinCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
             return NDPinDetails::Read::getFullPinCore(query, id, continueAtFail);
         }
-        std::optional<NDPinDetails::Config::FullPinRecord> getPinCore(const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<NDPinDetails::Config::FullPinCoreRecord> getPinCore(const muuid::uuid& id, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDPinDetails::Read::getPinCore(query, id, continueAtFail);
+                return NDPinDetails::Read::getPinCore(query, id);
                 });
         }
-        std::optional<NDPinDetails::Config::FullPinRecord> getPinCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
-            return NDPinDetails::Read::getPinCore(query, id, continueAtFail);
+        std::optional<NDPinDetails::Config::FullPinCoreRecord> getPinCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+            return NDPinDetails::Read::getPinCore(query, id);
         }
-        std::optional<NDPinDetails::Config::FullPinRecord> getContributorPinCores(const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getContributorPinCores(const muuid::uuid& id, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDPinDetails::Read::getContributorPinCores(query, id, continueAtFail);
                 });
         }
-        std::optional<NDPinDetails::Config::FullPinRecord> getPigetContributorPinCoresnCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getPigetContributorPinCoresnCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
             return NDPinDetails::Read::getContributorPinCores(query, id, continueAtFail);
         }
-        std::optional<NDPinDetails::Config::FullPinRecord> getAllPinCores(const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getAllPinCores(const muuid::uuid& id, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDPinDetails::Read::getAllPinCores(query, id, continueAtFail);
                 });
         }
-        std::optional<NDPinDetails::Config::FullPinRecord> getAllPinCores(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getAllPinCores(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
             return NDPinDetails::Read::getAllPinCores(query, id, continueAtFail);
         }
 
-        std::optional<NDPinDetails::Config::PinRecord> getPin(const muuid::uuid& id) {
+        std::optional<NDPinDetails::Config::FullPinRecord> getPin(const muuid::uuid& id) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDPinDetails::Read::getPin(query, id);
             });
         }
-        std::optional<NDPinDetails::Config::PinRecord> getPin(QSqlQuery& query, const muuid::uuid& id) {
+        std::optional<NDPinDetails::Config::FullPinRecord> getPin(QSqlQuery& query, const muuid::uuid& id) {
             return NDPinDetails::Read::getPin(query, id);
         }
-        std::optional<NDPinDetails::Config::PinRecord> getCorePins(const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getCorePins(const muuid::uuid& id, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDPinDetails::Read::getCorePins(query, id);
                 });
         }
-        std::optional<NDPinDetails::Config::PinRecord> getCorePins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getCorePins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
             return NDPinDetails::Read::getCorePins(query, id);
         }
-        std::optional<NDPinDetails::Config::PinRecord> getContributorPins(const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getContributorPins(const muuid::uuid& id, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDPinDetails::Read::getContributorPins(query, id);
                 });
         }
-        std::optional<NDPinDetails::Config::PinRecord> getContributorPins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getContributorPins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
             return NDPinDetails::Read::getContributorPins(query, id);
         }
-        std::optional<NDPinDetails::Config::PinRecord> getAllPins(const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getAllPins(const muuid::uuid& id, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDPinDetails::Read::getAllPins(query, id);
                 });
         }
-        std::optional<NDPinDetails::Config::PinRecord> getAllPins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getAllPins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
             return NDPinDetails::Read::getAllPins(query, id);
         }
 
