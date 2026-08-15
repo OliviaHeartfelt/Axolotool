@@ -1,20 +1,20 @@
 #pragma once
 
-#include "../wire/AWire.h"
+#include "../wire/VWWire.h"
 
-namespace ANodeScene {
+namespace VWNodeScene {
 
     class NodeScene : public QGraphicsScene {
         QGraphicsPathItem* temporaryWire = nullptr;
-        AWire::WireData wireData;
+        VWWire::TemporaryWire::WireTempData wireData;
         bool runtimeHasTarget = false;
     
         void setWireStartPos(QGraphicsSceneDragDropEvent* event) {
-            QByteArray posBlock = event->mimeData()->data(AWire::WireTemp::mimeType());
+            QByteArray posBlock = event->mimeData()->data(VWWire::TemporaryWire::WireTemp::mimeType());
             QDataStream posIn(&posBlock, QIODevice::ReadOnly);
             posIn.setVersion(QDataStream::Qt_6_11);
     
-            AWire::WireData data;
+            VWWire::TemporaryWire::WireTempData data;
             posIn >> data;
             wireData = data;
         }
@@ -32,10 +32,13 @@ namespace ANodeScene {
                 temporaryWire = nullptr;
             }
         }
+
+    public:
+        NodeScene(QWidget* parent = nullptr) : QGraphicsScene(parent) {}
     
     protected:
         void dragEnterEvent(QGraphicsSceneDragDropEvent* event) override {
-            if (event->mimeData()->hasFormat(AWire::WireTemp::mimeType())) {
+            if (event->mimeData()->hasFormat(VWWire::TemporaryWire::WireTemp::mimeType())) {
                 event->acceptProposedAction();
                 setWireStartPos(event);
                 addTempWire();
@@ -48,7 +51,7 @@ namespace ANodeScene {
         void dragMoveEvent(QGraphicsSceneDragDropEvent* event) override {
             if (temporaryWire) {
                 event->acceptProposedAction();
-                AWire::WireTemp::draw(event, wireData, temporaryWire, runtimeHasTarget);
+                VWWire::TemporaryWire::WireTemp::WireTemp::draw(event, wireData, temporaryWire);
             }
     
             QGraphicsScene::dragMoveEvent(event);
