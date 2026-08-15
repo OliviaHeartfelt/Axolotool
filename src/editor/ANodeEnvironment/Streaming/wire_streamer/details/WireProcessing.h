@@ -4,16 +4,15 @@
 #include "../../details/Helper.h"
 
 #include "../../../Storage/ANodeEnvDB.h"
+#include "../../../Registry/ARegistry.h"
 
 namespace STWireStreamerDetails::WireProcessing {
 
-	using namespace STStreamerDetails;
+	inline std::optional<ANodeEnvDB::Config::Wire::FullWireCoreRecord> processWireCore(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const muuid::uuid& wireCoreId);
+	inline bool processWireData(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore);
+	inline bool processWireStyle(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore);
 
-	inline std::optional<ANodeEnvDB::Config::Wire::FullWireCoreRecord> processWireCore(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QSqlQuery& query, Config::StreamCache& cache, Config::WirePayload& payload, const muuid::uuid& wireCoreId);
-	inline bool processWireData(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QSqlQuery& query, Config::StreamCache& cache, Config::WirePayload& payload, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore);
-	inline bool processWireStyle(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QSqlQuery& query, Config::StreamCache& cache, Config::WirePayload& payload, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore);
-
-	inline bool processWire(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QSqlQuery& query, Config::StreamCache& cache, Config::WirePayload& payload, const muuid::uuid& nodeId) {
+	inline bool processWire(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, Config::WirePayload& payload, const muuid::uuid& nodeId) {
 		if (!nodeEnvDB) return false;
 
 		const auto wireOpt = nodeEnvDB->wire.getWire(query, nodeId);
@@ -21,37 +20,33 @@ namespace STWireStreamerDetails::WireProcessing {
 
 		payload.wire = *wireOpt;
 
-		const auto wireCoreOpt = processWireCore(nodeEnvDB, query, cache, payload, wireOpt->coreId);
+		const auto wireCoreOpt = processWireCore(nodeEnvDB, registry, query, wireOpt->coreId);
 
 		if (!wireCoreOpt) return false;
 
-		if (!processWireData(nodeEnvDB, query, cache, payload, *wireCoreOpt) || !processWireStyle(nodeEnvDB, query, cache, payload, *wireCoreOpt)) return false;
-
+		if (!processWireData(nodeEnvDB, registry, query, *wireCoreOpt) || !processWireStyle(nodeEnvDB, registry, query, *wireCoreOpt)) return false;
 		return true;
 	}
-	inline std::optional<ANodeEnvDB::Config::Wire::FullWireCoreRecord> processWireCore(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QSqlQuery& query, Config::StreamCache& cache, Config::WirePayload& payload, const muuid::uuid& wireCoreId) {
-		const ANodeEnvDB::Config::Wire::FullWireCoreRecord* wireCore = Helper::getOrFetch(cache.wireCore, wireCoreId, [&]() {
-			return nodeEnvDB->node.getNodeCore(query, wireCoreId);
+	inline std::optional<ANodeEnvDB::Config::Wire::FullWireCoreRecord> processWireCore(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const muuid::uuid& wireCoreId) {
+		const auto wireCore = STStreamerDetails::Helper::getOrFetch(registry.wire.wireCoreRegistry, wireCoreId, [&]() {
+			return nodeEnvDB->wire.getWireCore(query, wireCoreId);
 			});
+		if (!wireCore) return std::nullopt;
 
-		if (wireCore) {
-			payload.wireCore.emplace(wireCoreId, *wireCore);
-			return *wireCore;
-		}
-		return std::nullopt;
+		return *wireCore;
 	}
 
-	inline bool processWireData(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QSqlQuery& query, Config::StreamCache& cache, Config::WirePayload& payload, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore) {
+	inline bool processWireData(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore) {
 		if (wireCore.dataId) {
-			Helper::hydratePayloadOpt(cache.wireData, payload.wireData, *wireCore.dataId, [&]() {
+			STStreamerDetails::Helper::ensureCached(registry.wire.wireDataRegistry, *wireCore.dataId, [&]() {
 				return nodeEnvDB->wireSource.getWireData(query, *wireCore.dataId);
 				});
 		}
 		return true;
 	}
-	inline bool processWireStyle(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QSqlQuery& query, Config::StreamCache& cache, Config::WirePayload& payload, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore) {
+	inline bool processWireStyle(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore) {
 		if (wireCore.styleId) {
-			Helper::hydratePayloadOpt(cache.wireStyle, payload.wireStyle, *wireCore.styleId, [&]() {
+			STStreamerDetails::Helper::ensureCached(registry.wire.wireStyleRegistry, *wireCore.styleId, [&]() {
 				return nodeEnvDB->wireSource.getWireStyle(query, *wireCore.styleId);
 			});
 		}

@@ -1,63 +1,78 @@
 #pragma once
 
+#include "../../View/AView.h"
+#include "../../Registry/ARegistry.h"
 #include "../details/BoundedQueue.h"
 #include "../node_streamer/STNodeStreamer.h"
 
 namespace STNodeConsumer {
 
-    class ANodeConsumer : public QObject {
+    class STNodeConsumer : public QObject {
         Q_OBJECT
 
-        QGraphicsScene* scene;
-        STStreamerDetails::BoundedQueue::BoundedQueue<STNodeStreamer::Config::NodePayload> queue{ 50 };
+        QGraphicsScene* m_scene = nullptr;
+        ARegistry::Registry* m_registry = nullptr;
+        STStreamerDetails::BoundedQueue::BoundedQueue<STNodeStreamer::Config::NodePayload> m_queue{ 50 };
         QTimer frameTimer;
 
         static constexpr int64_t MAX_FRAME_BUDGET_MS = 3;
 
     public:
-        explicit ANodeConsumer(QGraphicsScene* _scene, QObject* parent = nullptr) : QObject(parent), scene(_scene) {
-            connect(&frameTimer, &QTimer::timeout, this, &ANodeConsumer::processQueue);
+        explicit STNodeConsumer(QGraphicsScene* scene, ARegistry::Registry* registry, QObject* parent = nullptr) : QObject(parent), m_scene(scene), m_registry(registry) {
+            connect(&frameTimer, &QTimer::timeout, this, &STNodeConsumer::processQueue);
         }
 
-        ~ANodeConsumer() override {
+        ~STNodeConsumer() override {
             cancel();
         }
 
-        STStreamerDetails::BoundedQueue::BoundedQueue<STNodeStreamer::Config::NodePayload>& queue() {
-            return queue;
+        STStreamerDetails::BoundedQueue::BoundedQueue<STNodeStreamer::Config::NodePayload>& getQueue() {
+            return m_queue;
         }
 
         void startLoading() {
             cancel();
-            queue.reset();
+            m_queue.reset();
             frameTimer.start(16);
         }
 
         void cancel() {
-            queue.cancel();
+            m_queue.cancel();
             frameTimer.stop();
         }
 
+    signals:
+        void nodesLoadingFinished();
+
     private slots:
         void processQueue() {
-            if (!scene) return;
+            if (!m_scene || !m_registry) return;
 
             QElapsedTimer timer;
             timer.start();
 
             STNodeStreamer::Config::NodePayload payload;
 
-            while (queue.tryPop(payload)) {
+            while (m_queue.tryPop(payload)) {
 
-                //STNodeConsumerDetails::CreateVisualNode::createVisualNode(scene, payload);
+                auto* node = AView::Node::createNode(*m_registry, nullptr, AView::Context::Node::FactoryData{
+                    .node = AView::Context::Node::NodeFactoryData::fromNodeRecord(payload.node),
+                    .nodeCells = payload.nodeCells,
+                    .widgets = payload.widgets
+                    });
+
+                if (node) {
+                    m_scene->addItem(node);
+                }
 
                 if (timer.elapsed() >= MAX_FRAME_BUDGET_MS) {
                     return;
                 }
             }
 
-            if (queue.isCancelled() || queue.isCancelled()) {
+            if (m_queue.isCompleted()) {
                 frameTimer.stop();
+                emit nodesLoadingFinished();
             }
         }
     };

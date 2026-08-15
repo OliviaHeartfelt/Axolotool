@@ -13,33 +13,32 @@ namespace STNodeStreamer {
     }
 
     class STNodeStreamer {
-        ANodeEnvDB::ANodeEnvDB* nodeEnvDB;
+        ANodeEnvDB::ANodeEnvDB* m_nodeEnvDB = nullptr;
+        ARegistry::Registry* m_registry = nullptr;
 
-        std::generator<Config::NodePayload&&> streamChunkNodes(QSqlQuery& query, Config::StreamCache& cache) {
-            if (!nodeEnvDB || !nodeEnvDB->isOpen()) co_return;
+        std::generator<Config::NodePayload&&> streamChunkNodes(QSqlQuery& query) {
+            if (!m_registry || !m_nodeEnvDB || !m_nodeEnvDB->isOpen()) co_return;
 
-            auto nodesOpt = nodeEnvDB->node.getNodesInView(query, true);
+            auto nodesOpt = m_nodeEnvDB->node.getNodesInView(query, true);
             if (!nodesOpt || nodesOpt->isEmpty()) co_return;
 
             for (const auto& nodeRecord : *nodesOpt) {
                 Config::NodePayload payload;
 
-                if (!STNodeStreamerDetails::NodeProcessing::processNode(nodeEnvDB, query, cache, payload, nodeRecord.id)) continue;
+                if (!STNodeStreamerDetails::NodeProcessing::processNode(m_nodeEnvDB, *m_registry, query, payload, nodeRecord.id)) continue;
 
                 co_yield std::move(payload);
             }
         }
 
     public:
-        explicit STNodeStreamer(ANodeEnvDB::ANodeEnvDB* _nodeEnvDB) : nodeEnvDB(_nodeEnvDB) {}
+        explicit STNodeStreamer(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry* registry) : m_nodeEnvDB(nodeEnvDB), m_registry(registry) {}
 
-        bool streamChunkToQueue(STStreamerDetails::BoundedQueue::BoundedQueue<Config::NodePayload>& queue) {
-            if (!nodeEnvDB) return false;
+        bool streamChunkToQueue(const muuid::uuid& chunkId, STStreamerDetails::BoundedQueue::BoundedQueue<Config::NodePayload>& queue) {
+            if (!m_nodeEnvDB) return false;
 
-            return ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& query) {
-                Config::StreamCache cache;
-
-                for (const Config::NodePayload& payload : streamChunkNodes(query, cache)) {
+            return ANodeEnvDB::Helpers::useQuery(m_nodeEnvDB->getPool(), [&](QSqlQuery& query) {
+                for (const Config::NodePayload& payload : streamChunkNodes(query)) {
                     if (!queue.pushBlocking(std::move(payload))) break;
                 }
                 return true;

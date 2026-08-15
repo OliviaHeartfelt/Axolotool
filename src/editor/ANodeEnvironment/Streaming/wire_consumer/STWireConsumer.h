@@ -1,63 +1,84 @@
 #pragma once
 
+#include "../../View/AView.h"
+#include "../../Registry/ARegistry.h"
 #include "../details/BoundedQueue.h"
 #include "../wire_streamer/STWireStreamer.h"
+#include <QElapsedTimer>
+#include <QTimer>
+#include <QGraphicsScene>
 
-namespace STNodeConsumer {
+namespace STWireConsumer {
 
-    class ANodeConsumer : public QObject {
+    class STWireConsumer : public QObject {
         Q_OBJECT
 
-            QGraphicsScene* scene;
-        STStreamerDetails::BoundedQueue::BoundedQueue<STWireStreamer::Config::WirePayload> queue{ 50 };
+            QGraphicsScene* m_scene = nullptr;
+        ARegistry::Registry* m_registry = nullptr;
+        STStreamerDetails::BoundedQueue::BoundedQueue<STWireStreamer::Config::WirePayload> m_queue{ 50 };
         QTimer frameTimer;
 
         static constexpr int64_t MAX_FRAME_BUDGET_MS = 3;
 
     public:
-        explicit ANodeConsumer(QGraphicsScene* _scene, QObject* parent = nullptr) : QObject(parent), scene(_scene) {
-            connect(&frameTimer, &QTimer::timeout, this, &ANodeConsumer::processQueue);
+        explicit STWireConsumer(QGraphicsScene* scene, ARegistry::Registry* registry, QObject* parent = nullptr)
+            : QObject(parent), m_scene(scene), m_registry(registry)
+        {
+            connect(&frameTimer, &QTimer::timeout, this, &STWireConsumer::processQueue);
         }
 
-        ~ANodeConsumer() override {
+        ~STWireConsumer() override {
             cancel();
         }
 
-        STStreamerDetails::BoundedQueue::BoundedQueue<STWireStreamer::Config::WirePayload>& queue() {
-            return queue;
+        STStreamerDetails::BoundedQueue::BoundedQueue<STWireStreamer::Config::WirePayload>& getQueue() {
+            return m_queue;
         }
 
         void startLoading() {
             cancel();
-            queue.reset();
+            m_queue.reset();
             frameTimer.start(16);
         }
 
         void cancel() {
-            queue.cancel();
+            m_queue.cancel();
             frameTimer.stop();
         }
 
+    signals:
+        void wiresLoadingFinished();
+
     private slots:
+
         void processQueue() {
-            if (!scene) return;
+            if (!m_scene || !m_registry) return;
 
             QElapsedTimer timer;
             timer.start();
 
             STWireStreamer::Config::WirePayload payload;
 
-            while (queue.tryPop(payload)) {
+            while (m_queue.tryPop(payload)) {
 
-                //STNodeConsumerDetails::CreateVisualNode::createVisualNode(scene, payload);
+                AView::Wire::WireItem* wire = AView::Wire::createPermanentWire<AView::Pin::PinItem>(
+                    payload.wire.originId,
+                    payload.wire.targetId,
+                    *m_registry
+                );
+
+                if (wire) {
+                    m_scene->addItem(wire);
+                }
 
                 if (timer.elapsed() >= MAX_FRAME_BUDGET_MS) {
                     return;
                 }
             }
 
-            if (queue.isCancelled() || queue.isCancelled()) {
+            if (m_queue.isCompleted()) {
                 frameTimer.stop();
+                emit wiresLoadingFinished();
             }
         }
     };

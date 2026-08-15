@@ -13,33 +13,32 @@ namespace STWireStreamer {
     }
 
     class STWireStreamer {
-        ANodeEnvDB::ANodeEnvDB* nodeEnvDB;
+        ANodeEnvDB::ANodeEnvDB* m_nodeEnvDB = nullptr;
+        ARegistry::Registry* m_registry = nullptr;
 
-        std::generator<Config::WirePayload&&> streamChunkWires(QSqlQuery& query, Config::StreamCache& cache) {
-            if (!nodeEnvDB || !nodeEnvDB->isOpen()) co_return;
+        std::generator<Config::WirePayload&&> streamChunkWires(QSqlQuery& query) {
+            if (!m_nodeEnvDB || !m_nodeEnvDB || !m_nodeEnvDB->isOpen()) co_return;
 
-            auto wiresOpt = nodeEnvDB->wire.getWiresInView(query, true);
+            auto wiresOpt = m_nodeEnvDB->wire.getWiresInView(query, true);
             if (!wiresOpt || wiresOpt->isEmpty()) co_return;
 
             for (const auto& wireRecord : *wiresOpt) {
                 Config::WirePayload payload;
 
-                if (!STWireStreamerDetails::WireProcessing::processWire(nodeEnvDB, query, cache, payload, wireRecord.id)) continue;
+                if (!STWireStreamerDetails::WireProcessing::processWire(m_nodeEnvDB, *m_registry, query, payload, wireRecord.id)) continue;
 
                 co_yield std::move(payload);
             }
         }
 
     public:
-        explicit STWireStreamer(ANodeEnvDB::ANodeEnvDB* _nodeEnvDB) : nodeEnvDB(_nodeEnvDB) {}
+        explicit STWireStreamer(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry* registry) : m_nodeEnvDB(nodeEnvDB), m_registry(registry) {}
 
-        bool streamChunkToQueue(STStreamerDetails::BoundedQueue::BoundedQueue<Config::WirePayload>& queue) {
-            if (!nodeEnvDB) return false;
+        bool streamChunkToQueue(const muuid::uuid& chunkId, STStreamerDetails::BoundedQueue::BoundedQueue<Config::WirePayload>& queue) {
+            if (!m_nodeEnvDB) return false;
 
-            return ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& query) {
-                Config::StreamCache cache;
-
-                for (const Config::WirePayload& payload : streamChunkWires(query, cache)) {
+            return ANodeEnvDB::Helpers::useQuery(m_nodeEnvDB->getPool(), [&](QSqlQuery& query) {
+                for (const Config::WirePayload& payload : streamChunkWires(query)) {
                     if (!queue.pushBlocking(std::move(payload))) break;
                 }
                 return true;

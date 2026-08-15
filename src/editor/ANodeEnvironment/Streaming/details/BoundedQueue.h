@@ -10,6 +10,7 @@ namespace STStreamerDetails::BoundedQueue {
         std::condition_variable cvPop;
         size_t capacity;
         std::atomic<bool> cancelled{ false };
+        std::atomic<bool> finished{ false };
 
     public:
         explicit BoundedQueue(size_t capacity = 50) : capacity(capacity) {}
@@ -46,6 +47,15 @@ namespace STStreamerDetails::BoundedQueue {
             return true;
         }
 
+        void finish() {
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                finished.store(true);
+            }
+            cvPop.notify_all();
+            cvPush.notify_all();
+        }
+
         void cancel() {
             cancelled.store(true);
             cvPush.notify_all();
@@ -60,5 +70,10 @@ namespace STStreamerDetails::BoundedQueue {
         }
 
         bool isCancelled() const { return cancelled.load(); }
+
+        bool isCompleted() const {
+            std::lock_guard<std::mutex> lock(mutex);
+            return cancelled.load() || (finished.load() && queue.empty());
+        }
     };
 }
