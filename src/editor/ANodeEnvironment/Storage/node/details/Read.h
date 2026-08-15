@@ -10,7 +10,7 @@ namespace NDNodeDetails::Read {
     // 1. Node Core
     inline std::optional<NDNodeDetails::Config::FullNodeCoreRecord> getNodeCore(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT contributor_id, type_id, data_id, name, default_row_num, default_col_num, default_node_w, default_node_h
+            SELECT contributor_id, type_id, data_id, name, default_row_num, default_col_num, default_node_w, default_node_h, cell_visual_fallback_id
             FROM node_core 
             WHERE id = :id;
         )");
@@ -31,6 +31,9 @@ namespace NDNodeDetails::Read {
         const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(2));
         if (dataId.isCorrupted()) return std::nullopt;
 
+        const NDHelpers::NullableField<muuid::uuid> fallbackId = NDHelpers::parseNullableUUID(query.value(8));
+        if (fallbackId.isCorrupted()) return std::nullopt;
+
         return NDNodeDetails::Config::FullNodeCoreRecord{
             id,
             *contributorId,
@@ -40,7 +43,8 @@ namespace NDNodeDetails::Read {
             static_cast<short>(query.value(4).toInt()),
             static_cast<short>(query.value(5).toInt()),
             query.value(6).toReal(),
-            query.value(7).toReal()
+            query.value(7).toReal(),
+            fallbackId.value
         };
     }
 
@@ -48,7 +52,7 @@ namespace NDNodeDetails::Read {
         QList<NDNodeDetails::Config::FullNodeCoreRecord> list;
 
         query.prepare(R"(
-            SELECT id, type_id, data_id, name, default_row_num, default_col_num, default_node_w, default_node_h
+            SELECT id, type_id, data_id, name, default_row_num, default_col_num, default_node_w, default_node_h, cell_visual_fallback_id
             FROM node_core 
             WHERE contributor_id = :contributor_id;
         )");
@@ -63,8 +67,9 @@ namespace NDNodeDetails::Read {
             auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(1));
             const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(2));
+            const NDHelpers::NullableField<muuid::uuid> fallbackId = NDHelpers::parseNullableUUID(query.value(8));
 
-            if (!id || typeId.isCorrupted() || dataId.isCorrupted()) {
+            if (!id || typeId.isCorrupted() || dataId.isCorrupted() || fallbackId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -80,7 +85,8 @@ namespace NDNodeDetails::Read {
                 static_cast<short>(query.value(4).toInt()),
                 static_cast<short>(query.value(5).toInt()),
                 query.value(6).toReal(),
-                query.value(7).toReal()
+                query.value(7).toReal(),
+                fallbackId.value
                 });
         }
         return list;
@@ -90,7 +96,7 @@ namespace NDNodeDetails::Read {
         QList<NDNodeDetails::Config::FullNodeCoreRecord> list;
 
         query.prepare(R"(
-            SELECT nc.id, nc.contributor_id, nc.type_id, nc.data_id, nc.name, nc.default_row_num, nc.default_col_num, nc.default_node_w, nc.default_node_h
+            SELECT nc.id, nc.contributor_id, nc.type_id, nc.data_id, nc.name, nc.default_row_num, nc.default_col_num, nc.default_node_w, nc.default_node_h, nc.cell_visual_fallback_id
             FROM node_core nc
             INNER JOIN node_contributor c ON nc.contributor_id = c.id
             WHERE c.source_id = :source_id;
@@ -107,8 +113,9 @@ namespace NDNodeDetails::Read {
             auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
             const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(2));
             const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(3));
+            const NDHelpers::NullableField<muuid::uuid> fallbackId = NDHelpers::parseNullableUUID(query.value(9));
 
-            if (!id || !contributorId || typeId.isCorrupted() || dataId.isCorrupted()) {
+            if (!id || !contributorId || typeId.isCorrupted() || dataId.isCorrupted() || fallbackId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -124,7 +131,8 @@ namespace NDNodeDetails::Read {
                 static_cast<short>(query.value(5).toInt()),
                 static_cast<short>(query.value(6).toInt()),
                 query.value(7).toReal(),
-                query.value(8).toReal()
+                query.value(8).toReal(),
+                fallbackId.value
                 });
         }
         return list;

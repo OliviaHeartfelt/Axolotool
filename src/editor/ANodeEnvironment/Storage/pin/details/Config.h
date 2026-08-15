@@ -5,6 +5,7 @@ namespace NDPinDetails::Config {
 	struct CompletePinCore {
 		muuid::uuid id;
 		muuid::uuid contributorId;
+		muuid::uuid visualFactoryId;
 		std::optional<muuid::uuid> flowId;
 		std::optional<muuid::uuid> typeId;
 		std::optional<muuid::uuid> styleId;
@@ -14,6 +15,7 @@ namespace NDPinDetails::Config {
 	struct FullPinCoreRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
+		muuid::uuid visualFactoryId;
 		std::optional<muuid::uuid> flowId;
 		std::optional<muuid::uuid> typeId;
 		std::optional<muuid::uuid> styleId;
@@ -21,6 +23,7 @@ namespace NDPinDetails::Config {
 	struct CreatePinCoreRecord {
 		muuid::uuid id;
 		muuid::uuid contributorId;
+		muuid::uuid visualFactoryId;
 		std::optional<muuid::uuid> flowId;
 		std::optional<muuid::uuid> typeId;
 		std::optional<muuid::uuid> styleId;
@@ -28,8 +31,9 @@ namespace NDPinDetails::Config {
 		QList<muuid::uuid> allowTypeList = {};
 	};
 	struct UpdatePinCoreRecord {
-		std::optional<muuid::uuid> id =            std::nullopt;
-		std::optional<muuid::uuid> contributorId = std::nullopt;
+		std::optional<muuid::uuid> id =              std::nullopt;
+		std::optional<muuid::uuid> contributorId =   std::nullopt;
+		std::optional<muuid::uuid> visualFactoryId = std::nullopt;
 		std::variant<std::monostate, std::optional<muuid::uuid>> flowId = std::monostate{};
 		std::variant<std::monostate, std::optional<muuid::uuid>> typeId = std::monostate{};
 		std::variant<std::monostate, std::optional<muuid::uuid>> styleId = std::monostate{};

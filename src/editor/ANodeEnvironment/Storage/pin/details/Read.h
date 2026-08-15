@@ -149,6 +149,7 @@ namespace NDPinDetails::Read {
         return (NDPinDetails::Config::CompletePinCore{
             pinData->id,
             pinData->contributorId,
+            pinData->visualFactoryId,
             pinData->flowId,
             pinData->typeId,
             pinData->styleId,
@@ -158,7 +159,7 @@ namespace NDPinDetails::Read {
     }
     inline std::optional<NDPinDetails::Config::FullPinCoreRecord> getPinCore(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT contributor_id, flow_id, type_id, style_id 
+            SELECT contributor_id, visual_factory_id, flow_id, type_id, style_id 
             FROM pin_core 
             WHERE id = :id;
         )");
@@ -173,18 +174,22 @@ namespace NDPinDetails::Read {
         auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> flow = NDHelpers::parseNullableUUID(query.value(1));
+        auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+        if (!visualFactoryId) return std::nullopt;
+
+        const NDHelpers::NullableField<muuid::uuid> flow = NDHelpers::parseNullableUUID(query.value(2));
         if (flow.isCorrupted()) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> type = NDHelpers::parseNullableUUID(query.value(2));
+        const NDHelpers::NullableField<muuid::uuid> type = NDHelpers::parseNullableUUID(query.value(3));
         if (type.isCorrupted()) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> style = NDHelpers::parseNullableUUID(query.value(3));
+        const NDHelpers::NullableField<muuid::uuid> style = NDHelpers::parseNullableUUID(query.value(4));
         if (style.isCorrupted()) return std::nullopt;
 
         return NDPinDetails::Config::FullPinCoreRecord{
             id,
             *contributorId,
+            *visualFactoryId,
             flow.value,
             type.value,
             style.value
@@ -194,7 +199,7 @@ namespace NDPinDetails::Read {
         QList<NDPinDetails::Config::FullPinCoreRecord> list;
 
         query.prepare(R"(
-            SELECT id, flow_id, type_id, style_id 
+            SELECT id, visual_factory_id, flow_id, type_id, style_id 
             FROM pin_core 
             WHERE contributor_id = :contributor_id;
         )");
@@ -207,17 +212,13 @@ namespace NDPinDetails::Read {
 
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
 
-            const NDHelpers::NullableField<muuid::uuid> flow = NDHelpers::parseNullableUUID(query.value(1));
-            if (flow.isCorrupted()) return std::nullopt;
+            const NDHelpers::NullableField<muuid::uuid> flow = NDHelpers::parseNullableUUID(query.value(2));
+            const NDHelpers::NullableField<muuid::uuid> type = NDHelpers::parseNullableUUID(query.value(3));
+            const NDHelpers::NullableField<muuid::uuid> style = NDHelpers::parseNullableUUID(query.value(4));
 
-            const NDHelpers::NullableField<muuid::uuid> type = NDHelpers::parseNullableUUID(query.value(2));
-            if (type.isCorrupted()) return std::nullopt;
-
-            const NDHelpers::NullableField<muuid::uuid> style = NDHelpers::parseNullableUUID(query.value(3));
-            if (style.isCorrupted()) return std::nullopt;
-
-            if (!id || flow.isCorrupted() || type.isCorrupted() || style.isCorrupted()) {
+            if (!id || !visualFactoryId || flow.isCorrupted() || type.isCorrupted() || style.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -227,6 +228,7 @@ namespace NDPinDetails::Read {
             list.append(NDPinDetails::Config::FullPinCoreRecord{
                 *id,
                 contributorId,
+                *visualFactoryId,
                 flow.value,
                 type.value,
                 style.value
@@ -238,7 +240,7 @@ namespace NDPinDetails::Read {
         QList<NDPinDetails::Config::FullPinCoreRecord> list;
 
         query.prepare(R"(
-            SELECT core.id, core.contributor_id, core.flow_id, core.type_id, core.style_id 
+            SELECT core.id, core.contributor_id, core.visual_factory_id, core.flow_id, core.type_id, core.style_id 
             FROM pin_core core
             INNER JOIN pin_contributor ctr ON core.contributor_id = ctr.id
             WHERE ctr.source_id = :source_id;
@@ -253,17 +255,13 @@ namespace NDPinDetails::Read {
         while (query.next()) {
             const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+            auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
 
-            const NDHelpers::NullableField<muuid::uuid> flow = NDHelpers::parseNullableUUID(query.value(2));
-            if (flow.isCorrupted()) return std::nullopt;
+            const NDHelpers::NullableField<muuid::uuid> flow = NDHelpers::parseNullableUUID(query.value(3));
+            const NDHelpers::NullableField<muuid::uuid> type = NDHelpers::parseNullableUUID(query.value(4));
+            const NDHelpers::NullableField<muuid::uuid> style = NDHelpers::parseNullableUUID(query.value(5));
 
-            const NDHelpers::NullableField<muuid::uuid> type = NDHelpers::parseNullableUUID(query.value(3));
-            if (type.isCorrupted()) return std::nullopt;
-
-            const NDHelpers::NullableField<muuid::uuid> style = NDHelpers::parseNullableUUID(query.value(4));
-            if (style.isCorrupted()) return std::nullopt;
-
-            if (!id || !contributorId || flow.isCorrupted() || type.isCorrupted() || style.isCorrupted()) {
+            if (!id || !contributorId || !visualFactoryId || flow.isCorrupted() || type.isCorrupted() || style.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -273,6 +271,7 @@ namespace NDPinDetails::Read {
             list.append(NDPinDetails::Config::FullPinCoreRecord{
                 *id,
                 *contributorId,
+                *visualFactoryId,
                 flow.value,
                 type.value,
                 style.value

@@ -10,7 +10,7 @@ namespace NDWidgetDetails::Read {
     // 1. Widget Core
     inline std::optional<NDWidgetDetails::Config::FullWidgetCoreRecord> getWidgetCore(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT contributor_id, type_id, data_id
+            SELECT contributor_id, visual_factory_id, type_id, data_id
             FROM widget_core 
             WHERE id = :id;
         )");
@@ -25,15 +25,19 @@ namespace NDWidgetDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(1));
+        const auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+        if (!visualFactoryId) return std::nullopt;
+
+        const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(2));
         if (typeId.isCorrupted()) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(2));
+        const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(3));
         if (dataId.isCorrupted()) return std::nullopt;
 
         return NDWidgetDetails::Config::FullWidgetCoreRecord{
             id,
             *contributorId,
+            *visualFactoryId,
             typeId.value,
             dataId.value
         };
@@ -42,7 +46,7 @@ namespace NDWidgetDetails::Read {
         QList<NDWidgetDetails::Config::FullWidgetCoreRecord> list;
 
         query.prepare(R"(
-            SELECT id, type_id, data_id
+            SELECT id, visual_factory_id, type_id, data_id
             FROM widget_core 
             WHERE contributor_id = :contributor_id;
         )");
@@ -54,12 +58,13 @@ namespace NDWidgetDetails::Read {
         }
 
         while (query.next()) {
-            const auto id =     Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const auto id =              Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
 
-            const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(1));
-            const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(2));
+            const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(2));
+            const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(3));
 
-            if (!id || typeId.isCorrupted() || dataId.isCorrupted()) {
+            if (!id || !visualFactoryId || typeId.isCorrupted() || dataId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -69,6 +74,7 @@ namespace NDWidgetDetails::Read {
             list.append(NDWidgetDetails::Config::FullWidgetCoreRecord{
                 *id,
                 contributorId,
+                *visualFactoryId,
                 typeId.value,
                 dataId.value
             });
@@ -79,7 +85,7 @@ namespace NDWidgetDetails::Read {
         QList<NDWidgetDetails::Config::FullWidgetCoreRecord> list;
 
         query.prepare(R"(
-            SELECT wc.id, wc.contributor_id, wc.type_id, wc.data_id
+            SELECT wc.id, wc.contributor_id, wc.visual_factory_id, wc.type_id, wc.data_id
             FROM widget_core wc
             INNER JOIN widget_contributor c ON wc.contributor_id = c.id
             WHERE c.source_id = :source_id;
@@ -92,11 +98,12 @@ namespace NDWidgetDetails::Read {
         }
 
         while (query.next()) {
-            const auto id =            Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+            const auto id =              Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const auto contributorId =   Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+            const auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
 
-            const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(2));
-            const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(3));
+            const NDHelpers::NullableField<muuid::uuid> typeId = NDHelpers::parseNullableUUID(query.value(3));
+            const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(4));
 
             if (!id || !contributorId || typeId.isCorrupted() || dataId.isCorrupted()) {
                 if (continueAtFail)
@@ -108,6 +115,7 @@ namespace NDWidgetDetails::Read {
             list.append(NDWidgetDetails::Config::FullWidgetCoreRecord{
                 *id,
                 *contributorId,
+                *visualFactoryId,
                 typeId.value,
                 dataId.value
             });

@@ -10,8 +10,9 @@ namespace NDWidgetDetails::Update {
     inline bool updateWidgetCore(QSqlQuery& query, const muuid::uuid& id, const NDWidgetDetails::Config::UpdateWidgetCoreRecord& newProperties) {
         QStringList clauses;
 
-        if (newProperties.id)            clauses.append("id = :new_id");
-        if (newProperties.contributorId) clauses.append("contributor_id = :new_contributor_id");
+        if (newProperties.id)              clauses.append("id = :new_id");
+        if (newProperties.contributorId)   clauses.append("contributor_id = :new_contributor_id");
+        if (newProperties.visualFactoryId) clauses.append("visual_factory_id = :new_visual_factory_id");
 
         const auto* optTypePtr = std::get_if<std::optional<muuid::uuid>>(&newProperties.typeId);
         if (optTypePtr) clauses.append("type_id = :type_id");
@@ -28,8 +29,9 @@ namespace NDWidgetDetails::Update {
         }
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
 
-        if (newProperties.id)            query.bindValue(":new_id",         Utility::UUID::uuidToBytes(*newProperties.id));
-        if (newProperties.contributorId) query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(*newProperties.contributorId));
+        if (newProperties.id)              query.bindValue(":new_id",                Utility::UUID::uuidToBytes(*newProperties.id));
+        if (newProperties.contributorId)   query.bindValue(":contributor_id",        Utility::UUID::uuidToBytes(*newProperties.contributorId));
+        if (newProperties.visualFactoryId) query.bindValue(":new_visual_factory_id", Utility::UUID::uuidToBytes(*newProperties.visualFactoryId));
 
         if (optTypePtr) query.bindValue(":type_id", optTypePtr->has_value() ? Utility::UUID::uuidToBytes(optTypePtr->value()) : QVariant(QMetaType::fromType<QByteArray>()));
         if (optDataPtr) query.bindValue(":type_id", optDataPtr->has_value() ? Utility::UUID::uuidToBytes(optDataPtr->value()) : QVariant(QMetaType::fromType<QByteArray>()));

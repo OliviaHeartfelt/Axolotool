@@ -15,6 +15,7 @@ namespace NDNodeDetails::Config {
 		short defaultColNum;
 		double defaultNodeWidth;
 		double defaultNodeHeight;
+		std::optional<muuid::uuid> cellVisualFallbackId;
 	};
 	struct CreateNodeCoreRecord {
 		muuid::uuid id;
@@ -26,6 +27,7 @@ namespace NDNodeDetails::Config {
 		short defaultColNum = 1;
 		double defaultNodeWidth = -1.0;
 		double defaultNodeHeight = -1.0;
+		std::optional<muuid::uuid> cellVisualFallbackId = std::nullopt;
 	};
 	struct UpdateNodeCoreRecord {
 		std::optional<muuid::uuid> id            = std::nullopt;
@@ -37,6 +39,7 @@ namespace NDNodeDetails::Config {
 		std::optional<short> defaultColNum      = std::nullopt;
 		std::optional<double> defaultNodeWidth  = std::nullopt;
 		std::optional<double> defaultNodeHeight = std::nullopt;
+		std::variant<std::monostate, std::optional<muuid::uuid>> cellVisualFallbackId = std::monostate{};
 	};
 
 	// 2. Node

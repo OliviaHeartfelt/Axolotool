@@ -16,11 +16,12 @@ namespace NDPinDetails::Init {
     inline bool createPinCoreTable(QSqlQuery& query) {
         QString createPinTableQuery = R"(
             CREATE TABLE IF NOT EXISTS pin_core (
-                id             BLOB NOT NULL,
-                contributor_id BLOB NOT NULL,
-                flow_id        BLOB,
-                type_id        BLOB,
-                style_id       BLOB,
+                id                BLOB NOT NULL,
+                contributor_id    BLOB NOT NULL,
+                visual_factory_id BLOB NOT NULL,
+                flow_id           BLOB,
+                type_id           BLOB,
+                style_id          BLOB,
 
                 PRIMARY KEY (id),
                 FOREIGN KEY (contributor_id) REFERENCES pin_contributor(id) ON DELETE CASCADE  ON UPDATE CASCADE,

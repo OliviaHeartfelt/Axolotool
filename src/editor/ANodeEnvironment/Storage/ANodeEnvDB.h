@@ -36,7 +36,7 @@ namespace ANodeEnvDB {
     }
 
 	class ANodeEnvDB {
-		QString connectionBaseName;
+		QString m_connectionBaseName;
         std::unique_ptr<NDPool::DatabasePool> pool;
 		QString dbPath;
 
@@ -89,7 +89,7 @@ namespace ANodeEnvDB {
         };
 
 		ANodeEnvDB(const QString& dbPath, const QString& connectionBaseName) :
-            dbPath(dbPath), connectionBaseName(connectionBaseName),
+            dbPath(dbPath), m_connectionBaseName(connectionBaseName),
             node(this), nodeSource(this), cell(this), pin(this), pinSource(this), widget(this), widgetSource(this), wire(this), wireSource(this), globalSource(this)
         {}
 
@@ -111,15 +111,15 @@ namespace ANodeEnvDB {
         NDGlobalSource::Component<ANodeEnvDB> globalSource;
 
         bool isOpen() const {
-            if (QSqlDatabase::contains(connectionBaseName)) {
-                return QSqlDatabase::database(connectionBaseName).isOpen();
+            if (QSqlDatabase::contains(m_connectionBaseName)) {
+                return QSqlDatabase::database(m_connectionBaseName).isOpen();
             }
             return false;
         }
         bool open(int poolSize = 4) {
             if (pool) return true;
 
-            pool = std::make_unique<NDPool::DatabasePool>(dbPath, connectionBaseName, poolSize);
+            pool = std::make_unique<NDPool::DatabasePool>(dbPath, m_connectionBaseName, poolSize);
 
             auto lease = pool->acquire();
             QSqlQuery query(lease.db());
@@ -131,8 +131,8 @@ namespace ANodeEnvDB {
         }
 
         void close() {
-            if (QSqlDatabase::contains(connectionBaseName)) {
-                auto db = QSqlDatabase::database(connectionBaseName);
+            if (QSqlDatabase::contains(m_connectionBaseName)) {
+                auto db = QSqlDatabase::database(m_connectionBaseName);
                 if (db.isOpen()) db.close();
             }
         }

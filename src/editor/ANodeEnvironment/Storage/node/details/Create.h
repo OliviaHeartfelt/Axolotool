@@ -8,8 +8,8 @@ namespace NDNodeDetails::Create {
 
     inline bool createNodeCore(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeCoreRecord& newNodeCore) {
         query.prepare(R"(
-            INSERT INTO node_core (id,  contributor_id,  type_id,  data_id,  name,  default_row_num,  default_col_num,  default_node_w,  default_node_h)
-            VALUES (              :id, :contributor_id, :type_id, :data_id, :name, :default_row_num, :default_col_num, :default_node_w, :default_node_h);
+            INSERT INTO node_core (id,  contributor_id,  type_id,  data_id,  name,  default_row_num,  default_col_num,  default_node_w,  default_node_h,  cell_visual_fallback_id)
+            VALUES (              :id, :contributor_id, :type_id, :data_id, :name, :default_row_num, :default_col_num, :default_node_w, :default_node_h, :cell_visual_fallback_id);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newNodeCore.id));
@@ -23,6 +23,8 @@ namespace NDNodeDetails::Create {
 
         query.bindValue(":default_node_w",  newNodeCore.defaultNodeWidth);
         query.bindValue(":default_node_h",  newNodeCore.defaultNodeHeight);
+
+        query.bindValue(":cell_visual_fallback_id", newNodeCore.cellVisualFallbackId ? Utility::UUID::uuidToBytes(*newNodeCore.cellVisualFallbackId) : QVariant());
 
         if (!query.exec()) {
             qWarning() << "Failed to execute create node core:" << query.lastError().text();

@@ -10,15 +10,16 @@ namespace NDPinDetails::Create {
 
     inline bool createPinCore( QSqlQuery& query, const NDPinDetails::Config::CreatePinCoreRecord& newPinCore) {
         query.prepare(R"(
-            INSERT INTO pin_core (id,  contributor_id,  flow_id,  type_id,  style_id)
-            VALUES (             :id, :contributor_id, :flow_id, :type_id, :style_id);
+            INSERT INTO pin_core (id,  visual_factory_id,  contributor_id,  flow_id,  type_id,  style_id)
+            VALUES (             :id, :visual_factory_id, :contributor_id, :flow_id, :type_id, :style_id);
         )");
 
-        query.bindValue(":id",             Utility::UUID::uuidToBytes(newPinCore.id));
-        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newPinCore.contributorId));
-        query.bindValue(":flow_id",        newPinCore.flowId  ? Utility::UUID::uuidToBytes(*newPinCore.flowId)  : QVariant());
-        query.bindValue(":type_id",        newPinCore.typeId  ? Utility::UUID::uuidToBytes(*newPinCore.typeId)  : QVariant());
-        query.bindValue(":style_id",       newPinCore.styleId ? Utility::UUID::uuidToBytes(*newPinCore.styleId) : QVariant());
+        query.bindValue(":id",                Utility::UUID::uuidToBytes(newPinCore.id));
+        query.bindValue(":contributor_id",    Utility::UUID::uuidToBytes(newPinCore.contributorId));
+        query.bindValue(":visual_factory_id", Utility::UUID::uuidToBytes(newPinCore.visualFactoryId));
+        query.bindValue(":flow_id",  newPinCore.flowId  ? Utility::UUID::uuidToBytes(*newPinCore.flowId)  : QVariant());
+        query.bindValue(":type_id",  newPinCore.typeId  ? Utility::UUID::uuidToBytes(*newPinCore.typeId)  : QVariant());
+        query.bindValue(":style_id", newPinCore.styleId ? Utility::UUID::uuidToBytes(*newPinCore.styleId) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert pin core:" << query.lastError().text();

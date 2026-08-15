@@ -12,8 +12,15 @@ namespace NDNodeDetails::Update {
         if (newProperties.id)            clauses.append("id = :new_id");
         if (newProperties.contributorId) clauses.append("contributor_id = :new_contributor_id");
 
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId)) clauses.append("type_id = :type_id");
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.dataId)) clauses.append("data_id = :data_id");
+        const auto* typeIdPtr = std::get_if<std::optional<muuid::uuid>>(&newProperties.typeId);
+        if (typeIdPtr) clauses.append("type_id = :type_id");
+
+        const auto* dataIdPtr = std::get_if<std::optional<muuid::uuid>>(&newProperties.dataId);
+        if (dataIdPtr) clauses.append("data_id = :data_id");
+
+        const auto* fallbackIdPtr = std::get_if<std::optional<muuid::uuid>>(&newProperties.cellVisualFallbackId);
+        if (fallbackIdPtr) clauses.append("cell_visual_fallback_id = :cell_visual_fallback_id");
+
         if (newProperties.name)   clauses.append("name = :name");
 
         if (newProperties.defaultRowNum)     clauses.append("default_row_num = :default_row_num");
@@ -34,20 +41,9 @@ namespace NDNodeDetails::Update {
         if (newProperties.id)            query.bindValue(":new_id",             Utility::UUID::uuidToBytes(*newProperties.id));
         if (newProperties.contributorId) query.bindValue(":new_contributor_id", Utility::UUID::uuidToBytes(*newProperties.contributorId));
 
-        using UpdateField = std::variant<std::monostate, std::optional<muuid::uuid>>;
-        auto unpackUpdateField = [](const UpdateField& field) -> QVariant {
-            if (const auto* opt = std::get_if<std::optional<muuid::uuid>>(&field)) {
-                return *opt ? Utility::UUID::uuidToBytes(**opt) : QVariant();
-            }
-            return QVariant();
-        };
-
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.typeId)) {
-            query.bindValue(":type_id", unpackUpdateField(newProperties.typeId));
-        }
-        if (std::holds_alternative<std::optional<muuid::uuid>>(newProperties.dataId)) {
-            query.bindValue(":data_id", unpackUpdateField(newProperties.dataId));
-        }
+        if (typeIdPtr)     query.bindValue(":type_id", typeIdPtr->has_value()                     ? QVariant(Utility::UUID::uuidToBytes(typeIdPtr->value()))     : QVariant(QMetaType::fromType<QByteArray>()));
+        if (dataIdPtr)     query.bindValue(":data_id", dataIdPtr->has_value()                     ? QVariant(Utility::UUID::uuidToBytes(dataIdPtr->value()))     : QVariant(QMetaType::fromType<QByteArray>()));
+        if (fallbackIdPtr) query.bindValue(":cell_visual_fallback_id", fallbackIdPtr->has_value() ? QVariant(Utility::UUID::uuidToBytes(fallbackIdPtr->value())) : QVariant(QMetaType::fromType<QByteArray>()));
 
         if (newProperties.name)              query.bindValue(":name", *newProperties.name);
         if (newProperties.defaultRowNum)     query.bindValue(":default_row_num", *newProperties.defaultRowNum);

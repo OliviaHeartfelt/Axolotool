@@ -11,7 +11,7 @@ namespace NDCellDetails::Config {
     struct FullCellRecord {
         muuid::uuid id;
         muuid::uuid nodeId;
-        QString name;
+        std::optional<QString> name;
         bool isOut;
         short row;
         short col;

@@ -10,7 +10,7 @@ namespace NDWireDetails::Read {
     // 1. Wire Core
     inline std::optional<NDWireDetails::Config::FullWireCoreRecord> getWireCore(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT contributor_id, style_id, data_id, name
+            SELECT contributor_id, visual_factory_id, style_id, data_id, name
             FROM wire_core 
             WHERE id = :id;
         )");
@@ -25,25 +25,29 @@ namespace NDWireDetails::Read {
         const auto contributorId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!contributorId) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> styleId = NDHelpers::parseNullableUUID(query.value(1));
+        const auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+        if (!visualFactoryId) return std::nullopt;
+
+        const NDHelpers::NullableField<muuid::uuid> styleId = NDHelpers::parseNullableUUID(query.value(2));
         if (styleId.isCorrupted()) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(2));
+        const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(3));
         if (dataId.isCorrupted()) return std::nullopt;
 
         return NDWireDetails::Config::FullWireCoreRecord{
             id,
             *contributorId,
+            *visualFactoryId,
+            query.value(4).toString(),
             styleId.value,
-            dataId.value,
-            query.value(3).toString()
+            dataId.value
         };
     }
     inline std::optional<QList<NDWireDetails::Config::FullWireCoreRecord>> getContributorWireCores(QSqlQuery& query, const muuid::uuid& contributorId, const bool continueAtFail = false) {
         QList<NDWireDetails::Config::FullWireCoreRecord> list;
 
         query.prepare(R"(
-            SELECT id, style_id, data_id, name
+            SELECT id, visual_factory_id, style_id, data_id, name
             FROM wire_core 
             WHERE contributor_id = :contributor_id;
         )");
@@ -55,12 +59,13 @@ namespace NDWireDetails::Read {
         }
 
         while (query.next()) {
-            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const auto id =              Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
 
-            const NDHelpers::NullableField<muuid::uuid> styleId = NDHelpers::parseNullableUUID(query.value(1));
-            const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(2));
+            const NDHelpers::NullableField<muuid::uuid> styleId = NDHelpers::parseNullableUUID(query.value(2));
+            const NDHelpers::NullableField<muuid::uuid> dataId =  NDHelpers::parseNullableUUID(query.value(3));
 
-            if (!id || styleId.isCorrupted() || dataId.isCorrupted()) {
+            if (!id || !visualFactoryId || styleId.isCorrupted() || dataId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -70,9 +75,10 @@ namespace NDWireDetails::Read {
             list.append(NDWireDetails::Config::FullWireCoreRecord{
                 *id,
                 contributorId,
+                *visualFactoryId,
+                query.value(4).toString(),
                 styleId.value,
-                dataId.value,
-                query.value(3).toString()
+                dataId.value
             });
         }
         return list;
@@ -81,7 +87,7 @@ namespace NDWireDetails::Read {
         QList<NDWireDetails::Config::FullWireCoreRecord> list;
 
         query.prepare(R"(
-            SELECT wc.id, wc.contributor_id, wc.style_id, wc.data_id, wc.name
+            SELECT wc.id, wc.contributor_id, wc.visual_factory_id, wc.style_id, wc.data_id, wc.name
             FROM wire_core wc
             INNER JOIN widget_contributor c ON wc.contributor_id = c.id
             WHERE c.source_id = :source_id;
@@ -94,11 +100,12 @@ namespace NDWireDetails::Read {
         }
 
         while (query.next()) {
-            const auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
-            const auto contributorId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+            const auto id =              Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const auto contributorId =   Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+            const auto visualFactoryId = Utility::UUID::bytesToUuid(query.value(2).toByteArray());
 
-            const NDHelpers::NullableField<muuid::uuid> styleId = NDHelpers::parseNullableUUID(query.value(2));
-            const NDHelpers::NullableField<muuid::uuid> dataId = NDHelpers::parseNullableUUID(query.value(3));
+            const NDHelpers::NullableField<muuid::uuid> styleId = NDHelpers::parseNullableUUID(query.value(3));
+            const NDHelpers::NullableField<muuid::uuid> dataId =  NDHelpers::parseNullableUUID(query.value(4));
 
             if (!id || !contributorId || styleId.isCorrupted() || dataId.isCorrupted()) {
                 if (continueAtFail)
@@ -110,9 +117,10 @@ namespace NDWireDetails::Read {
             list.append(NDWireDetails::Config::FullWireCoreRecord{
                 *id,
                 *contributorId,
+                *visualFactoryId,
+                query.value(5).toString(),
                 styleId.value,
-                dataId.value,
-                query.value(4).toString()
+                dataId.value
             });
         }
         return list;

@@ -8,23 +8,26 @@ namespace NDWireDetails::Config {
     struct FullWireCoreRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
+        muuid::uuid visualFactoryId;
+        QString name;
         std::optional<muuid::uuid> styleId;
         std::optional<muuid::uuid> dataId;
-        QString name;
     };
     struct CreateWireCoreRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
+        muuid::uuid visualFactoryId;
+        QString name;
         std::optional<muuid::uuid> styleId;
         std::optional<muuid::uuid> dataId;
-        QString name;
     };
     struct UpdateWireCoreRecord {
-        std::optional<muuid::uuid> id =            std::nullopt;
-        std::optional<muuid::uuid> contributorId = std::nullopt;
-        std::optional<muuid::uuid> styleId =       std::nullopt;
-        std::optional<muuid::uuid> dataId =        std::nullopt;
-        std::optional<QString> name =              std::nullopt;
+        std::optional<muuid::uuid> id =              std::nullopt;
+        std::optional<muuid::uuid> contributorId =   std::nullopt;
+        std::optional<muuid::uuid> visualFactoryId = std::nullopt;
+        std::optional<QString> name =                std::nullopt;
+        std::variant<std::monostate, std::optional<muuid::uuid>> styleId = std::monostate{};
+        std::variant<std::monostate, std::optional<muuid::uuid>> dataId =  std::monostate{};
     };
 
     // 1. Wire Temporary

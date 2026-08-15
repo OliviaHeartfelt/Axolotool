@@ -13,15 +13,16 @@ namespace NDNodeDetails::Init {
     inline bool createNodeCoreTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS node_core (
-                id              BLOB NOT NULL,
-                contributor_id  BLOB NOT NULL,
-                type_id         BLOB,
-                data_id         BLOB,
-                name            TEXT NOT NULL,
-                default_row_num SMALLINT NOT NULL,
-                default_col_num SMALLINT NOT NULL,
-                default_node_w  REAL DEFAULT -1.0,
-                default_node_h  REAL DEFAULT -1.0,
+                id                      BLOB NOT NULL,
+                contributor_id          BLOB NOT NULL,
+                type_id                 BLOB,
+                data_id                 BLOB,
+                name                    TEXT NOT NULL,
+                default_row_num         SMALLINT NOT NULL,
+                default_col_num         SMALLINT NOT NULL,
+                default_node_w          REAL DEFAULT -1.0,
+                default_node_h          REAL DEFAULT -1.0,
+                cell_visual_fallback_id BLOB,
 
                 PRIMARY KEY (id),
                 FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE,

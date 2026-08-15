@@ -8,18 +8,21 @@ namespace NDWidgetDetails::Config {
     struct FullWidgetCoreRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
+        muuid::uuid visualFactoryId;
         std::optional<muuid::uuid> typeId;
         std::optional<muuid::uuid> dataId;
     };
     struct CreateWidgetCoreRecord {
         muuid::uuid id;
         muuid::uuid contributorId;
+        muuid::uuid visualFactoryId;
         std::optional<muuid::uuid> typeId = std::nullopt;
         std::optional<muuid::uuid> dataId = std::nullopt;
     };
     struct UpdateWidgetCoreRecord {
-        std::optional<muuid::uuid> id =            std::nullopt;
-        std::optional<muuid::uuid> contributorId = std::nullopt;
+        std::optional<muuid::uuid> id =              std::nullopt;
+        std::optional<muuid::uuid> contributorId =   std::nullopt;
+        std::optional<muuid::uuid> visualFactoryId = std::nullopt;
         std::variant<std::monostate, std::optional<muuid::uuid>> typeId = std::monostate{};
         std::variant<std::monostate, std::optional<muuid::uuid>> dataId = std::monostate{};
     };

@@ -8,15 +8,16 @@ namespace NDWireDetails::Create {
 
     inline bool createWireCore(QSqlQuery& query, const NDWireDetails::Config::CreateWireCoreRecord& newWireCore) {
         query.prepare(R"(
-            INSERT INTO widget_core (id,  contributor_id,  style_id,  data_id,  name)
-            VALUES (                :id, :contributor_id, :style_id, :data_id, :name);
+            INSERT INTO widget_core (id,  visual_factory_id,  contributor_id,  style_id,  data_id,  name)
+            VALUES (                :id, :visual_factory_id, :contributor_id, :style_id, :data_id, :name);
         )");
 
-        query.bindValue(":id",             Utility::UUID::uuidToBytes(newWireCore.id));
-        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newWireCore.contributorId));
-        query.bindValue(":style_id",       newWireCore.styleId ? Utility::UUID::uuidToBytes(*newWireCore.styleId) : QVariant());
-        query.bindValue(":data_id",        newWireCore.dataId  ? Utility::UUID::uuidToBytes(*newWireCore.dataId)  : QVariant());
-        query.bindValue(":name",           newWireCore.name);
+        query.bindValue(":id",                Utility::UUID::uuidToBytes(newWireCore.id));
+        query.bindValue(":contributor_id",    Utility::UUID::uuidToBytes(newWireCore.contributorId));
+        query.bindValue(":visual_factory_id", Utility::UUID::uuidToBytes(newWireCore.visualFactoryId));
+        query.bindValue(":style_id", newWireCore.styleId ? Utility::UUID::uuidToBytes(*newWireCore.styleId) : QVariant());
+        query.bindValue(":data_id",  newWireCore.dataId  ? Utility::UUID::uuidToBytes(*newWireCore.dataId)  : QVariant());
+        query.bindValue(":name",     newWireCore.name);
 
         if (!query.exec()) {
             qCritical() << "Failed to insert wire core:" << query.lastError().text();

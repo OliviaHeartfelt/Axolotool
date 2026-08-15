@@ -13,9 +13,13 @@ namespace NDWireDetails::Update {
         if (newProperties.id)            clauses.append("id = :new_id");
         if (newProperties.contributorId) clauses.append("contributor_id = :new_contributor_id");
 
-        if (newProperties.styleId) clauses.append("style_id = :style_id");
-        if (newProperties.dataId)  clauses.append("data_id = :data_id");
-        if (newProperties.name)    clauses.append("name = :name");
+        if (newProperties.name) clauses.append("name = :name");
+
+        const auto* optStylePtr = std::get_if<std::optional<muuid::uuid>>(&newProperties.styleId);
+        if (optStylePtr) clauses.append("style_id = :style_id");
+
+        const auto* optDataPtr = std::get_if<std::optional<muuid::uuid>>(&newProperties.styleId);
+        if (optDataPtr) clauses.append("data_id = :data_id");
 
         if (clauses.isEmpty()) return true;
 
@@ -29,9 +33,10 @@ namespace NDWireDetails::Update {
         if (newProperties.id)            query.bindValue(":new_id",             Utility::UUID::uuidToBytes(*newProperties.id));
         if (newProperties.contributorId) query.bindValue(":new_contributor_id", Utility::UUID::uuidToBytes(*newProperties.contributorId));
 
-        if (newProperties.styleId) query.bindValue(":style_id", Utility::UUID::uuidToBytes(*newProperties.styleId));
-        if (newProperties.dataId)  query.bindValue(":data_id",  Utility::UUID::uuidToBytes(*newProperties.dataId));
-        if (newProperties.name)    query.bindValue(":name",     *newProperties.name);
+        if (newProperties.name) query.bindValue(":name", *newProperties.name);
+
+        if (optStylePtr) query.bindValue(":style_id", optStylePtr->has_value() ? QVariant(Utility::UUID::uuidToBytes(optStylePtr->value())) : QVariant(QMetaType::fromType<QByteArray>()));
+        if (optDataPtr)  query.bindValue(":data_id", optDataPtr->has_value()   ? QVariant(Utility::UUID::uuidToBytes(optDataPtr->value()))  : QVariant(QMetaType::fromType<QByteArray>()));
 
         if (!query.exec()) {
             qCritical() << "Failed to execute dynamic update wire core:" << query.lastError().text();

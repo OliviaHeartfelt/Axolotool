@@ -12,10 +12,11 @@ namespace NDWidgetDetails::Init {
     inline bool createWidgetCoreTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS widget_core (
-                id             BLOB NOT NULL,
-                contributor_id BLOB NOT NULL,
-                type_id        BLOB,
-                data_id        BLOB,
+                id                BLOB NOT NULL,
+                contributor_id    BLOB NOT NULL,
+                visual_factory_id BLOB NOT NULL,
+                type_id           BLOB,
+                data_id           BLOB,
 
                 PRIMARY KEY (id),
                 FOREIGN KEY (contributor_id) REFERENCES widget_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE,

@@ -23,6 +23,9 @@ namespace NDCellDetails::Read {
         auto nodeId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
         if (!nodeId) return std::nullopt;
 
+        const NDHelpers::NullableField<QString> name = NDHelpers::parseNullableQstring(query.value(1));
+        if (name.isCorrupted()) return std::nullopt;
+
         const NDHelpers::NullableField<muuid::uuid> pinTemplateId = NDHelpers::parseNullableUUID(query.value(7));
         if (pinTemplateId.isCorrupted()) return std::nullopt;
 
@@ -35,7 +38,7 @@ namespace NDCellDetails::Read {
         return NDCellDetails::Config::FullCellRecord{
             id,
             *nodeId,
-            query.value(1).toString(),
+            name.value,
             query.value(2).toBool(),
             static_cast<short>(query.value(3).toInt()),
             static_cast<short>(query.value(4).toInt()),
@@ -63,11 +66,12 @@ namespace NDCellDetails::Read {
 
         while (query.next()) {
             auto cellIdOpt = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            const NDHelpers::NullableField<QString> name = NDHelpers::parseNullableQstring(query.value(1));
             const NDHelpers::NullableField<muuid::uuid> pinTemplateId = NDHelpers::parseNullableUUID(query.value(7));
             const NDHelpers::NullableField<muuid::uuid> pinInstanceId = NDHelpers::parseNullableUUID(query.value(8));
             const NDHelpers::NullableField<muuid::uuid> widgetId = NDHelpers::parseNullableUUID(query.value(9));
 
-            if (!cellIdOpt || pinTemplateId.isCorrupted() || pinInstanceId.isCorrupted() || widgetId.isCorrupted()) {
+            if (!cellIdOpt || name.isCorrupted() || pinTemplateId.isCorrupted() || pinInstanceId.isCorrupted() || widgetId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -77,7 +81,7 @@ namespace NDCellDetails::Read {
             cells.append(Config::FullCellRecord{
                 *cellIdOpt,
                 nodeId,
-                query.value(1).toString(),
+                name.value,
                 query.value(2).toBool(),
                 static_cast<short>(query.value(3).toInt()),
                 static_cast<short>(query.value(4).toInt()),

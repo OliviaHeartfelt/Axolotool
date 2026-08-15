@@ -14,11 +14,12 @@ namespace NDWireDetails::Init {
     inline bool createWireCoreTable(QSqlQuery& query) {
         QString sql = R"(
             CREATE TABLE IF NOT EXISTS wire_core (
-                id             BLOB NOT NULL,
-                contributor_id BLOB NOT NULL,
-                style_id       BLOB,
-                data_id        BLOB,
-                name           TEXT NOT NULL,
+                id                BLOB NOT NULL,
+                contributor_id    BLOB NOT NULL,
+                visual_factory_id BLOB NOT NULL,
+                style_id          BLOB,
+                data_id           BLOB,
+                name              TEXT NOT NULL,
 
                 UNIQUE(contributor_id, name),
             

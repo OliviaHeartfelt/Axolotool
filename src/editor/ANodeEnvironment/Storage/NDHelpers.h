@@ -83,6 +83,12 @@ namespace NDHelpers {
 
         return { NullableField<muuid::uuid>::State::Corrupted, std::nullopt };
     }
+    inline NullableField<QString> parseNullableQstring(const QVariant& variant) {
+        if (variant.isNull())
+            return { NullableField<QString>::State::Null, std::nullopt };
+
+        return { NullableField<QString>::State::Valid, variant.toString() };
+    }
     template<NDConcepts::ByteConvertible T>
     inline NullableField<T> parseNullableByteConvertible(const QVariant& variant) {
         if (variant.isNull())
@@ -96,6 +102,7 @@ namespace NDHelpers {
 
         return { NullableField<T>::State::Corrupted, std::nullopt };
     }
+
 
     inline std::optional<std::vector<uint8_t>> extractRawBytes(const QVariant& variant) {
         if (variant.isNull()) return std::nullopt;

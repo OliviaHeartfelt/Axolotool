@@ -8,14 +8,15 @@ namespace NDWidgetDetails::Create {
 
     inline bool createWidgetCore(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetCoreRecord& newWidgetCore) {
         query.prepare(R"(
-            INSERT INTO widget_core (id,  contributor_id,  type_id,  data_id)
-            VALUES (                :id, :contributor_id, :type_id, :data_id);
+            INSERT INTO widget_core (id,  contributor_id,  visual_factory_id,  type_id,  data_id)
+            VALUES (                :id, :contributor_id, :visual_factory_id, :type_id, :data_id);
         )");
 
-        query.bindValue(":id",             Utility::UUID::uuidToBytes(newWidgetCore.id));
-        query.bindValue(":contributor_id", Utility::UUID::uuidToBytes(newWidgetCore.contributorId));
-        query.bindValue(":type_id",        newWidgetCore.typeId ? Utility::UUID::uuidToBytes(*newWidgetCore.typeId) : QVariant());
-        query.bindValue(":data_id",        newWidgetCore.dataId ? Utility::UUID::uuidToBytes(*newWidgetCore.dataId) : QVariant());
+        query.bindValue(":id",                Utility::UUID::uuidToBytes(newWidgetCore.id));
+        query.bindValue(":contributor_id",    Utility::UUID::uuidToBytes(newWidgetCore.contributorId));
+        query.bindValue(":visual_factory_id", Utility::UUID::uuidToBytes(newWidgetCore.visualFactoryId));
+        query.bindValue(":type_id", newWidgetCore.typeId ? Utility::UUID::uuidToBytes(*newWidgetCore.typeId) : QVariant());
+        query.bindValue(":data_id", newWidgetCore.dataId ? Utility::UUID::uuidToBytes(*newWidgetCore.dataId) : QVariant());
 
         if (!query.exec()) {
             qCritical() << "Failed to insert widget core:" << query.lastError().text();
