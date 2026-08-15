@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ANodeEnvironment/View/canvas/ACanvas.h"
+#include "../ANodeEnvironment/ANodeEnvironment.h"
 
 namespace AMainWindow {
 
@@ -17,11 +17,14 @@ namespace AMainWindow {
             sidebar->setFixedWidth(200);
             sidebar->setStyleSheet("background-color: #2c3e50;");
 
-            ACanvas::Canvas* scene = new ACanvas::Canvas();
-
             mainLayout->addWidget(sidebar);
-            mainLayout->addWidget(scene->getView(), 1);
 
+            auto* nodeEnvironment = new ANodeEnvironment::ANodeEnvironment(this, this);
+            mainLayout->addWidget(nodeEnvironment->canvas(), 1);
+
+            if (nodeEnvironment->openDatabase("project.db")) {
+                //nodeEnvironment->loadChunk(initialChunkId);
+            }
         }
     };
 }
