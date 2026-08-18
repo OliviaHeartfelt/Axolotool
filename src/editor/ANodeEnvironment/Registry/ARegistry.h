@@ -1,6 +1,7 @@
 #pragma once
 
 #include "registry_base/RGBaseRegistry.h"
+#include "details/Context.h"
 #include "details/RegistryTraits.h"
 
 #include "../Storage/ANodeEnvDB.h"
@@ -36,7 +37,10 @@ namespace ARegistry {
     };
 
     struct NodeFunctionRegistry {
-        using PinConfigurator = std::function<bool(QGraphicsItem* nodeCell, QGraphicsItem* pin, VWPinDetails::Context::PinContext pinContext, const std::optional<QString> text)>;
+        using CellFactory = std::function<std::vector<ARegistryDetails::Context::CreateCellRecord>(const muuid::uuid& nodeId)>;
+        RegistryT<CellFactory> cellFactoryRegistry;
+
+        using PinConfigurator = std::function<bool(QGraphicsRectItem* nodeCell, QGraphicsItem* pin, VWPinDetails::Context::PinContext pinContext, const std::optional<QString> text)>;
         RegistryT<PinConfigurator> pinConfiguratorRegistry;
 
         using WidgetFactory = std::function<QGraphicsItem*(VWWidgetDetails::Context::WidgetContext widgetContext, const std::optional<QString> text)>;

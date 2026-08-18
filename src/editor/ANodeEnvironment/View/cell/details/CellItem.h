@@ -19,6 +19,8 @@ namespace WVCellDetails::CellItem {
 				m_id = muuid::uuid::generate_unix_time_based();
 				m_is_new = true;
 			}
+
+			setPen(Qt::NoPen);
 		}
 
 		const muuid::uuid& id() const { return m_id; }

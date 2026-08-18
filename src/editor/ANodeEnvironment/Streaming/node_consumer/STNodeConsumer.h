@@ -2,6 +2,7 @@
 
 #include "../../View/AView.h"
 #include "../../Registry/ARegistry.h"
+#include "../../Storage/ANodeEnvDB.h"
 #include "../details/BoundedQueue.h"
 #include "../node_streamer/STNodeStreamer.h"
 
@@ -10,6 +11,7 @@ namespace STNodeConsumer {
     class STNodeConsumer : public QObject {
         Q_OBJECT
 
+            ANodeEnvDB::ANodeEnvDB* m_node_env_db = nullptr;
         QGraphicsScene* m_scene = nullptr;
         ARegistry::Registry* m_registry = nullptr;
         STStreamerDetails::BoundedQueue::BoundedQueue<STNodeStreamer::Config::NodePayload> m_queue{ 50 };
@@ -18,7 +20,8 @@ namespace STNodeConsumer {
         static constexpr int64_t MAX_FRAME_BUDGET_MS = 3;
 
     public:
-        explicit STNodeConsumer(QGraphicsScene* scene, ARegistry::Registry* registry, QObject* parent = nullptr) : QObject(parent), m_scene(scene), m_registry(registry) {
+        explicit STNodeConsumer(QGraphicsScene* scene, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry* registry, QObject* parent = nullptr) 
+            : QObject(parent), m_scene(scene), m_node_env_db(nodeEnvDB), m_registry(registry) {
             connect(&frameTimer, &QTimer::timeout, this, &STNodeConsumer::processQueue);
         }
 
@@ -46,7 +49,7 @@ namespace STNodeConsumer {
 
     private slots:
         void processQueue() {
-            if (!m_scene || !m_registry) return;
+            if (!m_scene || !m_node_env_db || !m_registry) return;
 
             QElapsedTimer timer;
             timer.start();
@@ -55,7 +58,7 @@ namespace STNodeConsumer {
 
             while (m_queue.tryPop(payload)) {
 
-                auto* node = AView::Node::createNode(*m_registry, nullptr, AView::Context::Node::FactoryData{
+                auto* node = AView::Node::CreateNode::createNode(m_node_env_db, *m_registry, nullptr, AView::Context::Node::FactoryData{
                     .node = AView::Context::Node::NodeFactoryData::fromNodeRecord(payload.node),
                     .nodeCells = payload.nodeCells,
                     .widgets = payload.widgets

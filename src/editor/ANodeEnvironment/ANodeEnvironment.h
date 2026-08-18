@@ -7,6 +7,11 @@
 
 namespace ANodeEnvironment {
 
+    namespace View      { using namespace AView; }
+    namespace Storage   { using namespace ANodeEnvDB; }
+    namespace Registry  { using namespace ARegistry; }
+    namespace Streaming { using namespace STStreamingManager; }
+
     class ANodeEnvironment : public QObject {
         Q_OBJECT
 
@@ -24,19 +29,19 @@ namespace ANodeEnvironment {
         std::unique_ptr<STStreamingManager::NodeConsumer::STNodeConsumer> m_nodeConsumer;
         std::unique_ptr<STStreamingManager::WireConsumer::STWireConsumer> m_wireConsumer;
 
-
-        void initConsumers() {
-            m_nodeConsumer = std::make_unique<STStreamingManager::NodeConsumer::STNodeConsumer>(m_scene, &m_registry, this);
-            m_wireConsumer = std::make_unique<STStreamingManager::WireConsumer::STWireConsumer>(m_scene, &m_registry, this);
-        }
-
     public:
         explicit ANodeEnvironment(QWidget* parentWidget = nullptr, QObject* parent = nullptr)
             : QObject(parent)
         {
             m_canvas = new VWCanvas::VWCanvas(parentWidget);
 
-            initConsumers();
+            if (!m_canvas) return;
+
+            m_scene = m_canvas->graphicsScene();
+            if (!m_scene) return;
+
+            m_nodeConsumer = std::make_unique<STStreamingManager::NodeConsumer::STNodeConsumer>(m_scene, m_db.get(), &m_registry, this);
+            m_wireConsumer = std::make_unique<STStreamingManager::WireConsumer::STWireConsumer>(m_scene, &m_registry, this);
         }
 
         ~ANodeEnvironment() override {
@@ -44,6 +49,7 @@ namespace ANodeEnvironment {
         }
 
         bool openDatabase(const QString& dbPath, const QString& connectionBaseName = "ANodeEnvDBConn", int poolSize = 4) {
+
             closeDatabase();
 
             m_db = std::make_unique<ANodeEnvDB::ANodeEnvDB>(dbPath, connectionBaseName);
@@ -91,6 +97,24 @@ namespace ANodeEnvironment {
             if (m_streamingManager) {
                 m_streamingManager->cancelCurrentLoad();
             }
+        }
+
+        void spawnNode(
+            const muuid::uuid& nodeCoreId, 
+            const QPointF pos,
+            const bool continueAtFail = false,
+            const bool overrideOnCollision = false
+        ) {
+            if (!m_db || !m_scene) return;
+
+            auto* newNode = AView::Node::CreateNode::createNewNode(m_db.get(), &m_registry, nullptr, nodeCoreId, pos, continueAtFail, overrideOnCollision);
+
+            if (!newNode) return;
+
+            m_registry.nodeView.nodeViewRegistry.insert(newNode->id(), newNode);
+            m_scene->addItem(newNode);
+
+            qDebug() << "node created!";
         }
 
         AView::Canvas::VWCanvas* canvas() const { return m_canvas; }

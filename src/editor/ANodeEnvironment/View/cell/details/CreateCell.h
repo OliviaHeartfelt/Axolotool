@@ -11,6 +11,7 @@
 namespace WVCellDetails::CreateCell {
 
 	inline CellItem::CellItem* createPinCell(
+		ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
 		ARegistry::Registry& registry,
 		QGraphicsItem* node,
 		const std::optional<muuid::uuid>& cellId,
@@ -23,8 +24,10 @@ namespace WVCellDetails::CreateCell {
 		auto nodeCell = std::make_unique<CellItem::CellItem>(node, cellId);
 		nodeCell->setRect(0, 0, 60, 20);
 
-		const auto* pin = CreatePin::createPinCell(registry, nodeCell.get(), pinCoreId, text);
-		if (pin || Helpers::useFallback(registry, nodeCell.get(), text, fallbackFunctionId)) {
+		const auto* pin = CreatePin::createPinCell(nodeEnvDB, registry, nodeCell.get(), pinCoreId, text);
+		if (pin) return nodeCell.release();
+
+		if (Helpers::useFallback(registry, nodeCell.get(), text, fallbackFunctionId)) {
 			return nodeCell.release();
 		}
 
@@ -75,13 +78,17 @@ namespace WVCellDetails::CreateCell {
 	}
 
 	inline CellItem::CellItem* createCell(
+		ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
 		ARegistry::Registry& registry,
 		QGraphicsItem* node,
 		const Context::FactoryData& cellData,
 		const std::optional<muuid::uuid>& fallbackFunctionId = std::nullopt
 	) {
+		if (!nodeEnvDB) return nullptr;
+
 		if (cellData.pin) {
 			return createPinCell(
+				nodeEnvDB,
 				registry,
 				node,
 				cellData.id,

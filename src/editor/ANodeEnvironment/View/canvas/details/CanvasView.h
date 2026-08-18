@@ -42,6 +42,7 @@ namespace VWCanvasDetails::CanvasView {
         }
 
     protected:
+        /*
         void mousePressEvent(QMouseEvent* event) override {
             if (event->button() == Qt::LeftButton) {
                 leftPanning = true;
@@ -115,6 +116,7 @@ namespace VWCanvasDetails::CanvasView {
             }
             event->accept();
         }
+        */
 
     private slots:
         void onMiddlePanTick() {

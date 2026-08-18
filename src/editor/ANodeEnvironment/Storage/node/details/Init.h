@@ -25,9 +25,9 @@ namespace NDNodeDetails::Init {
                 cell_visual_fallback_id BLOB,
 
                 PRIMARY KEY (id),
-                FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE ON UPDATE CASCADE,
-                FOREIGN KEY (type_id)        REFERENCES node_type(id)        ON SET NULL       ON UPDATE CASCADE,
-                FOREIGN KEY (data_id)        REFERENCES node_data(id)        ON SET NULL       ON UPDATE CASCADE,
+                FOREIGN KEY (contributor_id) REFERENCES node_contributor(id) ON DELETE CASCADE  ON UPDATE CASCADE,
+                FOREIGN KEY (type_id)        REFERENCES node_type(id)        ON DELETE SET NULL ON UPDATE CASCADE,
+                FOREIGN KEY (data_id)        REFERENCES node_data(id)        ON DELETE SET NULL ON UPDATE CASCADE,
 
                 CONSTRAINT chk_row_num CHECK (default_row_num >= 1),
                 CONSTRAINT chk_col_num CHECK (default_col_num >= 1)

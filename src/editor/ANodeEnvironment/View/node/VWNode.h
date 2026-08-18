@@ -6,8 +6,8 @@
 
 namespace VWNode {
 
-	namespace Node     { using namespace VWNodeDetails::CreateNode; }
-	namespace Context  { using namespace VWNodeDetails::Context; }
-	namespace NodeItem { using namespace VWNodeDetails::NodeItem; }
+	namespace CreateNode { using namespace VWNodeDetails::CreateNode; }
+	namespace Context    { using namespace VWNodeDetails::Context; }
+	namespace NodeItem   { using namespace VWNodeDetails::NodeItem; }
 }
 

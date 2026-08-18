@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../../Storage/ANodeEnvDB.h"
 #include "../../../Registry/ARegistry.h"
 #include "../../cell/VWCell.h"
 #include "Context.h"
@@ -8,13 +9,14 @@
 namespace VWNodeDetails::CreateNode {
 
     inline NodeItem::Node* createNode(
+        ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
         ARegistry::Registry& registry,
         QGraphicsItem* parent,
         const VWNodeDetails::Context::FactoryData& factoryData,
         const bool continueAtFail = false,
         const bool overrideOnCollision = false
     ) {
-        if (!parent) return nullptr;
+        if (!nodeEnvDB) return nullptr;
 
         auto node = std::make_unique<NodeItem::Node>(parent, factoryData.node.coreId, factoryData.node.id);
         if (!node || !node->body) return nullptr;
@@ -28,7 +30,7 @@ namespace VWNodeDetails::CreateNode {
         if (!nodeCore) return nullptr;
 
         for (const auto& cell : factoryData.nodeCells) {
-            if (static_cast<bool>(cell.pinTemplateId) xor static_cast<bool>(cell.widgetId)) {
+            if (static_cast<bool>(cell.pinTemplateId) + static_cast<bool>(cell.widgetId) <= 1) {
                 if (continueAtFail) continue;
                 return nullptr;
             }
@@ -55,7 +57,89 @@ namespace VWNodeDetails::CreateNode {
                 }
             }
 
-            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createCell(registry, node.get(), cellData, nodeCore->cellVisualFallbackId));
+            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createCell(nodeEnvDB, registry, node.get(), cellData, nodeCore->cellVisualFallbackId));
+
+            if (!cellItem) {
+                if (continueAtFail) continue;
+                return nullptr;
+            }
+
+            if (!node->body->addItem(cellItem.get(), cell.row, cell.col, cell.rowSpan, cell.colSpan, false, overrideOnCollision)) {
+                if (continueAtFail) continue;
+                return nullptr;
+            }
+            cellItem.release();
+        }
+
+        node->body->refresh();
+        return node.release();
+    }
+
+    inline NodeItem::Node* createNewNode(
+        ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
+        ARegistry::Registry* registry, 
+        QGraphicsItem* parent, 
+        const muuid::uuid& coreId, 
+        const QPointF pos,
+        const bool continueAtFail = false,
+        const bool overrideOnCollision = false
+    ) {
+        if (!nodeEnvDB || !registry) return nullptr;
+
+        std::optional<ANodeEnvDB::Config::Node::FullNodeCoreRecord> coreOpt = registry->node.nodeCoreRegistry.at(coreId);
+        if (!coreOpt) {
+            ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& query) {
+                coreOpt = nodeEnvDB->node.getNodeCore(query, coreId);
+            });
+
+            if (coreOpt) {
+                registry->node.nodeCoreRegistry.insert(coreId, *coreOpt);
+            }
+        }
+        if (!coreOpt) return nullptr;
+
+        auto nodeGridConfig = NodeItem::NodeGridConfig{
+            .margin = 4.0,
+            .spacing = 4.0
+        };
+
+        auto node = std::make_unique<NodeItem::Node>(parent, coreId, std::nullopt, nodeGridConfig);
+        if (!node || !node->body) return nullptr;
+
+        node->setPos(pos.x(), pos.y());
+        node->body->initGrid(coreOpt->defaultRowNum, coreOpt->defaultColNum, false);
+
+        auto cellFactory = registry->nodeFunction.cellFactoryRegistry.at(coreId);
+        if (!cellFactory) return nullptr;
+
+        const auto cells = (*cellFactory)(node->id());
+        for (const auto& cell : cells) {
+            const bool hasPin =    cell.pinCoreId.has_value();
+            const bool hasWidget = cell.widgetCoreId.has_value();
+
+            if (hasPin && hasWidget) {
+                if (continueAtFail) continue;
+                return nullptr;
+            }
+
+            VWCell::Context::FactoryData cellData;
+            cellData.id = cell.id;
+            cellData.name = cell.name;
+
+            if (hasPin) {
+                cellData.pin = VWCell::Context::PinFactoryData{
+                    .pinCoreId = *cell.pinCoreId
+                };
+            }
+            else if (hasWidget) {
+                cellData.widget = VWCell::Context::WidgetFactoryData{
+                    .widgetCoreId = *cell.widgetCoreId,
+                    .widgetId = std::nullopt,
+                    .state = std::nullopt
+                };
+            }
+
+            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createCell(nodeEnvDB, *registry, node.get(), cellData, coreOpt->cellVisualFallbackId));
 
             if (!cellItem) {
                 if (continueAtFail) continue;

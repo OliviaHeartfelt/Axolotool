@@ -74,7 +74,7 @@ namespace NDWireDetails::Init {
                 FOREIGN KEY (origin_id) REFERENCES node_cells(id) ON DELETE CASCADE ON UPDATE CASCADE,
                 FOREIGN KEY (target_id) REFERENCES node_cells(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
-                CONSTRAINT chk_no_self_loop CHECK (origin_cell_id != target_cell_id)
+                CONSTRAINT chk_no_self_loop CHECK (origin_id != target_id)
             );
         )";
 

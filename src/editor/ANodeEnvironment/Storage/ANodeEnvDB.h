@@ -125,6 +125,7 @@ namespace ANodeEnvDB {
             QSqlQuery query(lease.db());
 
             if (!createCoreTables(lease.db())) return false;
+
             if (!Version::checkAndRunMigration(query)) return false;
 
             return true;

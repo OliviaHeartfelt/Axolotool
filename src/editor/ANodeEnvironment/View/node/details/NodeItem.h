@@ -4,6 +4,13 @@
 
 namespace VWNodeDetails::NodeItem {
 
+    struct NodeGridConfig {
+        int totalRows = 1;
+        int totalCols = 1; 
+        qreal margin = 6.0;
+        qreal spacing = 4.0;
+    };
+
     enum StyleKey {
         SelectedPen = 1000,
         CornerRadius = 1001,
@@ -24,7 +31,8 @@ namespace VWNodeDetails::NodeItem {
         bool m_is_moving = false;
 
     public:
-        Node(QGraphicsItem* parent, const muuid::uuid& coreId, const std::optional<muuid::uuid>& id) : QGraphicsRectItem(parent), m_core_id(coreId) {
+        Node(QGraphicsItem* parent, const muuid::uuid& coreId, const std::optional<muuid::uuid>& id = std::nullopt, const std::optional<NodeGridConfig>& nodeConfig = std::nullopt)
+            : QGraphicsRectItem(parent), m_core_id(coreId) {
             
             if (id) {
                 m_id = *id;
@@ -39,10 +47,16 @@ namespace VWNodeDetails::NodeItem {
                 QGraphicsItem::ItemIsSelectable |
                 QGraphicsItem::ItemSendsGeometryChanges
             );
-
-            body = std::make_unique<NodeGrid::Grid>(this);
+            
+            if (nodeConfig) {
+                body = std::make_unique<NodeGrid::Grid>(this, nodeConfig->totalRows, nodeConfig->totalCols, nodeConfig->margin, nodeConfig->spacing);
+            }
+            else {
+                body = std::make_unique<NodeGrid::Grid>(this);
+            }
         }
         ~Node() {
+            if (!body) return;
             body->deleteGrid(false);
         }
 

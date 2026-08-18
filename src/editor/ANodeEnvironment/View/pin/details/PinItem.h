@@ -41,6 +41,7 @@ namespace VWPinDetails::PinItem {
             setAcceptDrops(true);
             setAcceptedMouseButtons(Qt::LeftButton);
             setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
+
             update();
         }
 
@@ -242,6 +243,8 @@ namespace VWPinDetails::PinItem {
 
                 originPin->registerWire(wire);
                 this->registerWire(wire);
+
+                VWWire::TemporaryWire::WireTemp::unstuck();
 
                 qDebug() << "Successfully created wire link between pins!";
             }

@@ -14,44 +14,95 @@ find_package(Qt6 COMPONENTS
     REQUIRED
 )
 
+set(NE_MODULES
+    ANodeEnvironment/ANodeEnvironment.h
+)
+
+#ANodeEnvironment - Registry
+set(NE_REGISTRY_MODULES
+    ANodeEnvironment/Registry/ARegistry.h
+    ANodeEnvironment/Registry/details/Context.h
+    ANodeEnvironment/Registry/details/RegistryTraits.h
+
+    ANodeEnvironment/Registry/registry_base/RGBaseRegistry.h
+)
+
+# ANodeEnvironment - Streaming
+set(NE_STREAMING_MODULES
+
+    ANodeEnvironment/Streaming/STStreamingManager.h
+    ANodeEnvironment/Streaming/details/Helper.h
+    ANodeEnvironment/Streaming/details/BoundedQueue.h
+
+    # Node Consumer
+    ANodeEnvironment/Streaming/node_consumer/STNodeConsumer.h
+
+    # Wire Consumer
+    ANodeEnvironment/Streaming/wire_consumer/STWireConsumer.h
+
+    # Node Streamer
+    ANodeEnvironment/Streaming/node_streamer/STNodeStreamer.h
+    ANodeEnvironment/Streaming/node_streamer/details/Config.h
+    ANodeEnvironment/Streaming/node_streamer/details/NodeProcessing.h
+
+    # Wire Streamer
+    ANodeEnvironment/Streaming/wire_streamer/STWireStreamer.h
+    ANodeEnvironment/Streaming/wire_streamer/details/Config.h
+    ANodeEnvironment/Streaming/wire_streamer/details/WireProcessing.h
+)
+
 # ANodeEnvironment - View
 set(NE_vIEW_MODULES
 
+    ANodeEnvironment/View/AView.h
+
     # Canvas
-    ANodeEnvironment/View/canvas/ACanvas.h
-    ANodeEnvironment/View/canvas/mockPluginData.h
+    ANodeEnvironment/View/canvas/VWCanvas.h
+    ANodeEnvironment/View/canvas/details/CanvasView.h
 
     # Scene
-    ANodeEnvironment/View/scene/ANodeScene.h
+    ANodeEnvironment/View/scene/VWNodeScene.h
+
+    # Drag Drop
+    ANodeEnvironment/View/drag_drop/VWDragDrop.h
+    ANodeEnvironment/View/drag_drop/details/Context.h
 
     # Node
-    ANodeEnvironment/View/node/ANode.h
-    ANodeEnvironment/View/node/ANodeGrid.h
+    ANodeEnvironment/View/node/VWNode.h
+    ANodeEnvironment/View/node/details/Context.h
+    ANodeEnvironment/View/node/details/CreateNode.h
+    ANodeEnvironment/View/node/details/NodeGrid.h
+    ANodeEnvironment/View/node/details/NodeItem.h
 
     # Cell
-    ANodeEnvironment/View/cell/ACell.h
-    ANodeEnvironment/View/cell/ACellItem.h
+    ANodeEnvironment/View/cell/VWCell.h
+    ANodeEnvironment/View/cell/details/CellItem.h
+    ANodeEnvironment/View/cell/details/Context.h
+    ANodeEnvironment/View/cell/details/CreateCell.h
+    ANodeEnvironment/View/cell/details/CreatePin.h
+    ANodeEnvironment/View/cell/details/CreateWidget.h
+    ANodeEnvironment/View/cell/details/Helpers.h
 
     # Pin
-    ANodeEnvironment/View/pin/APin.h
-    ANodeEnvironment/View/pin/APinAllowLists.h
-    ANodeEnvironment/View/pin/APinData.h
-    ANodeEnvironment/View/pin/APinDrag.h
-    ANodeEnvironment/View/pin/APinFactory.h
-    ANodeEnvironment/View/pin/APinFlags.h
-    ANodeEnvironment/View/pin/APinItem.h
-    ANodeEnvironment/View/pin/APinRegistry.h
+    ANodeEnvironment/View/pin/VWPin.h
+    ANodeEnvironment/View/pin/details/PinAllowSet.h
+    ANodeEnvironment/View/pin/details/PinData.h
+    ANodeEnvironment/View/pin/details/PinItem.h
+    ANodeEnvironment/View/pin/details/Concepts.h
+    ANodeEnvironment/View/pin/details/Context.h
+
+    # Widget
+    ANodeEnvironment/View/widget/VWWidget.h
+    ANodeEnvironment/View/widget/details/Context.h
+    ANodeEnvironment/View/widget/details/WidgetWrapper.h
 
     # Wire
-    ANodeEnvironment/View/wire/AWire.h
-    ANodeEnvironment/View/wire/AWireData.h
-    ANodeEnvironment/View/wire/AWireItem.h
-    ANodeEnvironment/View/wire/AWireTemp.h
-
-    # Registry
-    ANodeEnvironment/View/registry/ARegistry.h
-    ANodeEnvironment/View/registry/FRegistryKey.h
-    ANodeEnvironment/View/registry/IRegistry.h
+    ANodeEnvironment/View/wire/VWWire.h
+    ANodeEnvironment/View/wire/details/Context.h
+    ANodeEnvironment/View/wire/details/CreateWire.h
+    ANodeEnvironment/View/wire/details/Helpers.h
+    ANodeEnvironment/View/wire/details/WireItem.h
+    ANodeEnvironment/View/wire/details/WireTemp.h
 )
 
 # ANodeEnvironment - Storage
@@ -160,6 +211,7 @@ set(NE_STORAGE_MODULES
 set(AWINDOW_MODULES
     AWindow/AMainWindow.h
     AWindow/AWindow.h
+    AWindow/MockPlugin.h
 )
 
 # Utility
@@ -175,6 +227,9 @@ add_executable(axo_editor
     main.cpp
     ${CMAKE_SOURCE_DIR}/assets/tabler/icons/TablerIconsResources.qrc
     
+    ${NE_MODULES}
+    ${NE_REGISTRY_MODULES}
+    ${NE_STREAMING_MODULES}
     ${NE_vIEW_MODULES}
     ${NE_STORAGE_MODULES}
 
@@ -204,8 +259,13 @@ target_precompile_headers(axo_editor PRIVATE
     <vector>
     <variant>
     <mutex>
+    <shared_mutex>
     <condition_variable>
     <cassert>
+    <expected>
+    <generator>
+    <queue>
+    <unordered_map>
 
     # Core Qt used everywhere
     <QString>
@@ -225,6 +285,10 @@ target_precompile_headers(axo_editor PRIVATE
     <QCoreApplication>
     <QTextStream>
     <QStringList>
+    <QTimer>
+    <QElapsedTimer>
+    <QFuture>
+    <QtConcurrent/QtConcurrent>
 
     # Dir
     <QIODevice>
@@ -267,6 +331,9 @@ target_precompile_headers(axo_editor PRIVATE
     <QGraphicsSimpleTextItem>
     <QStyleOptionGraphicsItem>
     <QGraphicsColorizeEffect>
+    <QMarginsF>
+    <QMouseEvent>
+    <QScrollBar>
 )
 
 include(FetchContent)

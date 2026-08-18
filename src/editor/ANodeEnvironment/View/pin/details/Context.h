@@ -13,14 +13,17 @@ namespace VWPinDetails::Context {
     };
 
     struct PinFlowContext {
+        muuid::uuid id;
 		std::string name;
 		double degree;
     };
 	struct PinTypeContext {
+        muuid::uuid id;
 		std::string name;
 		int bit_size;
 	};
 	struct PinStyleContext {
+        muuid::uuid id;
 		std::string name;
 		std::string color;
 		int wireThickness;

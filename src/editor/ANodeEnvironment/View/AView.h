@@ -1,6 +1,7 @@
 #pragma once
 
 #include "canvas/VWCanvas.h"
+#include "cell/VWCell.h"
 #include "node/VWNode.h"
 #include "pin/VWPin.h"
 #include "widget/VWWidget.h"
@@ -16,7 +17,8 @@ namespace AView {
 	}
 
 	namespace Canvas { using namespace VWCanvas; }
-	namespace Node   { using namespace VWNode::Node; }
+	namespace Cell   { using namespace VWCell; }
+	namespace Node   { using namespace VWNode; }
 	namespace Pin    { using namespace VWPin; }
 	namespace Wire   { using namespace VWWire::PermanentWire; }
 }
