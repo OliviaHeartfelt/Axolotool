@@ -8,8 +8,8 @@ namespace NDWireDetails::Create {
 
     inline bool createWireCore(QSqlQuery& query, const NDWireDetails::Config::CreateWireCoreRecord& newWireCore) {
         query.prepare(R"(
-            INSERT INTO widget_core (id,  visual_factory_id,  contributor_id,  style_id,  data_id,  name)
-            VALUES (                :id, :visual_factory_id, :contributor_id, :style_id, :data_id, :name);
+            INSERT INTO wire_core (id,  contributor_id,  visual_factory_id,  style_id,  data_id,  name)
+            VALUES (              :id, :contributor_id, :visual_factory_id, :style_id, :data_id, :name);
         )");
 
         query.bindValue(":id",                Utility::UUID::uuidToBytes(newWireCore.id));

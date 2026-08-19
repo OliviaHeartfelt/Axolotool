@@ -60,8 +60,8 @@ namespace NDWireSourceDetails::Create {
     }
     inline bool createWireData(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireDataRecord& newData) {
         query.prepare(R"(
-            INSERT INTO wire_data (id,  contributor_id,  name,  color,  wire_thickness,  metadata)
-            VALUES (              :id, :contributor_id, :name, :color, :wire_thickness, :metadata);
+            INSERT INTO wire_data (id,  contributor_id,  name,  data)
+            VALUES (              :id, :contributor_id, :name, :data);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newData.id));
