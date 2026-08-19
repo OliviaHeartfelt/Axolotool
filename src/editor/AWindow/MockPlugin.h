@@ -507,21 +507,51 @@ namespace MockPlugin {
 
             // Wire Source Style (End) ------------------------------------------------------------------------------------------------------------------------------------------
 
+            // Wire Visual Factory ------------------------------------------------------------------------------------------------------------------------------------------
+
+            const auto createWireConfiguratorID = muuid::uuid::from_chars("01a01708-add2-75ac-b870-db4c3ee26920");
+            if (!createWireConfiguratorID) return false;
+            std::function<bool(QGraphicsItem* wire, VWWireDetails::Context::WireContext wireContext)> wireConfigurator = [&](QGraphicsItem* wire, VWWireDetails::Context::WireContext wireContext) {
+
+                //wireContext.name;
+
+                if (wireContext.style) {
+                    auto wireItem = dynamic_cast<QGraphicsPathItem*>(wire);
+                    if (!wireItem) return false;
+
+                    QPen pen;
+                    pen.setColor(wireContext.style->color);
+                    pen.setWidthF(wireContext.style->wireThickness);
+
+                    pen.setCapStyle(Qt::RoundCap);
+                    pen.setJoinStyle(Qt::RoundJoin);
+
+                    wireItem->setPen(pen);
+                }
+                if (wireContext.data) {
+                    //wireContext.data->data
+                }
+
+                return true;
+                };
+            if (!nodeRegistry.wireFunction.wireConfiguratorRegistry.insert(*createWireConfiguratorID, wireConfigurator)) return false;
+
             // Wire Core ------------------------------------------------------------------------------------------------------------------------------------------
             auto createExecutionWireCoreID = muuid::uuid::from_chars("01a0100a-e34c-76f8-8213-bc9a3626fc05");
             if (!createExecutionWireCoreID) return false;
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createExecutionWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Execution",
-                .styleId = *createWireExecutionStyleID,
-                //.visualFactoryId 
+                .styleId = *createWireExecutionStyleID
                 });
             auto createClassWireCoreID = muuid::uuid::from_chars("01a0100a-e34c-76f8-8213-c06dced4d2f0");
             if (!createClassWireCoreID) return false;
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createClassWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Class",
                 .styleId = *createWireClassStyleID
                 //.metadata = 
@@ -531,6 +561,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createObjectWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Object",
                 .styleId = *createWireObjectStyleID
                 //.metadata = 
@@ -540,6 +571,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createBoolWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Bool",
                 .styleId = *createWireBoolStyleID
                 //.metadata = 
@@ -549,6 +581,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createByteWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Byte",
                 .styleId = *createWireByteStyleID
                 //.metadata = 
@@ -558,6 +591,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createIntWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Int",
                 .styleId = *createWireIntStyleID
                 //.metadata = 
@@ -567,6 +601,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createInt64WireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Int64",
                 .styleId = *createWireInt64StyleID
                 //.metadata = 
@@ -576,6 +611,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createFloatWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Float",
                 .styleId = *createWireFloatStyleID
                 //.metadata = 
@@ -585,6 +621,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createVectorWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Vector",
                 .styleId = *createWireVectorStyleID
                 //.metadata = 
@@ -594,6 +631,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createNameWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::Name",
                 .styleId = *createWireNameStyleID
                 //.metadata = 
@@ -603,6 +641,7 @@ namespace MockPlugin {
             nodeEnvDB->wire.createWireCore(query, Wire::CreateWireCoreRecord{
                 .id = *createStringWireCoreID,
                 .contributorId = *createWireContributorID,
+                .visualFactoryId = *createWireConfiguratorID,
                 .name = "Standard::String",
                 .styleId = *createWireStringStyleID
                 //.metadata = 

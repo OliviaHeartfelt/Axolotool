@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Registry/ARegistry.h"
+#include "../../Storage/ANodeEnvDB.h"
 #include "../wire/VWWire.h"
 #include "../pin/details/Concepts.h"
 #include "details/Context.h"
@@ -22,8 +23,8 @@ namespace VWDragDrop {
     }
 
     template<Context::ItemData T, VWPinDetails::Concepts::PinItemConcept PinItem>
-    inline void useDrag(QGraphicsSceneMouseEvent* event, ARegistry::Registry& registry, PinItem* sourcePin, const QString& mimeType, const T& itemData, const char* mimePosPropertyStr, QPointF scenePos) {
-        if (!event || !event->widget()) return;
+    inline void useDrag(QGraphicsSceneMouseEvent* event, ARegistry::Registry& registry, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, PinItem* sourcePin, const QString& mimeType, const T& itemData, const char* mimePosPropertyStr, QPointF scenePos) {
+        if (!event || !event->widget() || !sourcePin || !nodeEnvDB) return;
 
         QDrag* drag = new QDrag(event->widget());
         if (!drag) return;
@@ -34,6 +35,15 @@ namespace VWDragDrop {
         setDragData(mimeData, mimeType, itemData);
 
         auto flowOpt = registry.node.pinFlowRegistry.at(sourcePin->pinData().flow());
+        if (!flowOpt) {
+            ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& guery) {
+                flowOpt = nodeEnvDB->pinSource.getFlow(guery, sourcePin->pinData().flow());
+                });
+
+            if (flowOpt) {
+                registry.node.pinFlowRegistry.insert(sourcePin->pinData().flow(), *flowOpt);
+            }
+        }
 
         VWWire::TemporaryWire::WireTemp::setMimeData(mimeData, VWWire::TemporaryWire::WireTempData{
             .pos = scenePos,

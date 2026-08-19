@@ -39,7 +39,7 @@ namespace VWPinDetails::Concepts {
     ) {
         { t.setPadding(margins) } -> std::same_as<void>;
         { t.safeUpdate() }        -> std::same_as<void>;
-        { t.setSvg(iconPath) }    -> std::same_as<void>;
+        //{ t.setSvg(iconPath) }    -> std::same_as<void>;
         { c_t.coreId() }          -> std::same_as<const muuid::uuid&>;
 
         // Wire Registration

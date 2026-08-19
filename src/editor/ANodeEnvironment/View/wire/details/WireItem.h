@@ -3,32 +3,33 @@
 namespace VWWireDetails::WireItem {
 
     class WireItem : public QGraphicsPathItem {
-    private:
         QGraphicsItem* m_originPin = nullptr;
         QGraphicsItem* m_targetPin = nullptr;
         qreal m_dgrOrigin = 0;
         qreal m_dgrTarget = 0;
 
         muuid::uuid m_id;
-        muuid::uuid m_core_id;
+        std::optional<muuid::uuid> m_core_id;
 
         bool m_isNew = true;
         bool m_update = false;
 
     public:
-        WireItem(QGraphicsItem* originPin, QGraphicsItem* targetPin, const qreal dgrOrigin, const qreal dgrTarget, std::optional<muuid::uuid> coreId)
-            : m_originPin(originPin), m_targetPin(targetPin), m_dgrOrigin(dgrOrigin), m_dgrTarget(dgrTarget)
+        WireItem(QGraphicsItem* originPin, QGraphicsItem* targetPin, const qreal dgrOrigin, const qreal dgrTarget, const std::optional<muuid::uuid>& coreId)
+            : m_originPin(originPin), m_targetPin(targetPin), m_dgrOrigin(dgrOrigin), m_dgrTarget(dgrTarget), m_core_id(coreId)
         {
-            if (coreId) {
-                m_core_id = std::move(*coreId);
-            }
+            m_id = muuid::uuid::generate_unix_time_based();
+
+            setBrush(Qt::NoBrush);
 
             if (originPin && targetPin) {
                 updatePath();
             }
         }
 
-        const muuid::uuid& coreId() const { return m_core_id; }
+        const muuid::uuid& id() const { return m_id; }
+
+        const std::optional<muuid::uuid>& coreId() const { return m_core_id; }
         void coreId(const muuid::uuid& newCore) { m_core_id = newCore; }
 
         QGraphicsItem* origin() { return m_originPin; }

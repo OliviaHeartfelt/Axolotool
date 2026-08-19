@@ -32,7 +32,7 @@ namespace WVCellDetails::CreatePin {
 
 		if (!pinCoreOpt) return nullptr;
 
-		auto* pinItem = new VWPin::PinItem(&registry, cellItem, pinCoreId, VWPin::Context::FactoryData{
+		auto* pinItem = new VWPin::PinItem(&registry, nodeEnvDB, cellItem, pinCoreId, VWPin::Context::FactoryData{
 			.flow = pinCoreOpt->flowId,
 			.type = pinCoreOpt->typeId,
 			.style = pinCoreOpt->styleId,

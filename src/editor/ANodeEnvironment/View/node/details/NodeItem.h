@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NodeGrid.h"
+#include "../../pin/VWPin.h"
 
 namespace VWNodeDetails::NodeItem {
 
@@ -18,15 +19,15 @@ namespace VWNodeDetails::NodeItem {
     };
 
     class Node : public QGraphicsRectItem {
-        QPen   p_borderPen = QPen(QColor("#2980b9"), 1);
+        QPen   p_borderPen = QPen(QColor("#455a64"), 1);
         QPen   p_selectedPen = QPen(QColor("#f1c40f"), 2, Qt::DashLine);
-        QBrush p_bgBrush = QBrush(QColor("#3498db"));
+        QBrush p_bgBrush = QBrush(QColor("#34495e"));
         qreal  p_cornerRadius = 5.0;
 
         muuid::uuid m_id;
         muuid::uuid m_core_id;
 
-        bool m_is_new = true;
+        bool m_is_new;
         bool m_is_drty = false;
         bool m_is_moving = false;
 
@@ -40,6 +41,7 @@ namespace VWNodeDetails::NodeItem {
             }
             else {
                 m_id = muuid::uuid::generate_unix_time_based();
+                m_is_new = true;
             }
 
             setFlags(
@@ -71,7 +73,21 @@ namespace VWNodeDetails::NodeItem {
         bool isNew() const { return m_is_new; }
         void setIsNew(bool value) { m_is_new = value; }
 
+        QList<VWPin::PinItem*> pins() const {
+            QList<VWPin::PinItem*> pinList;
 
+            for (auto* child : childItems()) {
+                if (auto* pin = dynamic_cast<VWPin::PinItem*>(child)) {
+                    pinList.append(pin);
+                }
+                for (QGraphicsItem* grandChild : child->childItems()) {
+                    if (auto* pin = dynamic_cast<VWPin::PinItem*>(grandChild)) {
+                        pinList.append(pin);
+                    }
+                }
+            }
+            return pinList;
+        }
 
         void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override {
             Q_UNUSED(widget);

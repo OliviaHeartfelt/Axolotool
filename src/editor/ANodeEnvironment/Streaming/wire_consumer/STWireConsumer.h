@@ -2,11 +2,9 @@
 
 #include "../../View/AView.h"
 #include "../../Registry/ARegistry.h"
+#include "../../Storage/ANodeEnvDB.h"
 #include "../details/BoundedQueue.h"
 #include "../wire_streamer/STWireStreamer.h"
-#include <QElapsedTimer>
-#include <QTimer>
-#include <QGraphicsScene>
 
 namespace STWireConsumer {
 
@@ -15,14 +13,15 @@ namespace STWireConsumer {
 
             QGraphicsScene* m_scene = nullptr;
         ARegistry::Registry* m_registry = nullptr;
+        ANodeEnvDB::ANodeEnvDB* m_nodeEnvDB = nullptr;
         STStreamerDetails::BoundedQueue::BoundedQueue<STWireStreamer::Config::WirePayload> m_queue{ 50 };
         QTimer frameTimer;
 
         static constexpr int64_t MAX_FRAME_BUDGET_MS = 3;
 
     public:
-        explicit STWireConsumer(QGraphicsScene* scene, ARegistry::Registry* registry, QObject* parent = nullptr)
-            : QObject(parent), m_scene(scene), m_registry(registry)
+        explicit STWireConsumer(QGraphicsScene* scene, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry* registry, QObject* parent = nullptr)
+            : QObject(parent), m_scene(scene), m_nodeEnvDB(nodeEnvDB), m_registry(registry)
         {
             connect(&frameTimer, &QTimer::timeout, this, &STWireConsumer::processQueue);
         }
@@ -52,7 +51,7 @@ namespace STWireConsumer {
     private slots:
 
         void processQueue() {
-            if (!m_scene || !m_registry) return;
+            if (!m_scene || !m_registry || !m_nodeEnvDB) return;
 
             QElapsedTimer timer;
             timer.start();
@@ -64,7 +63,8 @@ namespace STWireConsumer {
                 AView::Wire::WireItem* wire = AView::Wire::createPermanentWire<AView::Pin::PinItem>(
                     payload.wire.originId,
                     payload.wire.targetId,
-                    *m_registry
+                    m_registry,
+                    m_nodeEnvDB
                 );
 
                 if (wire) {

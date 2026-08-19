@@ -8,23 +8,43 @@
 
 namespace VWWireDetails::Helpers {
 
-    inline bool useConfigurator(ARegistry::Registry& registry, WireItem::WireItem* wire, const muuid::uuid& wireCoreId) {
-        if (!wire) return false;
+    inline bool useConfigurator(ARegistry::Registry* registry, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, WireItem::WireItem* wire, const muuid::uuid& wireCoreId) {        
+        if (!registry || !nodeEnvDB || !wire) return false;
 
-        const auto wireCore = registry.wire.wireCoreRegistry.at(wireCoreId);
-        if (!wireCore) return false;
+        auto wireCoreOpt = registry->wire.wireCoreRegistry.at(wireCoreId);
 
-        auto fn = registry.wireFunction.wireConfiguratorRegistry.at(wireCore->visualFactoryId);
+        if (!wireCoreOpt) {
+            ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& guery) {
+                wireCoreOpt = nodeEnvDB->wire.getWireCore(guery, wireCoreId);
+                });
+
+            if (wireCoreOpt) {
+                registry->wire.wireCoreRegistry.insert(wireCoreId, *wireCoreOpt);
+            }
+        }
+
+        if (!wireCoreOpt || !wireCoreOpt->styleId) return false;
+
+        auto fn = registry->wireFunction.wireConfiguratorRegistry.at(wireCoreOpt->visualFactoryId);
         if (!fn) return false;
 
         Context::WireContext wireContext{
             .style = std::nullopt,
             .data = std::nullopt
         };
-        wireContext.name = wireCore->name;
+        wireContext.name = wireCoreOpt->name;
 
-        if (wireCore->styleId) {
-            const auto wireStyleOpt = registry.wire.wireStyleRegistry.at(*wireCore->styleId);
+        if (wireCoreOpt->styleId) {
+            auto wireStyleOpt = registry->wire.wireStyleRegistry.at(*wireCoreOpt->styleId);
+            if (!wireStyleOpt) {
+                ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& guery) {
+                    wireStyleOpt = nodeEnvDB->wireSource.getWireStyle(guery, *wireCoreOpt->styleId);
+                    });
+
+                if (wireStyleOpt) {
+                    registry->wire.wireStyleRegistry.insert(*wireCoreOpt->styleId, *wireStyleOpt);
+                }
+            }
             if (!wireStyleOpt) return false;
 
             wireContext.style = Context::WireStyleContext{
@@ -35,8 +55,17 @@ namespace VWWireDetails::Helpers {
             };
         }
 
-        if (wireCore->dataId) {
-            const auto wiredata = registry.wire.wireDataRegistry.at(*wireCore->dataId);
+        if (wireCoreOpt->dataId) {
+            auto wiredata = registry->wire.wireDataRegistry.at(*wireCoreOpt->dataId);
+            if (!wiredata) {
+                ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& guery) {
+                    wiredata = nodeEnvDB->wireSource.getWireData(guery, *wireCoreOpt->dataId);
+                    });
+
+                if (wiredata) {
+                    registry->wire.wireDataRegistry.insert(*wireCoreOpt->dataId, *wiredata);
+                }
+            }
             if (!wiredata) return false;
 
             wireContext.data = Context::WireDataContext{

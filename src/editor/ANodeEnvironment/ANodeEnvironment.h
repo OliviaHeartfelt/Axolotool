@@ -33,7 +33,7 @@ namespace ANodeEnvironment {
         explicit ANodeEnvironment(QWidget* parentWidget = nullptr, QObject* parent = nullptr)
             : QObject(parent)
         {
-            m_canvas = new VWCanvas::VWCanvas(parentWidget);
+            m_canvas = new VWCanvas::VWCanvas(&m_registry, parentWidget);
 
             if (!m_canvas) return;
 
@@ -41,7 +41,7 @@ namespace ANodeEnvironment {
             if (!m_scene) return;
 
             m_nodeConsumer = std::make_unique<STStreamingManager::NodeConsumer::STNodeConsumer>(m_scene, m_db.get(), &m_registry, this);
-            m_wireConsumer = std::make_unique<STStreamingManager::WireConsumer::STWireConsumer>(m_scene, &m_registry, this);
+            m_wireConsumer = std::make_unique<STStreamingManager::WireConsumer::STWireConsumer>(m_scene, m_db.get(), &m_registry, this);
         }
 
         ~ANodeEnvironment() override {
@@ -100,21 +100,31 @@ namespace ANodeEnvironment {
         }
 
         void spawnNode(
-            const muuid::uuid& nodeCoreId, 
-            const QPointF pos,
+            const muuid::uuid& nodeCoreId,
             const bool continueAtFail = false,
             const bool overrideOnCollision = false
         ) {
-            if (!m_db || !m_scene) return;
+            if (!m_db || !m_scene || !m_canvas) return;
+
+            auto* view = m_canvas->graphicsView();
+            if (!view) return;
+
+            auto* viewport = view->viewport();
+            if (!viewport) return;
+
+            const QPointF pos = view->mapToScene(viewport->rect().center());
+
 
             auto* newNode = AView::Node::CreateNode::createNewNode(m_db.get(), &m_registry, nullptr, nodeCoreId, pos, continueAtFail, overrideOnCollision);
-
             if (!newNode) return;
+
+
+            newNode->setPos(newNode->pos() - newNode->boundingRect().center());
 
             m_registry.nodeView.nodeViewRegistry.insert(newNode->id(), newNode);
             m_scene->addItem(newNode);
 
-            qDebug() << "node created!";
+            qDebug() << "Node created! Node registry now has: [" << m_registry.nodeView.nodeViewRegistry.size() << "] nodes";
         }
 
         AView::Canvas::VWCanvas* canvas() const { return m_canvas; }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../Registry/ARegistry.h"
+#include "../../../Storage/ANodeEnvDB.h"
 #include "../../drag_drop/VWDragDrop.h"
 #include "../../wire/VWWire.h"
 #include "PinData.h"
@@ -13,13 +14,17 @@ namespace VWPinDetails::PinItem {
 	class PinItem : public QGraphicsSvgItem {
         mutable QReadWriteLock lock;
         ARegistry::Registry* m_registry = nullptr;
+        ANodeEnvDB::ANodeEnvDB* m_nodeEnvDB = nullptr;
 
         const char* mimePosPropertyStr = "sourcePinItemPtr";
         const QString mimeType = QStringLiteral("application/x-anode-data");
         QString iconPath = QStringLiteral(":/icons/outline/point.svg");
 
-        QImage rasterCache;
         QMarginsF m_padding{ -8.0, -8.0, 8.0, 8.0 };
+
+        QSvgRenderer m_svgRenderer;
+        QByteArray m_rawSvgTemplate;
+        QColor m_currentRenderColor;
 
         QPointF dragStartPosition {0.0, 0.0};
         QList<VWWire::PermanentWire::WireItem*> connectedWires;
@@ -36,22 +41,13 @@ namespace VWPinDetails::PinItem {
         bool isSvgDirty = true;
         bool isHighlighted = false;
 
-        void initPinItem() {
-            setSharedRenderer(new QSvgRenderer(iconPath, this));
-            setAcceptDrops(true);
-            setAcceptedMouseButtons(Qt::LeftButton);
-            setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
-
-            update();
-        }
-
         bool hasDraggingStarted(QGraphicsSceneMouseEvent* event) {
             return (event->screenPos() - dragStartPosition).manhattanLength() >= QApplication::startDragDistance();
         }
 
     public:
-        PinItem(ARegistry::Registry* registry, QGraphicsItem* parent, const muuid::uuid& coreId, const Context::FactoryData& factoryData)
-            : m_registry(registry), QGraphicsSvgItem(parent), m_core_id(coreId)
+        PinItem(ARegistry::Registry* registry, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QGraphicsItem* parent, const muuid::uuid& coreId, const Context::FactoryData& factoryData)
+            : m_registry(registry), m_nodeEnvDB(nodeEnvDB), QGraphicsSvgItem(parent), m_core_id(coreId)
         {
             if (factoryData.flow)  m_pinData.flow(*factoryData.flow);
             if (factoryData.type)  m_pinData.type(*factoryData.type);
@@ -59,7 +55,14 @@ namespace VWPinDetails::PinItem {
             if (factoryData.allowFlowVec) m_allowFlowSet.insert(*factoryData.allowFlowVec);
             if (factoryData.allowTypeVec) m_allowTypeSet.insert(*factoryData.allowTypeVec);
 
-            initPinItem();
+            setSharedRenderer(new QSvgRenderer(iconPath, this));
+            setAcceptDrops(true);
+            setAcceptedMouseButtons(Qt::LeftButton);
+            setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
+
+            setSvgSource();
+
+            update();
         }
 
         const muuid::uuid& coreId() const { return m_core_id; }
@@ -106,26 +109,29 @@ namespace VWPinDetails::PinItem {
         VWPinDetails::PinAllowSet::VWPinAllowSet& allowTypeSet() { return m_allowTypeSet; }
         const VWPinDetails::PinAllowSet::VWPinAllowSet& allowTypeSet() const { return m_allowTypeSet; }
 
-        void setSvg(const QString& iconPath = QStringLiteral(":/icons/outline/point.svg")) {
-            QMetaObject::invokeMethod(this, [this, iconPath]() {
-                if (auto* oldRenderer = renderer())
-                    oldRenderer->deleteLater();
-                setSharedRenderer(new QSvgRenderer(iconPath, this));
+        void setSvgSource(const QString& filePath = QStringLiteral(":/icons/outline/point.svg")) {
+            QWriteLocker locker(&lock);
+            QFile file(filePath);
+            if (file.open(QIODevice::ReadOnly)) {
+                m_rawSvgTemplate = file.readAll();
                 isSvgDirty = true;
-                this->update();
-            }, Qt::QueuedConnection);
+            }
         }
         
         void registerWire(VWWire::PermanentWire::WireItem* wire) {
             QWriteLocker locker(&lock);
             connectedWires.append(wire);
+            isSvgDirty = true;
+            update();
         }
         void unregisterWire(VWWire::PermanentWire::WireItem* wire) {
             QWriteLocker locker(&lock);
             connectedWires.removeOne(wire);
+            isSvgDirty = true;
+            update();
         }
-        void destroyWire(VWWire::PermanentWire::WireItem* wire) {
-            if (!wire) return;
+        void removeWire(VWWire::PermanentWire::WireItem* wire) {
+            if (!wire || !wire->origin() || !wire->target()) return;
 
             auto* originPin = dynamic_cast<PinItem*>(wire->origin());
             auto* targetPin = dynamic_cast<PinItem*>(wire->target());
@@ -137,7 +143,20 @@ namespace VWPinDetails::PinItem {
                 s->removeItem(wire);
             }
 
+            m_registry->wireView.wireViewRegistry.erase(wire->id());
+            qDebug() << "wire Removed! Wire registry now has: [" << m_registry->wireView.wireViewRegistry.size() << "] wires";
+
             delete wire;
+        }
+        void removeAllWires() {
+            for (auto* wire : connectedWires) {
+                if (!wire) {
+                    unregisterWire(wire);
+                    continue;
+                }
+
+                removeWire(wire);
+            }
         }
 
         bool isCompatibleSourcePin(const PinItem* originPin) const {
@@ -150,6 +169,14 @@ namespace VWPinDetails::PinItem {
 
             if (!originPin->allowFlowSet().contains(m_pinData.flow())) return false;
             if (!originPin->allowTypeSet().contains(m_pinData.type())) return false;
+
+            for (auto* wire : connectedWires) {
+                if (!wire) continue;
+                if (wire->origin() == originPin || wire->target() == originPin) {
+                    VWWire::TemporaryWire::WireTemp::unstuck();
+                    return false;
+                }
+            }
 
             return true;
         }
@@ -174,14 +201,22 @@ namespace VWPinDetails::PinItem {
             event->accept();
             dragStartPosition = event->screenPos();
         }
+        void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override { event->accept(); }
+        void mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override {
+            if (event->button() == Qt::LeftButton && !connectedWires.empty()) {
+                removeAllWires();
+                event->accept();
+                return;
+            }
+            QGraphicsItem::mouseDoubleClickEvent(event);
+        }
+
         void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override {
             event->accept();
 
             if (m_registry && hasDraggingStarted(event))
-                VWDragDrop::useDrag(event, *m_registry, this, mimeType, m_pinData, mimePosPropertyStr, mapToScene(boundingRect().center()));
+                VWDragDrop::useDrag(event, *m_registry, m_nodeEnvDB, this, mimeType, m_pinData, mimePosPropertyStr, mapToScene(boundingRect().center()));
         }
-        void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override { event->accept(); }
-
         void dragEnterEvent(QGraphicsSceneDragDropEvent* event) override {
             if (!event->mimeData()->hasFormat(mimeType)) {
                 event->ignore();
@@ -223,78 +258,72 @@ namespace VWPinDetails::PinItem {
             const auto originPtr = event->mimeData()->property(mimePosPropertyStr).value<quintptr>();
             auto* originPin = reinterpret_cast<PinItem*>(originPtr);
 
-            if (originPin && originPin != this && isCompatibleSourcePin(originPin)) {
-                event->acceptProposedAction();
-
-                if (!m_registry) return;
-
-                QGraphicsScene* scene = originPin->scene();
-                if (!scene) return;
-
-                const auto originPinFlowOpt = m_registry->node.pinFlowRegistry.at(originPin->pinData().flow());
-                if (!originPinFlowOpt) return;
-
-                const auto targetPinFlowOpt = m_registry->node.pinFlowRegistry.at(m_pinData.flow());
-                if (!targetPinFlowOpt) return;
-
-                auto* wire = VWWire::PermanentWire::createPermanentWire(originPin, this, *m_registry);
-                if (!wire) return;
-                scene->addItem(wire);
-
-                originPin->registerWire(wire);
-                this->registerWire(wire);
-
-                VWWire::TemporaryWire::WireTemp::unstuck();
-
-                qDebug() << "Successfully created wire link between pins!";
-            }
-            else {
+            if (!m_registry || !originPin || originPin == this || !isCompatibleSourcePin(originPin)) {
                 event->ignore();
+                return;
             }
+
+            QGraphicsScene* scene = originPin->scene();
+            if (!m_registry || !scene) {
+                VWWire::TemporaryWire::WireTemp::unstuck();
+                event->ignore();
+                return;
+            }
+
+            auto* wire = VWWire::PermanentWire::createPermanentWire(originPin, this, m_registry, m_nodeEnvDB);
+            if (!wire) {
+                VWWire::TemporaryWire::WireTemp::unstuck();
+                event->ignore();
+                return;
+            }
+
+            event->acceptProposedAction();
+            scene->addItem(wire);
+
+            originPin->registerWire(wire);
+            this->registerWire(wire);
+
+            m_registry->wireView.wireViewRegistry.insert(wire->id(), wire);
+
+            VWWire::TemporaryWire::WireTemp::unstuck();
+
+            qDebug() << "Successfully created wire! Wire registry now has: [" << m_registry->wireView.wireViewRegistry.size() << "] wires";
         }
 
         void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override {
             QRectF rect = boundingRect();
-            QSize size = rect.size().toSize();
+            if (rect.isEmpty() || m_rawSvgTemplate.isEmpty()) return;
 
-            if (size.isEmpty()) return;
+            QColor pinColor = Qt::gray;
+            if (m_registry) {
+                if (const auto style = m_registry->node.pinStyleRegistry.at(m_pinData.style()))
+                    pinColor = style->color;
+            }
+            if (isHighlighted) {
+                pinColor = pinColor.lighter(150);
+            }
 
-            if (isSvgDirty || rasterCache.size() != size) {
-                rasterCache = QImage(size, QImage::Format_ARGB32_Premultiplied);
-                rasterCache.fill(Qt::transparent);
+            if (isSvgDirty || m_currentRenderColor != pinColor) {
+                m_currentRenderColor = pinColor;
 
-                if (auto* svgRender = renderer()) {
+                QByteArray hexColor = pinColor.name(QColor::HexRgb).toUtf8();
+                QByteArray coloredSvg = m_rawSvgTemplate;
 
-                    QPainter imgPainter(&rasterCache);
-                    QSize svgSize = svgRender->defaultSize();
-                    QRectF svgTargetRect(
-                        (size.width() - svgSize.width()) / 2.0,
-                        (size.height() - svgSize.height()) / 2.0,
-                        svgSize.width(),
-                        svgSize.height()
-                    );
-                    svgRender->render(&imgPainter, svgTargetRect);
-                    imgPainter.end();
+                coloredSvg.replace("currentColor", hexColor);
 
-                    QPainter imgColorPainter(&rasterCache);
-                    imgColorPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-
-                    QColor pinColor = Qt::gray;
-                    if (m_registry) {
-                        if (const auto style = m_registry->node.pinStyleRegistry.at(m_pinData.style()))
-                            pinColor = style->color;
-                    }
-                    if (isHighlighted) {
-                        pinColor = pinColor.lighter(150);
-                    }
-
-                    imgColorPainter.fillRect(rasterCache.rect(), pinColor);
-                    imgColorPainter.end();
-                }
-
+                m_svgRenderer.load(coloredSvg);
                 isSvgDirty = false;
             }
-            painter->drawImage(rect.topLeft(), rasterCache);
+
+            QSize svgSize = m_svgRenderer.defaultSize();
+            QRectF targetRect(
+                rect.x() + (rect.width() - svgSize.width()) / 2.0,
+                rect.y() + (rect.height() - svgSize.height()) / 2.0,
+                svgSize.width(),
+                svgSize.height()
+            );
+
+            m_svgRenderer.render(painter, targetRect);
         }
     };
     static_assert(Concepts::PinItemConcept<PinItem>);

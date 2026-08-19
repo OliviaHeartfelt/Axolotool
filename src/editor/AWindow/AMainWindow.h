@@ -72,19 +72,19 @@ namespace AMainWindow {
 
             connect(btnNodeA, &QPushButton::clicked, this, [nodeEnvironment, nodeACoreId]() {
                 if (nodeEnvironment && nodeACoreId) {
-                    nodeEnvironment->spawnNode(*nodeACoreId, QPointF(0, 0));
+                    nodeEnvironment->spawnNode(*nodeACoreId);
                 }
                 });
 
             connect(btnNodeB, &QPushButton::clicked, this, [nodeEnvironment, nodeBCoreId]() {
                 if (nodeEnvironment && nodeBCoreId) {
-                    nodeEnvironment->spawnNode(*nodeBCoreId, QPointF(0, 0));
+                    nodeEnvironment->spawnNode(*nodeBCoreId);
                 }
                 });
 
             connect(btnNodeC, &QPushButton::clicked, this, [nodeEnvironment, nodeCCoreId]() {
                 if (nodeEnvironment && nodeCCoreId) {
-                    nodeEnvironment->spawnNode(*nodeCCoreId, QPointF(0, 0));
+                    nodeEnvironment->spawnNode(*nodeCCoreId);
                 }
                 });
         }
