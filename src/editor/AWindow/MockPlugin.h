@@ -1260,9 +1260,8 @@ namespace MockPlugin {
 
             /*
             nodeRegistry.wireFunction.asymmetricWireMap;
-            nodeRegistry.wireFunction.wireConfiguratorRegistry;
             */
-
+            return true;
         });
         return sucess;
     }

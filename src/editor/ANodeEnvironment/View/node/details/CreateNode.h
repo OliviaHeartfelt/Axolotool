@@ -30,11 +30,10 @@ namespace VWNodeDetails::CreateNode {
         if (!nodeCore) return nullptr;
 
         for (const auto& cell : factoryData.nodeCells) {
-            if (static_cast<bool>(cell.pinTemplateId) + static_cast<bool>(cell.widgetId) <= 1) {
+            if (static_cast<bool>(cell.pinTemplateId) + static_cast<bool>(cell.widgetId) > 1) {
                 if (continueAtFail) continue;
                 return nullptr;
             }
-
             VWCell::Context::FactoryData cellData;
 
             cellData.id = isNew ? static_cast<std::optional<muuid::uuid>>(std::nullopt) : cell.id;
@@ -63,11 +62,24 @@ namespace VWNodeDetails::CreateNode {
                 if (continueAtFail) continue;
                 return nullptr;
             }
-
             if (!node->body->addItem(cellItem.get(), cell.row, cell.col, cell.rowSpan, cell.colSpan, false, overrideOnCollision)) {
                 if (continueAtFail) continue;
                 return nullptr;
             }
+
+            cellItem->nodeId(node->id());
+            cellItem->name(cell.name);
+            cellItem->cellTransforms(cell.row, cell.col, cell.rowSpan, cell.colSpan);
+            if (cell.pinTemplateId) {
+                cellItem->pinTemplateId(cell.pinTemplateId);
+            }
+            else if (cell.widgetId) {
+                cellItem->widgetId(cell.widgetId);
+            }
+
+            registry.nodeView.cellViewRegistry.addVisible(cellItem->id(), cellItem.get());
+            qDebug() << "> Cell created! #Cells:" << registry.nodeView.cellViewRegistry.sizeVisible() - 1 << "->" << registry.nodeView.cellViewRegistry.sizeVisible();
+
             cellItem.release();
         }
 
@@ -123,7 +135,7 @@ namespace VWNodeDetails::CreateNode {
             }
 
             VWCell::Context::FactoryData cellData;
-            cellData.id = cell.id;
+            cellData.id = std::nullopt;
             cellData.name = cell.name;
 
             if (hasPin) {
@@ -150,6 +162,21 @@ namespace VWNodeDetails::CreateNode {
                 if (continueAtFail) continue;
                 return nullptr;
             }
+
+            cellItem->nodeId(node->id());
+            cellItem->name(cell.name);
+            cellItem->cellTransforms(cell.row, cell.col, cell.rowSpan, cell.colSpan);
+
+            if (hasPin) {
+                cellItem->pinTemplateId(cell.pinCoreId);
+            }
+            else if (hasWidget) {
+                cellItem->widgetId(cell.widgetCoreId);
+            }
+
+            registry->nodeView.cellViewRegistry.addVisible(cellItem->id(), cellItem.get());
+            qDebug() << "> Cell created! #Cells:" << registry->nodeView.cellViewRegistry.sizeVisible() - 1 << "->" << registry->nodeView.cellViewRegistry.sizeVisible();
+
             cellItem.release();
         }
 

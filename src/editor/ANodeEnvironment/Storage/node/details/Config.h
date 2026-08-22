@@ -43,17 +43,6 @@ namespace NDNodeDetails::Config {
 	};
 
 	// 2. Node
-	struct FullNodeRecord {
-		muuid::uuid id;
-		muuid::uuid coreId;
-		QString name;
-		short rowNum;
-		short colNum;
-		QPointF pos;
-		double width;
-		double height;
-		std::optional<std::vector<uint8_t>> state;
-	};
 	struct CreateNodeRecord {
 		muuid::uuid id;
 		muuid::uuid coreId;
@@ -82,5 +71,44 @@ namespace NDNodeDetails::Config {
 		std::optional<double>  width  = std::nullopt;
 		std::optional<double>  height = std::nullopt;
 		std::variant<std::monostate, std::optional<std::vector<uint8_t>>> state = std::monostate{};
+	};
+
+	struct FullNodeRecord {
+		muuid::uuid id;
+		muuid::uuid coreId;
+		QString name;
+		short rowNum;
+		short colNum;
+		QPointF pos;
+		double width;
+		double height;
+		std::optional<std::vector<uint8_t>> state;
+
+		static CreateNodeRecord toCreate(const FullNodeRecord& fullRecord) {
+			return CreateNodeRecord{
+				.id = fullRecord.id,
+				.coreId = fullRecord.coreId,
+				.name = fullRecord.name,
+				.rowNum = fullRecord.rowNum,
+				.colNum = fullRecord.colNum,
+				.pos = fullRecord.pos,
+				.width = fullRecord.width,
+				.height = fullRecord.height,
+				.state = fullRecord.state
+			};
+		}
+		static UpdateNodeRecord toUpdate(const FullNodeRecord& fullRecord) {
+			return UpdateNodeRecord{
+				.id = std::nullopt,
+				.coreId = std::nullopt,
+				.name = fullRecord.name,
+				.rowNum = fullRecord.rowNum,
+				.colNum = fullRecord.colNum,
+				.pos = fullRecord.pos,
+				.width = fullRecord.width,
+				.height = fullRecord.height,
+				.state = std::monostate{}
+			};
+		}
 	};
 }

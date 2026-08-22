@@ -99,7 +99,7 @@ namespace VWWireDetails::Helpers {
         return std::nullopt;
     }
 
-    template<VWPinDetails::Concepts::PinItemConcept T>
+    template<VWPinDetails::Concepts::PinItemConcept<WireItem::WireItem> T>
     std::optional<Context::FactoryPinData> resolvePinData(ARegistry::Registry& registry, T* pin) {
         if (!pin) return std::nullopt;
 
@@ -117,7 +117,7 @@ namespace VWWireDetails::Helpers {
         };
     }
 
-    template<VWPinDetails::Concepts::PinItemConcept T>
+    template<VWPinDetails::Concepts::PinItemConcept<WireItem::WireItem> T>
     T* resolvePinPtr(std::unordered_map<muuid::uuid, T*>& pinMap, const muuid::uuid& pinId) {
         const auto pinIt = pinMap.find(pinId);
         if (pinIt == pinMap.end() || !pinIt->second) return nullptr;

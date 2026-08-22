@@ -1,6 +1,7 @@
 #pragma once
 
 #include "registry_base/RGBaseRegistry.h"
+#include "visual_registry/RGVisualRegistry.h"
 #include "details/Context.h"
 #include "details/RegistryTraits.h"
 
@@ -32,8 +33,9 @@ namespace ARegistry {
     };
 
     struct NodeViewRegisters {
-        RegistryT<QGraphicsItem*> nodeViewRegistry;
-        RegistryT<QGraphicsItem*> pinViewRegistry;
+        RGVisualRegistry::VisualRegistry<QGraphicsItem*> nodeViewRegistry;
+        RGVisualRegistry::VisualRegistry<QGraphicsItem*> cellViewRegistry;
+        RGVisualRegistry::VisualRegistry<QGraphicsItem*> pinViewRegistry;
     };
 
     struct NodeFunctionRegistry {
@@ -58,8 +60,7 @@ namespace ARegistry {
     };
 
     struct WireViewRegisters {
-
-        RegistryT<QGraphicsItem*> wireViewRegistry;
+        RGVisualRegistry::VisualRegistry<QGraphicsItem*> wireViewRegistry;
     };
 
     struct WireFunctionRegistry {

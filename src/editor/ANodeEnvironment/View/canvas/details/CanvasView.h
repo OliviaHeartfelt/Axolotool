@@ -39,15 +39,22 @@ namespace VWCanvasDetails::CanvasView {
 
                 for (auto* pin : node->pins()) {
                     if (pin) {
+                        m_registry->nodeView.pinViewRegistry.hide(pin->id());
+                        qDebug() << "> Pin Removed! #Pins:" << m_registry->nodeView.pinViewRegistry.sizeVisible() + 1 << "->" << m_registry->nodeView.pinViewRegistry.sizeVisible();
                         pin->removeAllWires();
                     }
                 }
 
-                m_registry->nodeView.nodeViewRegistry.erase(node->id());
-                qDebug() << "Node Removed! Node registry now has: [" << m_registry->nodeView.nodeViewRegistry.size() << "] nodes";
+                for (auto* cell : node->cells()) {
+                    if (cell) {
+                        m_registry->nodeView.cellViewRegistry.hide(cell->id());
+                        qDebug() << "> Cell Removed! #Cells:" << m_registry->nodeView.cellViewRegistry.sizeVisible() + 1 << "->" << m_registry->nodeView.cellViewRegistry.sizeVisible();
+                    }
+                }
 
+                m_registry->nodeView.nodeViewRegistry.hide(node->id());
+                qDebug() << "> Node Removed! #Nodes:" << m_registry->nodeView.nodeViewRegistry.sizeVisible() + 1 << "->" << m_registry->nodeView.nodeViewRegistry.sizeVisible();
                 scene()->removeItem(node);
-                delete node;
             }
         }
 
@@ -55,6 +62,7 @@ namespace VWCanvasDetails::CanvasView {
         explicit CanvasView(QGraphicsScene* scene, ARegistry::Registry* registry, QWidget* parent = nullptr)
             : QGraphicsView(scene, parent), m_registry(registry) {
 
+            setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
             setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
             setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 

@@ -7,14 +7,12 @@ namespace NDCellDetails::Create {
 
     inline bool create(QSqlQuery& query, const Config::CreateCellRecord& newCell, const bool overrideOnCollision = false) {
         if (newCell.pinInstanceId && newCell.widgetId) return false;
-
         const NDCellDetails::Config::CellInfo info{
             newCell.row,
             newCell.col,
             newCell.rowSpan,
             newCell.colSpan
         };
-        
         if (!Helper::isCellAvailable(query, newCell.nodeId, info)) {
             if (!overrideOnCollision) {
                 qWarning() << "Cell insertion rejected: Space is occupied.";
@@ -22,7 +20,6 @@ namespace NDCellDetails::Create {
             }
             if (!Helper::removeCollidingCells(query, newCell.nodeId, info)) return false;
         }
-    
         query.prepare(R"(
             INSERT INTO node_cells (id,  node_id,  name,  layout_row,  layout_col,  layout_row_span,  layout_col_span,  pin_template_id,  pin_instance_id,  widget_id,  is_out)
             VALUES (               :id, :node_id, :name, :layout_row, :layout_col, :layout_row_span, :layout_col_span, :pin_template_id, :pin_instance_id, :widget_id, :is_out);

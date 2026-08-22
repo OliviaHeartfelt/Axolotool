@@ -6,7 +6,7 @@
 #include "../../../Storage/ANodeEnvDB.h"
 #include "../../../Registry/ARegistry.h"
 
-namespace STWireStreamerDetails::WireProcessing {
+namespace STLoadingWireStreamerDetails::WireProcessing {
 
 	inline std::optional<ANodeEnvDB::Config::Wire::FullWireCoreRecord> processWireCore(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const muuid::uuid& wireCoreId);
 	inline bool processWireData(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const ANodeEnvDB::Config::Wire::FullWireCoreRecord& wireCore);

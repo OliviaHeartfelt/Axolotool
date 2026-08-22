@@ -15,6 +15,8 @@ namespace AMainWindow {
                 qWarning() << "Failed to open project.db! Exiting setup.";
                 return;
             }
+            qDebug() << "nodeEnvironment->isOpen(): " << (nodeEnvironment->isOpen() ? "true" : "false");
+            assert(nodeEnvironment->isOpen());
 
             MockPlugin::initPlugin(nodeEnvironment);
 
@@ -56,10 +58,14 @@ namespace AMainWindow {
             auto* btnNodeA = new QPushButton("Add Node A", sidebar);
             auto* btnNodeB = new QPushButton("Add Node B", sidebar);
             auto* btnNodeC = new QPushButton("Add Node C", sidebar);
+            auto* btnSave = new QPushButton("Save", sidebar);
+            auto* btnLoad = new QPushButton("Load", sidebar);
 
             sidebarLayout->addWidget(btnNodeA);
             sidebarLayout->addWidget(btnNodeB);
             sidebarLayout->addWidget(btnNodeC);
+            sidebarLayout->addWidget(btnSave);
+            sidebarLayout->addWidget(btnLoad);
             sidebarLayout->addStretch();
 
 
@@ -75,16 +81,25 @@ namespace AMainWindow {
                     nodeEnvironment->spawnNode(*nodeACoreId);
                 }
                 });
-
             connect(btnNodeB, &QPushButton::clicked, this, [nodeEnvironment, nodeBCoreId]() {
                 if (nodeEnvironment && nodeBCoreId) {
                     nodeEnvironment->spawnNode(*nodeBCoreId);
                 }
                 });
-
             connect(btnNodeC, &QPushButton::clicked, this, [nodeEnvironment, nodeCCoreId]() {
                 if (nodeEnvironment && nodeCCoreId) {
                     nodeEnvironment->spawnNode(*nodeCCoreId);
+                }
+                });
+
+            connect(btnSave, &QPushButton::clicked, this, [nodeEnvironment]() {
+                if (nodeEnvironment) {
+                    nodeEnvironment->save();
+                }
+                });
+            connect(btnLoad, &QPushButton::clicked, this, [nodeEnvironment]() {
+                if (nodeEnvironment) {
+                    nodeEnvironment->load();
                 }
                 });
         }

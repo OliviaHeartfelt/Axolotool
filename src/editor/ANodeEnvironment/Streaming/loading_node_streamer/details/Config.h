@@ -2,7 +2,7 @@
 
 #include "../../../Storage/ANodeEnvDB.h"
 
-namespace STNodeStreamerDetails::Config {    
+namespace STLoadingNodeStreamerDetails::Config {
 
     using namespace ANodeEnvDB::Config;
 

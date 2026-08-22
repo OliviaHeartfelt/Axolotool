@@ -111,30 +111,39 @@ namespace ANodeEnvDB {
         NDGlobalSource::Component<ANodeEnvDB> globalSource;
 
         bool isOpen() const {
-            if (QSqlDatabase::contains(m_connectionBaseName)) {
-                return QSqlDatabase::database(m_connectionBaseName).isOpen();
-            }
-            return false;
+            return pool != nullptr;
         }
+
         bool open(int poolSize = 4) {
             if (pool) return true;
 
             pool = std::make_unique<NDPool::DatabasePool>(dbPath, m_connectionBaseName, poolSize);
+            {
+                auto lease = pool->acquire();
 
-            auto lease = pool->acquire();
-            QSqlQuery query(lease.db());
+                if (!lease.db().isOpen()) {
+                    pool.reset();
+                    return false;
+                }
 
-            if (!createCoreTables(lease.db())) return false;
+                QSqlQuery query(lease.db());
 
-            if (!Version::checkAndRunMigration(query)) return false;
+                if (!createCoreTables(lease.db())) {
+                    pool.reset();
+                    return false;
+                }
 
+                if (!Version::checkAndRunMigration(query)) {
+                    pool.reset();
+                    return false;
+                }
+            }
             return true;
         }
 
         void close() {
-            if (QSqlDatabase::contains(m_connectionBaseName)) {
-                auto db = QSqlDatabase::database(m_connectionBaseName);
-                if (db.isOpen()) db.close();
+            if (pool) {
+                pool.reset();
             }
         }
 	};

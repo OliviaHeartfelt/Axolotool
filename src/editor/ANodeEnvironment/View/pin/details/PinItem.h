@@ -33,9 +33,10 @@ namespace VWPinDetails::PinItem {
         VWPinDetails::PinAllowSet::VWPinAllowSet m_allowTypeSet;
         PinData::PinData m_pinData;
 
+        muuid::uuid m_id;
         muuid::uuid m_core_id;
 
-        bool m_is_new = true;
+        bool m_is_new;
         bool m_is_dirty = false;
 
         bool isSvgDirty = true;
@@ -46,9 +47,18 @@ namespace VWPinDetails::PinItem {
         }
 
     public:
-        PinItem(ARegistry::Registry* registry, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QGraphicsItem* parent, const muuid::uuid& coreId, const Context::FactoryData& factoryData)
+        PinItem(ARegistry::Registry* registry, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, QGraphicsItem* parent, const std::optional<muuid::uuid>& id, const muuid::uuid& coreId, const Context::FactoryData& factoryData)
             : m_registry(registry), m_nodeEnvDB(nodeEnvDB), QGraphicsSvgItem(parent), m_core_id(coreId)
         {
+            if (id) {
+                m_id = *id;
+                bool m_is_new = false;
+            }
+            else {
+                m_id = muuid::uuid::generate_unix_time_based();
+                bool m_is_new = true;
+            }
+
             if (factoryData.flow)  m_pinData.flow(*factoryData.flow);
             if (factoryData.type)  m_pinData.type(*factoryData.type);
             if (factoryData.style) m_pinData.style(*factoryData.style);
@@ -65,6 +75,7 @@ namespace VWPinDetails::PinItem {
             update();
         }
 
+        const muuid::uuid& id() const { return m_id; }
         const muuid::uuid& coreId() const { return m_core_id; }
 
         bool isUpdateNeeded() const { return m_is_dirty; }
@@ -143,10 +154,8 @@ namespace VWPinDetails::PinItem {
                 s->removeItem(wire);
             }
 
-            m_registry->wireView.wireViewRegistry.erase(wire->id());
-            qDebug() << "wire Removed! Wire registry now has: [" << m_registry->wireView.wireViewRegistry.size() << "] wires";
-
-            delete wire;
+            m_registry->wireView.wireViewRegistry.hide(wire->id());
+            qDebug() << "> Wire Removed! #Wires:" << m_registry->wireView.wireViewRegistry.sizeVisible() + 1 << "->" << m_registry->wireView.wireViewRegistry.sizeVisible();
         }
         void removeAllWires() {
             for (auto* wire : connectedWires) {
@@ -270,7 +279,7 @@ namespace VWPinDetails::PinItem {
                 return;
             }
 
-            auto* wire = VWWire::PermanentWire::createPermanentWire(originPin, this, m_registry, m_nodeEnvDB);
+            auto* wire = VWWire::PermanentWire::createPermanentWire(originPin, this, m_registry, m_nodeEnvDB, std::nullopt);
             if (!wire) {
                 VWWire::TemporaryWire::WireTemp::unstuck();
                 event->ignore();
@@ -278,16 +287,12 @@ namespace VWPinDetails::PinItem {
             }
 
             event->acceptProposedAction();
-            scene->addItem(wire);
+            //scene->addItem(wire);
 
-            originPin->registerWire(wire);
-            this->registerWire(wire);
-
-            m_registry->wireView.wireViewRegistry.insert(wire->id(), wire);
+            //originPin->registerWire(wire);
+            //this->registerWire(wire);
 
             VWWire::TemporaryWire::WireTemp::unstuck();
-
-            qDebug() << "Successfully created wire! Wire registry now has: [" << m_registry->wireView.wireViewRegistry.size() << "] wires";
         }
 
         void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override {
@@ -326,5 +331,5 @@ namespace VWPinDetails::PinItem {
             m_svgRenderer.render(painter, targetRect);
         }
     };
-    static_assert(Concepts::PinItemConcept<PinItem>);
+    static_assert(Concepts::PinItemConcept<PinItem, VWWire::PermanentWire::WireItem>);
 }

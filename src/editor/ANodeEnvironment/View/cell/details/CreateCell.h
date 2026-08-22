@@ -15,6 +15,7 @@ namespace WVCellDetails::CreateCell {
 		ARegistry::Registry& registry,
 		QGraphicsItem* node,
 		const std::optional<muuid::uuid>& cellId,
+		const std::optional<muuid::uuid>& id,
 		const muuid::uuid& pinCoreId,
 		const std::optional<QString>& text = std::nullopt,
 		const std::optional<muuid::uuid>& fallbackFunctionId = std::nullopt
@@ -22,10 +23,14 @@ namespace WVCellDetails::CreateCell {
 		if (!node) return nullptr;
 
 		auto nodeCell = std::make_unique<CellItem::CellItem>(node, cellId);
+		if (!nodeCell) return nullptr;
+
 		nodeCell->setRect(0, 0, 60, 20);
 
-		const auto* pin = CreatePin::createPinCell(nodeEnvDB, registry, nodeCell.get(), pinCoreId, text);
-		if (pin) return nodeCell.release();
+		const auto* pin = CreatePin::createPinCell(nodeEnvDB, registry, nodeCell.get(), id, pinCoreId, text);
+		if (pin) {
+			return nodeCell.release();
+		}
 
 		if (Helpers::useFallback(registry, nodeCell.get(), text, fallbackFunctionId)) {
 			return nodeCell.release();
@@ -47,11 +52,17 @@ namespace WVCellDetails::CreateCell {
 		if (!node) return nullptr;
 
 		auto nodeCell = std::make_unique<CellItem::CellItem>(node, cellId);
+		if (!nodeCell) return nullptr;
+
 		nodeCell->setRect(0, 0, 60, 20);
 
 		const auto* widget = CreateWidget::createWidgetCell(registry, nodeCell.get(), widgetCoreId, widgetId, text, std::move(state));
 
-		if (widget || Helpers::useFallback(registry, nodeCell.get(), text, fallbackFunctionId)) {
+		if (widget) {
+			return nodeCell.release();
+		}
+
+		if (Helpers::useFallback(registry, nodeCell.get(), text, fallbackFunctionId)) {
 			return nodeCell.release();
 		}
 
@@ -68,9 +79,12 @@ namespace WVCellDetails::CreateCell {
 		if (!node) return nullptr;
 
 		auto nodeCell = std::make_unique<CellItem::CellItem>(node, cellId);
+		if (!nodeCell) return nullptr;
+
 		nodeCell->setRect(0, 0, 60, 20);
 
 		if (Helpers::useFallback(registry, nodeCell.get(), text, fallbackFunctionId)) {
+			registry.nodeView.cellViewRegistry.addVisible(nodeCell->id(), nodeCell.get());
 			return nodeCell.release();
 		}
 
@@ -92,6 +106,7 @@ namespace WVCellDetails::CreateCell {
 				registry,
 				node,
 				cellData.id,
+				cellData.pin->id,
 				cellData.pin->pinCoreId,
 				cellData.name,
 				fallbackFunctionId

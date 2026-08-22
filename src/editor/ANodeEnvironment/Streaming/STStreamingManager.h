@@ -1,91 +1,147 @@
 #pragma once
 
 #include "../Storage/ANodeEnvDB.h"
-#include "node_consumer/STNodeConsumer.h"
-#include "node_streamer/STNodeStreamer.h"
-#include "wire_consumer/STWireConsumer.h"
-#include "wire_streamer/STWireStreamer.h"
+
+#include "loading_node_consumer/STLoadingNodeConsumer.h"
+#include "loading_node_streamer/STLoadingNodeStreamer.h"
+
+#include "loading_wire_consumer/STLoadingWireConsumer.h"
+#include "loading_wire_streamer/STLoadingWireStreamer.h"
+
+#include "saving_consumer/STSavingConsumer.h"
+#include "saving_streamer/STSavingStreamer.h"
 
 namespace STStreamingManager {
 
-    namespace NodeConsumer { using namespace STNodeConsumer; }
-    namespace NodeStreamer { using namespace STNodeStreamer; }
+    namespace LoadingNodeConsumer { using namespace STLoadingNodeConsumer; }
+    namespace LoadingNodeStreamer { using namespace STLoadingNodeStreamer; }
 
-    namespace WireConsumer { using namespace STWireConsumer; }
-    namespace WireStreamer { using namespace STWireStreamer; }
+    namespace LoadingWireConsumer { using namespace STLoadingWireConsumer; }
+    namespace LoadingWireStreamer { using namespace STLoadingWireStreamer; }
+
+    namespace SaveConsumer { using namespace STSavingConsumer; }
+    namespace SaveStreamer { using namespace STSavingStreamer; }
 
     class StreamingManager : public QObject {
         Q_OBJECT
 
             ANodeEnvDB::ANodeEnvDB* m_db = nullptr;
 
-        STNodeConsumer::STNodeConsumer* m_nodeConsumer = nullptr;
-        STNodeStreamer::STNodeStreamer* m_nodeStreamer = nullptr;
+        STLoadingNodeConsumer::STLoadingNodeConsumer* m_loadingNodeConsumer = nullptr;
+        STLoadingNodeStreamer::STLoadingNodeStreamer* m_loadingNodeStreamer = nullptr;
 
-        STWireConsumer::STWireConsumer* m_wireConsumer = nullptr;
-        STWireStreamer::STWireStreamer* m_wireStreamer = nullptr;
+        STLoadingWireConsumer::STLoadingWireConsumer* m_loadingWireConsumer = nullptr;
+        STLoadingWireStreamer::STLoadingWireStreamer* m_loadingWireStreamer = nullptr;
 
-        QFuture<void> m_currentStreamerFuture;
-        muuid::uuid m_activeChunkId;
+        STSavingConsumer::STSavingConsumer* m_savingConsumer = nullptr;
+        STSavingStreamer::STSavingStreamer* m_savingStreamer = nullptr;
+
+        QFuture<void> m_currentLoadingStreamerFuture;
+        QFuture<void> m_currentSavingStreamerFuture;
 
     public:
         explicit StreamingManager(
             ANodeEnvDB::ANodeEnvDB* db,
-            STNodeConsumer::STNodeConsumer* nodeConsumer,
-            STNodeStreamer::STNodeStreamer* nodeStreamer,
-            STWireConsumer::STWireConsumer* wireConsumer,
-            STWireStreamer::STWireStreamer* wireStreamer,
+            STLoadingNodeConsumer::STLoadingNodeConsumer* loadingNodeConsumer,
+            STLoadingNodeStreamer::STLoadingNodeStreamer* loadingNodeStreamer,
+            STLoadingWireConsumer::STLoadingWireConsumer* loadingWireConsumer,
+            STLoadingWireStreamer::STLoadingWireStreamer* loadingWireStreamer,
+            STSavingConsumer::STSavingConsumer* savingConsumer,
+            STSavingStreamer::STSavingStreamer* savingStreamer,
             QObject* parent = nullptr
         ) :
             QObject(parent),
             m_db(db),
-            m_nodeConsumer(nodeConsumer),
-            m_nodeStreamer(nodeStreamer),
-            m_wireConsumer(wireConsumer),
-            m_wireStreamer(wireStreamer)
+            m_loadingNodeConsumer(loadingNodeConsumer),
+            m_loadingNodeStreamer(loadingNodeStreamer),
+            m_loadingWireConsumer(loadingWireConsumer),
+            m_loadingWireStreamer(loadingWireStreamer),
+            m_savingConsumer(savingConsumer),
+            m_savingStreamer(savingStreamer)
         {
-            connect(m_nodeConsumer, &STNodeConsumer::STNodeConsumer::nodesLoadingFinished,
-                this, &StreamingManager::onNodesPhaseFinished);
+            if (m_loadingNodeConsumer) {
+                connect(m_loadingNodeConsumer, &STLoadingNodeConsumer::STLoadingNodeConsumer::nodesLoadingFinished,
+                    this, &StreamingManager::onNodesPhaseFinished);
+            }
+            if (m_loadingWireConsumer) {
+                connect(m_loadingWireConsumer, &STLoadingWireConsumer::STLoadingWireConsumer::wiresLoadingFinished,
+                    this, &StreamingManager::loadFinished);
+            }
+            if (m_savingConsumer) {
+                connect(m_savingConsumer, &STSavingConsumer::STSavingConsumer::saveFinished,
+                    this, &StreamingManager::saveFinished);
+            }
         }
 
         ~StreamingManager() override {
             cancelCurrentLoad();
+            cancelCurrentSave();
         }
 
-        void loadChunk(const muuid::uuid& chunkId) {
+        void load() {
+            qDebug() << "load()";
             cancelCurrentLoad();
+            if (!m_loadingNodeConsumer || !m_loadingNodeStreamer) return;
 
-            if (!m_nodeConsumer || !m_nodeStreamer) return;
-            m_activeChunkId = chunkId;
+            m_loadingNodeConsumer->startLoading();
 
-            m_nodeConsumer->startLoading();
-
-            m_currentStreamerFuture = QtConcurrent::run([this, chunkId]() {
-                m_nodeStreamer->streamChunkToQueue(chunkId, m_nodeConsumer->getQueue());
-
-                m_nodeConsumer->getQueue().finish();
-                });
+            m_currentLoadingStreamerFuture = QtConcurrent::run([this]() {
+                m_loadingNodeStreamer->streamChunkToQueue(m_loadingNodeConsumer->getQueue());
+                m_loadingNodeConsumer->getQueue().finish();
+            });
         }
-
         void cancelCurrentLoad() {
-            if (m_nodeConsumer) m_nodeConsumer->cancel();
-            if (m_wireConsumer) m_wireConsumer->cancel();
+            if (m_loadingNodeConsumer) m_loadingNodeConsumer->cancel();
+            if (m_loadingWireConsumer) m_loadingWireConsumer->cancel();
 
-            if (m_currentStreamerFuture.isRunning()) {
-                m_currentStreamerFuture.waitForFinished();
+            if (m_currentLoadingStreamerFuture.isRunning()) {
+                m_currentLoadingStreamerFuture.waitForFinished();
             }
         }
 
+        void save() {
+            qDebug() << "save()";
+            cancelCurrentSave();
+            if (!m_savingConsumer || !m_savingStreamer) return;
+
+            m_savingConsumer->startSaving();
+
+            m_currentSavingStreamerFuture = QtConcurrent::run([this]() {
+                m_savingStreamer->streamNodesToQueue(m_savingConsumer->getNodeQueue());
+                m_savingConsumer->getNodeQueue().finish();
+
+                m_savingStreamer->streamCellsToQueue(m_savingConsumer->getCellsQueue());
+                m_savingConsumer->getCellsQueue().finish();
+
+                m_savingStreamer->streamWiresToQueue(m_savingConsumer->getWireQueue());
+                m_savingConsumer->getWireQueue().finish();
+            });
+        }
+        void cancelCurrentSave() {
+            if (m_savingConsumer) m_savingConsumer->cancel();
+
+            if (m_currentSavingStreamerFuture.isRunning()) {
+                m_currentSavingStreamerFuture.waitForFinished();
+            }
+        }
+
+    signals:
+        void loadFinished();
+        void saveFinished(bool success);
+
     private slots:
         void onNodesPhaseFinished() {
-            if (!m_wireConsumer || !m_wireStreamer) return;
+            if (!m_loadingWireConsumer || !m_loadingWireStreamer) return;
 
-            m_wireConsumer->startLoading();
+            if (m_currentLoadingStreamerFuture.isRunning()) {
+                m_currentLoadingStreamerFuture.waitForFinished();
+            }
 
-            m_currentStreamerFuture = QtConcurrent::run([this]() {
-                m_wireStreamer->streamChunkToQueue(m_activeChunkId, m_wireConsumer->getQueue());
+            m_loadingWireConsumer->startLoading();
 
-                m_wireConsumer->getQueue().finish();
+            m_currentLoadingStreamerFuture = QtConcurrent::run([this]() {
+                m_loadingWireStreamer->streamChunkToQueue(m_loadingWireConsumer->getQueue());
+                m_loadingWireConsumer->getQueue().finish();
                 });
         }
     };

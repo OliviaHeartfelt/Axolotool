@@ -3,19 +3,21 @@
 #include "WireItem.h"
 #include "Helpers.h"
 #include "../../pin/details/Concepts.h"
+#include "../../cell/details/Concepts.h"
 #include "../../../Registry/ARegistry.h"
 #include "../../../Storage/ANodeEnvDB.h"
 
 namespace VWWireDetails::CreateWire {
 
-    template<VWPinDetails::Concepts::PinItemConcept T>
+    template<VWPinDetails::Concepts::PinItemConcept<WireItem::WireItem> T>
     inline WireItem::WireItem* createPermanentWire(
         T* orininPin,
         T* targetPin,
         ARegistry::Registry* registry,
-        ANodeEnvDB::ANodeEnvDB* nodeEnvDB
+        ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
+        std::optional<muuid::uuid> id
     ) {
-        if (!orininPin || !targetPin || !registry || !nodeEnvDB) return nullptr;
+        if (!orininPin || !orininPin->scene() || !targetPin || !registry || !nodeEnvDB) return nullptr;
 
         const auto originData = Helpers::resolvePinData(*registry, orininPin);
         if (!originData) return nullptr;
@@ -33,7 +35,8 @@ namespace VWWireDetails::CreateWire {
             targetData->pin,
             originData->degree,
             targetData->degree,
-            coreIdOpt
+            coreIdOpt,
+            id
         );
         if (!wire) return nullptr;
 
@@ -43,30 +46,58 @@ namespace VWWireDetails::CreateWire {
         if (!Helpers::useConfigurator(registry, nodeEnvDB, wire, *coreIdOpt))
             return Helpers::useFallback(wire);
 
+        registry->wireView.wireViewRegistry.addVisible(wire->id(), wire);
+
+        orininPin->scene()->addItem(wire);
+
+        orininPin->registerWire(wire);
+        targetPin->registerWire(wire);
+
+        qDebug() << "> Wire created! #Wires:" << registry->wireView.wireViewRegistry.sizeVisible() - 1 << "->" << registry->wireView.wireViewRegistry.sizeVisible();
+
         return wire;
     }
 
-    template<VWPinDetails::Concepts::PinItemConcept T>
+    template<VWPinDetails::Concepts::PinItemConcept<WireItem::WireItem> Pin, WVCellDetails::Concepts::CellItem Cell>
     inline WireItem::WireItem* createPermanentWire(
-        muuid::uuid orininPinId,
-        muuid::uuid targetPinId,
+        muuid::uuid orininCellId,
+        muuid::uuid targetCellId,
         ARegistry::Registry* registry,
-        ANodeEnvDB::ANodeEnvDB* nodeEnvDB
+        ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
+        std::optional<muuid::uuid> id
     ) {
         if (!registry || !nodeEnvDB) return nullptr;
 
-        const auto originPinPtrOpt = registry->nodeView.pinViewRegistry.at(orininPinId);
-        if (!originPinPtrOpt) return nullptr;
 
-        T* originPinPtr = dynamic_cast<T*>(*originPinPtrOpt);
+        const auto originCellOpt = registry->nodeView.cellViewRegistry.findVisible(orininCellId);
+        if (!originCellOpt) return nullptr;
+
+        auto* originCellPtr = dynamic_cast<Cell*>(*originCellOpt);
+        if (!originCellPtr) return nullptr;
+
+        Pin* originPinPtr = nullptr;
+        for (auto* originChildren : originCellPtr->childItems()) {
+            auto* ptr = dynamic_cast<Pin*>(originChildren);
+            if (!ptr) continue;
+            originPinPtr = ptr;
+        }
         if (!originPinPtr) return nullptr;
 
-        const auto targetPinPtrOpt = registry->nodeView.pinViewRegistry.at(targetPinId);
-        if (!targetPinPtrOpt) return nullptr;
 
-        T* targetPinPtr = dynamic_cast<T*>(*originPinPtrOpt);
+        const auto targetCellOpt = registry->nodeView.cellViewRegistry.findVisible(targetCellId);
+        if (!targetCellOpt) return nullptr;
+
+        auto* targetCellPtr = dynamic_cast<Cell*>(*targetCellOpt);
+        if (!targetCellPtr) return nullptr;
+
+        Pin* targetPinPtr = nullptr;
+        for (auto* targetChildren : targetCellPtr->childItems()) {
+            auto* ptr = dynamic_cast<Pin*>(targetChildren);
+            if (!ptr) continue;
+            targetPinPtr = ptr;
+        }
         if (!targetPinPtr) return nullptr;
 
-        return createPermanentWire(originPinPtr, targetPinPtr, registry, nodeEnvDB);
+        return createPermanentWire(originPinPtr, targetPinPtr, registry, nodeEnvDB, id);
     }
 }

@@ -22,7 +22,7 @@ namespace VWDragDrop {
         mimeData->setData(mimeType, block);
     }
 
-    template<Context::ItemData T, VWPinDetails::Concepts::PinItemConcept PinItem>
+    template<Context::ItemData T, VWPinDetails::Concepts::PinItemConcept<VWWire::PermanentWire::WireItem> PinItem>
     inline void useDrag(QGraphicsSceneMouseEvent* event, ARegistry::Registry& registry, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, PinItem* sourcePin, const QString& mimeType, const T& itemData, const char* mimePosPropertyStr, QPointF scenePos) {
         if (!event || !event->widget() || !sourcePin || !nodeEnvDB) return;
 
@@ -70,8 +70,6 @@ namespace VWDragDrop {
         in.setVersion(QDataStream::Qt_6_11);
 
         in >> itemData;
-
-        qDebug() << "Successfully unpacked MIME drop data for type:" << mimeType;
         return true;
     }
 }

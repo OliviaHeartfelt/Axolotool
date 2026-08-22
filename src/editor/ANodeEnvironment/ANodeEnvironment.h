@@ -23,33 +23,35 @@ namespace ANodeEnvironment {
         std::unique_ptr<ANodeEnvDB::ANodeEnvDB> m_db;
         std::unique_ptr<STStreamingManager::StreamingManager> m_streamingManager;
 
-        std::unique_ptr<STStreamingManager::NodeStreamer::STNodeStreamer> m_nodeStreamer;
-        std::unique_ptr<STStreamingManager::WireStreamer::STWireStreamer> m_wireStreamer;
+        std::unique_ptr<STStreamingManager::LoadingNodeStreamer::STLoadingNodeStreamer> m_loadingNodeStreamer;
+        std::unique_ptr<STStreamingManager::LoadingWireStreamer::STLoadingWireStreamer> m_loadingWireStreamer;
 
-        std::unique_ptr<STStreamingManager::NodeConsumer::STNodeConsumer> m_nodeConsumer;
-        std::unique_ptr<STStreamingManager::WireConsumer::STWireConsumer> m_wireConsumer;
+        std::unique_ptr<STStreamingManager::LoadingNodeConsumer::STLoadingNodeConsumer> m_loadingNodeConsumer;
+        std::unique_ptr<STStreamingManager::LoadingWireConsumer::STLoadingWireConsumer> m_loadingWireConsumer;
+
+        std::unique_ptr<STStreamingManager::SaveStreamer::STSavingStreamer> m_savingStremer;
+        std::unique_ptr<STStreamingManager::SaveConsumer::STSavingConsumer> m_savingConsumer;
 
     public:
         explicit ANodeEnvironment(QWidget* parentWidget = nullptr, QObject* parent = nullptr)
             : QObject(parent)
         {
             m_canvas = new VWCanvas::VWCanvas(&m_registry, parentWidget);
-
             if (!m_canvas) return;
 
             m_scene = m_canvas->graphicsScene();
             if (!m_scene) return;
-
-            m_nodeConsumer = std::make_unique<STStreamingManager::NodeConsumer::STNodeConsumer>(m_scene, m_db.get(), &m_registry, this);
-            m_wireConsumer = std::make_unique<STStreamingManager::WireConsumer::STWireConsumer>(m_scene, m_db.get(), &m_registry, this);
         }
 
         ~ANodeEnvironment() override {
+            cancelSaving();
+            cancelLoading();
+
             closeDatabase();
         }
 
         bool openDatabase(const QString& dbPath, const QString& connectionBaseName = "ANodeEnvDBConn", int poolSize = 4) {
-
+            if (!m_scene) return false;
             closeDatabase();
 
             m_db = std::make_unique<ANodeEnvDB::ANodeEnvDB>(dbPath, connectionBaseName);
@@ -58,28 +60,46 @@ namespace ANodeEnvironment {
                 m_db.reset();
                 return false;
             }
+            
 
-            m_nodeStreamer = std::make_unique<STNodeStreamer::STNodeStreamer>(m_db.get(), &m_registry);
-            m_wireStreamer = std::make_unique<STWireStreamer::STWireStreamer>(m_db.get(), &m_registry);
+            m_loadingNodeConsumer = std::make_unique<STStreamingManager::LoadingNodeConsumer::STLoadingNodeConsumer>(m_scene, m_db.get(), &m_registry, this);
+            m_loadingWireConsumer = std::make_unique<STStreamingManager::LoadingWireConsumer::STLoadingWireConsumer>(m_scene, m_db.get(), &m_registry, this);
+            m_savingConsumer = std::make_unique<STStreamingManager::SaveConsumer::STSavingConsumer>(m_db.get(), this);
+
+            m_loadingNodeStreamer = std::make_unique<STLoadingNodeStreamer::STLoadingNodeStreamer>(m_db.get(), &m_registry);
+            m_loadingWireStreamer = std::make_unique<STLoadingWireStreamer::STLoadingWireStreamer>(m_db.get(), &m_registry);
+            m_savingStremer = std::make_unique<STStreamingManager::SaveStreamer::STSavingStreamer>(m_db.get(), &m_registry);
+
+            
+            if (!m_loadingNodeConsumer ||
+                !m_loadingNodeStreamer ||
+                !m_loadingWireConsumer ||
+                !m_loadingWireStreamer ||
+                !m_savingConsumer ||
+                !m_savingStremer
+            ) return false;
 
             m_streamingManager = std::make_unique<STStreamingManager::StreamingManager>(
                 m_db.get(),
-                m_nodeConsumer.get(),
-                m_nodeStreamer.get(),
-                m_wireConsumer.get(),
-                m_wireStreamer.get(),
+                m_loadingNodeConsumer.get(),
+                m_loadingNodeStreamer.get(),
+                m_loadingWireConsumer.get(),
+                m_loadingWireStreamer.get(),
+                m_savingConsumer.get(),
+                m_savingStremer.get(),
                 this
             );
 
+            load();
+
             return true;
         }
-
         void closeDatabase() {
             cancelLoading();
 
             m_streamingManager.reset();
-            m_wireStreamer.reset();
-            m_nodeStreamer.reset();
+            m_loadingWireStreamer.reset();
+            m_loadingNodeStreamer.reset();
 
             if (m_db) {
                 m_db->close();
@@ -87,44 +107,67 @@ namespace ANodeEnvironment {
             }
         }
 
-        void loadChunk(const muuid::uuid& chunkId) {
+        void save() {
             if (m_streamingManager) {
-                m_streamingManager->loadChunk(chunkId);
+                m_streamingManager->save();
+            }
+        }
+        void cancelSaving() {
+            if (m_streamingManager) {
+                m_streamingManager->cancelCurrentSave();
             }
         }
 
+        void load(bool clearViewRegisters = true) {
+            if (!m_streamingManager) return;
+
+            if (clearViewRegisters) {
+                if (!m_scene) return;
+
+                m_registry.nodeView.pinViewRegistry.clear(m_scene);
+                m_registry.nodeView.cellViewRegistry.clear(m_scene);
+                m_registry.nodeView.nodeViewRegistry.clear(m_scene);
+                m_registry.wireView.wireViewRegistry.clear(m_scene);
+            }
+            m_streamingManager->load();
+        }
         void cancelLoading() {
             if (m_streamingManager) {
                 m_streamingManager->cancelCurrentLoad();
             }
         }
 
-        void spawnNode(
+        bool spawnNode(
             const muuid::uuid& nodeCoreId,
             const bool continueAtFail = false,
             const bool overrideOnCollision = false
         ) {
-            if (!m_db || !m_scene || !m_canvas) return;
+            if (!m_db || !m_scene || !m_canvas) return false;
 
             auto* view = m_canvas->graphicsView();
-            if (!view) return;
+            if (!view) return false;
 
             auto* viewport = view->viewport();
-            if (!viewport) return;
+            if (!viewport) return false;
 
-            const QPointF pos = view->mapToScene(viewport->rect().center());
-
-
-            auto* newNode = AView::Node::CreateNode::createNewNode(m_db.get(), &m_registry, nullptr, nodeCoreId, pos, continueAtFail, overrideOnCollision);
-            if (!newNode) return;
-
+            auto* newNode = AView::Node::CreateNode::createNewNode(
+                m_db.get(),
+                &m_registry,
+                nullptr,
+                nodeCoreId,
+                view->mapToScene(viewport->rect().center()), 
+                continueAtFail,
+                overrideOnCollision
+            );
+            if (!newNode) return false;
 
             newNode->setPos(newNode->pos() - newNode->boundingRect().center());
 
-            m_registry.nodeView.nodeViewRegistry.insert(newNode->id(), newNode);
+            m_registry.nodeView.nodeViewRegistry.addVisible(newNode->id(), newNode);
             m_scene->addItem(newNode);
 
-            qDebug() << "Node created! Node registry now has: [" << m_registry.nodeView.nodeViewRegistry.size() << "] nodes";
+            qDebug() << "> Node created! #Nodes:" << m_registry.nodeView.nodeViewRegistry.sizeVisible() - 1 << "->" << m_registry.nodeView.nodeViewRegistry.sizeVisible();
+            return true;
         }
 
         AView::Canvas::VWCanvas* canvas() const { return m_canvas; }

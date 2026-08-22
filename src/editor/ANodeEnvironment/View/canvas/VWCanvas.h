@@ -17,8 +17,6 @@ namespace VWCanvas {
         QLabel* zoomLabel = nullptr;
         QLabel* posLabel = nullptr;
 
-        //const QPointF pos = view->mapToScene(viewport->rect().center());
-
     public:
         explicit VWCanvas(ARegistry::Registry* registry, QWidget* parent = nullptr) : QWidget(parent), m_registry(registry) {
             if (!m_registry) return;

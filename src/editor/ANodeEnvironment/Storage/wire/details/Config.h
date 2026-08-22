@@ -41,15 +41,6 @@ namespace NDWireDetails::Config {
     };
 
     // 2. Wire
-    struct FullWireRecord {
-        muuid::uuid id;
-        muuid::uuid coreId;
-        muuid::uuid originId;
-        muuid::uuid targetId;
-        QPointF originHintPos;
-        QPointF targetHintPos;
-        std::optional<std::vector<uint8_t>> state;
-    };
     struct CreateWireRecord {
         muuid::uuid id;
         muuid::uuid coreId;
@@ -71,5 +62,36 @@ namespace NDWireDetails::Config {
         std::optional<QPointF> originHintPos = std::nullopt;
         std::optional<QPointF> targetHintPos = std::nullopt;
         std::variant<std::monostate, std::optional<std::vector<uint8_t>>> state = std::monostate{};
+    };
+
+    struct FullWireRecord {
+        muuid::uuid id;
+        muuid::uuid coreId;
+        muuid::uuid originId;
+        muuid::uuid targetId;
+        QPointF originHintPos;
+        QPointF targetHintPos;
+        std::optional<std::vector<uint8_t>> state;
+
+        static CreateWireRecord toCreate(const FullWireRecord& fullRecord) {
+            return CreateWireRecord{
+                .id = fullRecord.id,
+                .coreId = fullRecord.coreId,
+                .originId = fullRecord.originId,
+                .targetId = fullRecord.targetId,
+                .originHintPos = fullRecord.originHintPos,
+                .targetHintPos = fullRecord.targetHintPos,
+                .state = std::nullopt
+            };
+        }
+        static UpdateWireRecord toUpdate(const FullWireRecord& fullRecord) {
+            return UpdateWireRecord{
+                .id = std::nullopt,
+                .coreId = std::nullopt,
+                .originHintPos = fullRecord.originHintPos,
+                .targetHintPos = fullRecord.targetHintPos,
+                .state = std::monostate{}
+            };
+        }
     };
 }

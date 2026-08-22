@@ -11,6 +11,7 @@ namespace WVCellDetails::CreatePin {
 		ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
 		ARegistry::Registry& registry,
 		CellItem::CellItem* cellItem,
+		const std::optional<muuid::uuid>& pinId,
 		const muuid::uuid& pinCoreId,
 		const std::optional<QString>& text = std::nullopt
 	) {
@@ -32,7 +33,7 @@ namespace WVCellDetails::CreatePin {
 
 		if (!pinCoreOpt) return nullptr;
 
-		auto* pinItem = new VWPin::PinItem(&registry, nodeEnvDB, cellItem, pinCoreId, VWPin::Context::FactoryData{
+		auto* pinItem = new VWPin::PinItem(&registry, nodeEnvDB, cellItem, pinId, pinCoreId, VWPin::Context::FactoryData{
 			.flow = pinCoreOpt->flowId,
 			.type = pinCoreOpt->typeId,
 			.style = pinCoreOpt->styleId,
@@ -112,6 +113,9 @@ namespace WVCellDetails::CreatePin {
 			delete pinItem;
 			return nullptr;
 		}
+
+		registry.nodeView.pinViewRegistry.addVisible(pinItem->id(), pinItem);
+		qDebug() << "> Pin created! #Pins:" << registry.nodeView.pinViewRegistry.sizeVisible() - 1 << "->" << registry.nodeView.pinViewRegistry.sizeVisible();
 		return pinItem;
 	}
 }

@@ -8,19 +8,6 @@ namespace NDCellDetails::Config {
         short rowSpan = 0;
         short colSpan = 0;
     };
-    struct FullCellRecord {
-        muuid::uuid id;
-        muuid::uuid nodeId;
-        std::optional<QString> name;
-        bool isOut;
-        short row;
-        short col;
-        short rowSpan;
-        short colSpan;
-        std::optional<muuid::uuid> pinTemplateId;
-        std::optional<muuid::uuid> pinInstanceId;
-        std::optional<muuid::uuid> widgetId;
-    };
     struct CreateCellRecord {
         muuid::uuid id;
         muuid::uuid nodeId;
@@ -58,5 +45,50 @@ namespace NDCellDetails::Config {
         std::optional<short> col =     std::nullopt;
         std::optional<short> rowSpan = std::nullopt;
         std::optional<short> colSpan = std::nullopt;
+    };
+
+    struct FullCellRecord {
+        muuid::uuid id;
+        muuid::uuid nodeId;
+        std::optional<QString> name;
+        bool isOut;
+        short row;
+        short col;
+        short rowSpan;
+        short colSpan;
+        std::optional<muuid::uuid> pinTemplateId;
+        std::optional<muuid::uuid> pinInstanceId;
+        std::optional<muuid::uuid> widgetId;
+
+        static CreateCellRecord toCreate(const FullCellRecord& fullrecord) {
+            return CreateCellRecord{
+                .id = fullrecord.id,
+                .nodeId = fullrecord.nodeId,
+                .name = fullrecord.name,
+                .pinTemplateId = fullrecord.pinTemplateId,
+                .pinInstanceId = fullrecord.pinInstanceId,
+                .widgetId = fullrecord.widgetId,
+                .isOut = fullrecord.isOut,
+                .row = fullrecord.row,
+                .col = fullrecord.col,
+                .rowSpan = fullrecord.rowSpan,
+                .colSpan = fullrecord.colSpan
+            };
+        }
+        static UpdateCellRecord toUpdate(const FullCellRecord& fullrecord) {
+            return UpdateCellRecord{
+                .id = std::nullopt,
+                .nodeId = std::nullopt,
+                .name = fullrecord.name,
+                .pinTemplateId = fullrecord.pinTemplateId,
+                .pinInstanceId = fullrecord.pinInstanceId,
+                .widgetId = fullrecord.widgetId,
+                .isOut = fullrecord.isOut,
+                .row = fullrecord.row,
+                .col = fullrecord.col,
+                .rowSpan = fullrecord.rowSpan,
+                .colSpan = fullrecord.colSpan
+            };
+        }
     };
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Concepts.h"
+
 namespace VWWireDetails::WireItem {
 
     class WireItem : public QGraphicsPathItem {
@@ -11,15 +13,22 @@ namespace VWWireDetails::WireItem {
         muuid::uuid m_id;
         std::optional<muuid::uuid> m_core_id;
 
-        bool m_isNew = true;
+        bool m_isNew;
         bool m_update = false;
 
     public:
-        WireItem(QGraphicsItem* originPin, QGraphicsItem* targetPin, const qreal dgrOrigin, const qreal dgrTarget, const std::optional<muuid::uuid>& coreId)
+        WireItem(QGraphicsItem* originPin, QGraphicsItem* targetPin, const qreal dgrOrigin, const qreal dgrTarget, const std::optional<muuid::uuid>& coreId, const std::optional<muuid::uuid>& id)
             : m_originPin(originPin), m_targetPin(targetPin), m_dgrOrigin(dgrOrigin), m_dgrTarget(dgrTarget), m_core_id(coreId)
         {
-            m_id = muuid::uuid::generate_unix_time_based();
-
+            if (id) {
+                m_id = *id;
+                m_isNew = false;
+            }
+            else {
+                m_id = muuid::uuid::generate_unix_time_based();
+                m_isNew = true;
+            }
+           
             setBrush(Qt::NoBrush);
 
             if (originPin && targetPin) {
@@ -70,4 +79,5 @@ namespace VWWireDetails::WireItem {
             setPath(path);
         }
     };
+    static_assert(VWWireDetails::Concepts::WireItem<WireItem>);
 }

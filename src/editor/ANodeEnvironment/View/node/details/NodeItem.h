@@ -2,6 +2,8 @@
 
 #include "NodeGrid.h"
 #include "../../pin/VWPin.h"
+#include "../../cell/details/CellItem.h"
+#include "../../../Storage/ANodeEnvDB.h"
 
 namespace VWNodeDetails::NodeItem {
 
@@ -32,6 +34,24 @@ namespace VWNodeDetails::NodeItem {
         bool m_is_moving = false;
 
     public:
+        static std::optional<ANodeEnvDB::Config::Node::FullNodeRecord> toRecord(const Node& nodeItem) {
+            auto* body = nodeItem.body.get();
+            if (!body) return std::nullopt;
+
+            ANodeEnvDB::Config::Node::FullNodeRecord nodeRecord{
+                .id = nodeItem.m_id,
+                .coreId = nodeItem.m_core_id,
+                .name = "",
+                .rowNum = static_cast<short>(body->rowNum()),
+                .colNum = static_cast<short>(body->colNum()),
+                .pos = nodeItem.pos(),
+                .width = nodeItem.rect().width(),
+                .height = nodeItem.rect().height(),
+                .state = std::nullopt
+            };
+            return std::move(nodeRecord);
+        }
+
         Node(QGraphicsItem* parent, const muuid::uuid& coreId, const std::optional<muuid::uuid>& id = std::nullopt, const std::optional<NodeGridConfig>& nodeConfig = std::nullopt)
             : QGraphicsRectItem(parent), m_core_id(coreId) {
             
@@ -57,10 +77,7 @@ namespace VWNodeDetails::NodeItem {
                 body = std::make_unique<NodeGrid::Grid>(this);
             }
         }
-        ~Node() {
-            if (!body) return;
-            body->deleteGrid(false);
-        }
+        ~Node() = default;
 
         std::unique_ptr<NodeGrid::Grid> body;
 
@@ -73,6 +90,21 @@ namespace VWNodeDetails::NodeItem {
         bool isNew() const { return m_is_new; }
         void setIsNew(bool value) { m_is_new = value; }
 
+        QList<WVCellDetails::CellItem::CellItem*> cells() const {
+            QList<WVCellDetails::CellItem::CellItem*> cellList;
+
+            for (auto* child : childItems()) {
+                if (auto* cell = dynamic_cast<WVCellDetails::CellItem::CellItem*>(child)) {
+                    cellList.append(cell);
+                }
+                for (QGraphicsItem* grandChild : child->childItems()) {
+                    if (auto* cell = dynamic_cast<WVCellDetails::CellItem::CellItem*>(grandChild)) {
+                        cellList.append(cell);
+                    }
+                }
+            }
+            return cellList;
+        }
         QList<VWPin::PinItem*> pins() const {
             QList<VWPin::PinItem*> pinList;
 
@@ -89,19 +121,14 @@ namespace VWNodeDetails::NodeItem {
             return pinList;
         }
 
-        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override {
-            Q_UNUSED(widget);
-            painter->setRenderHint(QPainter::Antialiasing);
-
-            if (option->state & QStyle::State_Selected) {
-                painter->setPen(p_selectedPen);
-            }
-            else {
-                painter->setPen(p_borderPen);
-            }
-
-            painter->setBrush(p_bgBrush);
-            painter->drawRoundedRect(rect(), p_cornerRadius, p_cornerRadius);
+        QRectF boundingRect() const override {
+            constexpr qreal margin = 4.0;
+            return rect().adjusted(-margin, -margin, margin, margin);
+        }
+        QPainterPath shape() const override {
+            QPainterPath path;
+            path.addRect(rect());
+            return path;
         }
 
     protected:
@@ -124,6 +151,21 @@ namespace VWNodeDetails::NodeItem {
                 }
             }
             return QGraphicsRectItem::itemChange(change, value);
+        }
+
+        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override {
+            Q_UNUSED(widget);
+            painter->setRenderHint(QPainter::Antialiasing);
+
+            if (option->state & QStyle::State_Selected) {
+                painter->setPen(p_selectedPen);
+            }
+            else {
+                painter->setPen(p_borderPen);
+            }
+
+            painter->setBrush(p_bgBrush);
+            painter->drawRoundedRect(rect(), p_cornerRadius, p_cornerRadius);
         }
     };
 }

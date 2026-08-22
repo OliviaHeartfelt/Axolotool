@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../wire/details/Concepts.h"
+
 namespace VWPinDetails::Concepts {
 
     template<typename T>
@@ -29,13 +31,14 @@ namespace VWPinDetails::Concepts {
         { t.empty() } -> std::same_as<bool>;
     };       
 
-    template<typename T>
-    concept PinItemConcept = std::derived_from<T, QGraphicsSvgItem> && requires(
+    template<typename T, typename WireT>
+    concept PinItemConcept = std::derived_from<T, QGraphicsSvgItem> && VWWireDetails::Concepts::WireItem<WireT> && requires(
         T t,
         const T c_t,
         const T* cptr_t, 
         const QMarginsF& margins,
-        const QString & iconPath
+        const QString & iconPath,
+        WireT* wire
     ) {
         { t.setPadding(margins) } -> std::same_as<void>;
         { t.safeUpdate() }        -> std::same_as<void>;
@@ -43,8 +46,8 @@ namespace VWPinDetails::Concepts {
         { c_t.coreId() }          -> std::same_as<const muuid::uuid&>;
 
         // Wire Registration
-        //{ t.registerWire(wire) }   -> std::same_as<void>;
-        //{ t.unregisterWire(wire) } -> std::same_as<void>;
+        { t.registerWire(wire) }   -> std::same_as<void>;
+        { t.unregisterWire(wire) } -> std::same_as<void>;
 
 
         { t.pinData() } -> PinDataConcept;

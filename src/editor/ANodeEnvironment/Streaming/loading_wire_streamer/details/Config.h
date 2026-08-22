@@ -2,7 +2,7 @@
 
 #include "../../../Storage/ANodeEnvDB.h"
 
-namespace STWireStreamerDetails::Config {    
+namespace STLoadingWireStreamerDetails::Config {
 
     using namespace ANodeEnvDB::Config;
 

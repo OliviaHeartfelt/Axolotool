@@ -3,6 +3,7 @@
 namespace WVCellDetails::Context {
 
 	struct PinFactoryData {
+		std::optional<muuid::uuid> id = std::nullopt;
 		muuid::uuid pinCoreId;
 	};
 	struct WidgetFactoryData {

@@ -6,7 +6,7 @@
 #include "../../../Storage/ANodeEnvDB.h"
 #include "../../../Registry/ARegistry.h"
 
-namespace STNodeStreamerDetails::NodeProcessing {
+namespace STLoadingNodeStreamerDetails::NodeProcessing {
 
 	// Node
 	inline std::optional<ANodeEnvDB::Config::Node::FullNodeCoreRecord> processNodeCore(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, const muuid::uuid& nodeCoreId);
@@ -24,7 +24,6 @@ namespace STNodeStreamerDetails::NodeProcessing {
 
 		const auto nodeCoreOpt = processNodeCore(nodeEnvDB, registry, query, nodeOpt->coreId);
 		if (!nodeCoreOpt) return false;
-
 		if (!processNodeType(nodeEnvDB, registry, query, *nodeCoreOpt) || !processNodeData(nodeEnvDB, registry, query, *nodeCoreOpt)) return false;
 
 		const auto cellsOpt = nodeEnvDB->cell.getAllCells(query, nodeOpt->id, false);

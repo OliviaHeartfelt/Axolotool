@@ -50,7 +50,7 @@ namespace NDCellDetails::Read {
         };
     }
 
-    inline std::optional<QList<Config::FullCellRecord>> getAllCells(QSqlQuery& query, const muuid::uuid& nodeId, const bool continueAtFail = true) {
+    inline std::optional<QList<Config::FullCellRecord>> getAllCells(QSqlQuery& query, const muuid::uuid& nodeId, const bool continueAtFail = true) {        
         QList<Config::FullCellRecord> cells;
         query.prepare(R"(
             SELECT id, name, is_out, layout_row, layout_col, layout_row_span, layout_col_span, pin_template_id, pin_instance_id, widget_id
@@ -63,7 +63,6 @@ namespace NDCellDetails::Read {
             qWarning() << "Failed to fetch cells for node:" << query.lastError().text();
             return std::nullopt;
         }
-
         while (query.next()) {
             auto cellIdOpt = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const NDHelpers::NullableField<QString> name = NDHelpers::parseNullableQstring(query.value(1));

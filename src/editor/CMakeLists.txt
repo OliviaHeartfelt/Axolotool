@@ -25,6 +25,8 @@ set(NE_REGISTRY_MODULES
     ANodeEnvironment/Registry/details/RegistryTraits.h
 
     ANodeEnvironment/Registry/registry_base/RGBaseRegistry.h
+
+    ANodeEnvironment/Registry/visual_registry/RGVisualRegistry.h
 )
 
 # ANodeEnvironment - Streaming
@@ -34,21 +36,28 @@ set(NE_STREAMING_MODULES
     ANodeEnvironment/Streaming/details/Helper.h
     ANodeEnvironment/Streaming/details/BoundedQueue.h
 
-    # Node Consumer
-    ANodeEnvironment/Streaming/node_consumer/STNodeConsumer.h
+    # Loading Node Consumer
+    ANodeEnvironment/Streaming/loading_node_consumer/STLoadingNodeConsumer.h
 
-    # Wire Consumer
-    ANodeEnvironment/Streaming/wire_consumer/STWireConsumer.h
+    # Loading Wire Consumer
+    ANodeEnvironment/Streaming/loading_wire_consumer/STLoadingWireConsumer.h
 
-    # Node Streamer
-    ANodeEnvironment/Streaming/node_streamer/STNodeStreamer.h
-    ANodeEnvironment/Streaming/node_streamer/details/Config.h
-    ANodeEnvironment/Streaming/node_streamer/details/NodeProcessing.h
+    # Loading Node Streamer
+    ANodeEnvironment/Streaming/loading_node_streamer/STLoadingNodeStreamer.h
+    ANodeEnvironment/Streaming/loading_node_streamer/details/Config.h
+    ANodeEnvironment/Streaming/loading_node_streamer/details/NodeProcessing.h
 
-    # Wire Streamer
-    ANodeEnvironment/Streaming/wire_streamer/STWireStreamer.h
-    ANodeEnvironment/Streaming/wire_streamer/details/Config.h
-    ANodeEnvironment/Streaming/wire_streamer/details/WireProcessing.h
+    # Loading Wire Streamer
+    ANodeEnvironment/Streaming/loading_wire_streamer/STLoadingWireStreamer.h
+    ANodeEnvironment/Streaming/loading_wire_streamer/details/Config.h
+    ANodeEnvironment/Streaming/loading_wire_streamer/details/WireProcessing.h
+
+    # Saving Consumer
+    ANodeEnvironment/Streaming/saving_consumer/STSavingConsumer.h
+    ANodeEnvironment/Streaming/saving_consumer/details/SavingApplier.h
+
+    # Saving Streamer
+    ANodeEnvironment/Streaming/saving_streamer/STSavingStreamer.h
 )
 
 # ANodeEnvironment - View
@@ -77,6 +86,7 @@ set(NE_vIEW_MODULES
     # Cell
     ANodeEnvironment/View/cell/VWCell.h
     ANodeEnvironment/View/cell/details/CellItem.h
+    ANodeEnvironment/View/cell/details/Concepts.h
     ANodeEnvironment/View/cell/details/Context.h
     ANodeEnvironment/View/cell/details/CreateCell.h
     ANodeEnvironment/View/cell/details/CreatePin.h
@@ -98,6 +108,7 @@ set(NE_vIEW_MODULES
 
     # Wire
     ANodeEnvironment/View/wire/VWWire.h
+    ANodeEnvironment/View/wire/details/Concepts.h
     ANodeEnvironment/View/wire/details/Context.h
     ANodeEnvironment/View/wire/details/CreateWire.h
     ANodeEnvironment/View/wire/details/Helpers.h
