@@ -21,9 +21,9 @@ namespace VWNodeDetails::NodeItem {
     };
 
     class Node : public QGraphicsRectItem {
-        QPen   p_borderPen = QPen(QColor("#455a64"), 1);
+        QPen   p_borderPen = QPen(QColor("#080a08"), 1.5);
         QPen   p_selectedPen = QPen(QColor("#f1c40f"), 2, Qt::DashLine);
-        QBrush p_bgBrush = QBrush(QColor("#34495e"));
+        QBrush p_bgBrush = QBrush(QColor("#80171917"));
         qreal  p_cornerRadius = 5.0;
 
         muuid::uuid m_id;

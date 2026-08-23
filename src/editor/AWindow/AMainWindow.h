@@ -16,7 +16,15 @@ namespace AMainWindow {
                 return;
             }
             qDebug() << "nodeEnvironment->isOpen(): " << (nodeEnvironment->isOpen() ? "true" : "false");
-            assert(nodeEnvironment->isOpen());
+
+            if (!nodeEnvironment->canvas()) return;
+            nodeEnvironment->canvas()->setStyleSheet(R"(
+                QWidget {
+                    border: none;
+                    border-left: 2px solid #171717;
+                }
+            )");
+
 
             MockPlugin::initPlugin(nodeEnvironment);
 
@@ -33,21 +41,21 @@ namespace AMainWindow {
             sidebar->setFixedWidth(200);
             sidebar->setStyleSheet(R"(
                 QFrame {
-                    background-color: #2c3e50;
+                    background-color: #242424;
                 }
                 QPushButton {
-                    background-color: #34495e;
+                    background-color: #383838;
                     color: #ecf0f1;
-                    border: 1px solid #455a64;
+                    border: 1px solid #171717;
                     border-radius: 4px;
                     padding: 8px;
                     font-weight: bold;
                 }
                 QPushButton:hover {
-                    background-color: #415b76;
+                    background-color: #545454;
                 }
                 QPushButton:pressed {
-                    background-color: #1abc9c;
+                    background-color: #707070;
                 }
             )");
 

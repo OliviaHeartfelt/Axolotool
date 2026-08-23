@@ -8,6 +8,7 @@ find_package(Qt6 COMPONENTS
     Core 
     Gui
     Widgets
+    OpenGLWidgets
     Svg
     SvgWidgets
     Sql
@@ -345,6 +346,8 @@ target_precompile_headers(axo_editor PRIVATE
     <QMarginsF>
     <QMouseEvent>
     <QScrollBar>
+    <QSurfaceFormat>
+    <QOpenGLWidget>
 )
 
 include(FetchContent)
@@ -357,6 +360,7 @@ FetchContent_MakeAvailable(modern-uuid)
 
 target_link_libraries(axo_editor PRIVATE 
     Qt6::Widgets
+    Qt6::OpenGLWidgets
     Qt6::Svg
     Qt6::SvgWidgets
     Qt6::Gui 

@@ -78,6 +78,14 @@ namespace VWWireDetails::WireItem {
             prepareGeometryChange();
             setPath(path);
         }
+
+        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
+
+            painter->setRenderHint(QPainter::Antialiasing, true);
+            painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+            QGraphicsPathItem::paint(painter, option, widget);
+        }
     };
     static_assert(VWWireDetails::Concepts::WireItem<WireItem>);
 }

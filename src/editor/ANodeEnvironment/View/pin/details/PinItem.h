@@ -221,10 +221,18 @@ namespace VWPinDetails::PinItem {
         }
 
         void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override {
-            event->accept();
+            if (m_registry && hasDraggingStarted(event)) {
+                event->accept();
 
-            if (m_registry && hasDraggingStarted(event))
-                VWDragDrop::useDrag(event, *m_registry, m_nodeEnvDB, this, mimeType, m_pinData, mimePosPropertyStr, mapToScene(boundingRect().center()));
+                if (scene()) scene()->clearSelection();
+
+                VWDragDrop::useDrag(event, *m_registry, m_nodeEnvDB, this,
+                    mimeType, m_pinData, mimePosPropertyStr,
+                    mapToScene(boundingRect().center()));
+                return;
+            }
+
+            QGraphicsItem::mouseMoveEvent(event);
         }
         void dragEnterEvent(QGraphicsSceneDragDropEvent* event) override {
             if (!event->mimeData()->hasFormat(mimeType)) {

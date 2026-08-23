@@ -676,7 +676,7 @@ namespace MockPlugin {
                 const QRectF visualPinRect = rawPinRect.adjusted(8.0, 8.0, -8.0, -8.0);
 
                 QGraphicsTextItem* label = new QGraphicsTextItem(nodeCell);
-                label->setDefaultTextColor(Qt::white);
+                label->setDefaultTextColor("#d0d0d0");
                 label->setFlag(QGraphicsItem::ItemIsMovable, false);
                 label->setFlag(QGraphicsItem::ItemIsSelectable, false);
                 label->document()->setDocumentMargin(0);

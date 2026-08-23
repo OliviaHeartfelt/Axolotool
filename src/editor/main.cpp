@@ -8,6 +8,11 @@ void initCommonResources(QApplication& app) {
 }
 
 int main(int argc, char* argv[]) {
+
+    QSurfaceFormat format;
+    format.setSwapInterval(0);
+    QSurfaceFormat::setDefaultFormat(format);
+
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
     initCommonResources(app);

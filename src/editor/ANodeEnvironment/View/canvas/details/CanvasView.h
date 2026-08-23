@@ -18,6 +18,8 @@ namespace VWCanvasDetails::CanvasView {
         QPointF middleVelocity;
         QTimer* middlePanTimer;
 
+        QBrush m_gridBrush;
+
         static constexpr float PAN_A = 0.01f;
         static constexpr float PAN_B = 0.5f;
         static constexpr float MIDDLE_DEADZONE = 8.0f;
@@ -60,7 +62,20 @@ namespace VWCanvasDetails::CanvasView {
 
     public:
         explicit CanvasView(QGraphicsScene* scene, ARegistry::Registry* registry, QWidget* parent = nullptr)
-            : QGraphicsView(scene, parent), m_registry(registry) {
+            : QGraphicsView(scene, parent), m_registry(registry) 
+        {
+
+            QSurfaceFormat format;
+            format.setSwapInterval(0);
+            format.setSamples(8);
+            
+            auto* openGLWidget = new QOpenGLWidget(this);
+            openGLWidget->setFormat(format);
+            
+            this->setViewport(openGLWidget);
+            
+            setRenderHint(QPainter::Antialiasing, true);
+            setRenderHint(QPainter::SmoothPixmapTransform, true);
 
             setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
             setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -70,6 +85,16 @@ namespace VWCanvasDetails::CanvasView {
             setDragMode(QGraphicsView::NoDrag);
             setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
             setResizeAnchor(QGraphicsView::AnchorUnderMouse);
+
+            int gridStep = 32;
+            QPixmap tile(gridStep, gridStep);
+            tile.fill(QColor("#1e1e1e"));
+
+            QPainter tilePainter(&tile);
+            tilePainter.setPen(QColor("#3a3a3a"));
+            tilePainter.drawPoint(0, 0);
+
+            m_gridBrush = QBrush(tile);
 
             middlePanTimer = new QTimer(this);
             middlePanTimer->setInterval(16);
@@ -180,6 +205,10 @@ namespace VWCanvasDetails::CanvasView {
                 return;
             }
             QGraphicsView::keyPressEvent(event);
+        }
+
+        void drawBackground(QPainter* painter, const QRectF& rect) {
+            painter->fillRect(rect, m_gridBrush);
         }
 
     private slots:
