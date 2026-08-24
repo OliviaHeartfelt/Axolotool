@@ -5,7 +5,7 @@
 <h1 align="center">Axolotool</h1>
 
 <p align="center">
-  Desktop application for creating custom desktop apps
+  No-code node editor for building custom desktop applications.
 </p>
 
 <p align="center">
