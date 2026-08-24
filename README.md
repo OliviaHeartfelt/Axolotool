@@ -10,8 +10,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/C%2B%2B-23-blue?logo=cplusplus" alt="C++23">
-  <img src="https://img.shields.io/badge/Qt-6.11-green?logo=qt&logoColor=white" alt="Qt6.11">
+  <img src="https://img.shields.io/badge/Qt-6.11-3fb950?logo=qt&logoColor=white" alt="Qt6.11">
   <img src="https://img.shields.io/badge/License-MPL--2.0-blue" alt="License">
-  <img src="https://img.shields.io/badge/Version-v0.1-orange" alt="Version">
-  <img src="https://img.shields.io/github/languages/code-size/OliviaHeartfelt/Axolotool&color=00ffd2" alt="Code Size">
+  <img src="https://img.shields.io/badge/Version-v0.1-f0883e" alt="Version">
+  <img src="https://img.shields.io/badge/Lines%20of%20code-13.2k-6f42c1" alt="Lines of Code">
 </p>
