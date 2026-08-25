@@ -15,22 +15,24 @@
 </p>
 
 
-<!-- Table of Contents -->
-## Table of Contents
-
-* [Introduction](#introduction)
-* [Tech Stack](#tech-stack)
-* [Main Systems](#main-systems)
-* [Features](#features)
-
-<br/>
-
 ## Introduction
 
 **Axolotool** is a native (WIP) **Live-App Builder** for real-time desktop applications. 
 
 Instead of compiling and running separate binaries, you build and execute your application live inside Axolotool. 
 You can make your own applications using the built-in node editor with standard plugins, or create custom plugins to add new features.
+
+<br/>
+
+<!-- Table of Contents -->
+## Table of Contents
+
+* [Tech Stack](#tech-stack)
+* [Main Systems](#main-systems)
+* [Features](#features)
+* [What's Next?](#whats-next)
+* [License & Compliance](#license--compliance)
+* [Author](#author)
 
 <br/>
 
@@ -62,6 +64,8 @@ You can make your own applications using the built-in node editor with standard 
     </tr>
   </tbody>
 </table>
+
+---
 
 <br/>
 
@@ -98,6 +102,8 @@ You can make your own applications using the built-in node editor with standard 
     </tr>
   </tbody>
 </table>
+
+---
 
 <br/>
 
@@ -141,7 +147,7 @@ You can make your own applications using the built-in node editor with standard 
   </tbody>
 </table>
 
----
+<br/>
 
 #### Wires
 
@@ -169,7 +175,7 @@ You can make your own applications using the built-in node editor with standard 
   </tbody>
 </table>
 
----
+<br/>
 
 #### Navigation
 
@@ -202,7 +208,7 @@ You can make your own applications using the built-in node editor with standard 
   </tbody>
 </table>
 
----
+<br/>
 
 #### Streaming Data & Serialization
 
@@ -230,7 +236,7 @@ You can make your own applications using the built-in node editor with standard 
   </tbody>
 </table>
 
----
+<br/>
 
 #### Database
 
@@ -262,7 +268,7 @@ You can make your own applications using the built-in node editor with standard 
   </tbody>
 </table>
 
----
+<br/>
 
 #### Registry
 
@@ -327,7 +333,7 @@ You can make your own applications using the built-in node editor with standard 
 
 > *Last time updated on: 2026/08/25*
 
----
+<br/>
 
 ### Execution Graph
 
@@ -355,7 +361,7 @@ You can make your own applications using the built-in node editor with standard 
 
 > *Last time updated on: 2026/08/25*
 
----
+<br/>
 
 ### Data Broker
 
@@ -388,6 +394,8 @@ You can make your own applications using the built-in node editor with standard 
 
 This project is under MPL-2.0 License - see [LICENSE](LICENSE) file for details.
 
+<br/>
+
 ### Qt LGPLv3 Compliance
 
 Axolotool uses the **Qt 6 Framework** under the terms of the GNU Lesser General Public License (LGPL) version 3. To maintain compliance:
@@ -399,6 +407,8 @@ Axolotool uses the **Qt 6 Framework** under the terms of the GNU Lesser General 
 * **Qt Source:** The original Qt source code can be obtained directly from [The Qt Company](https://www.qt.io/download).
 
 *Note: Axolotool is an independent open-source project and is not affiliated with or endorsed by The Qt Company.*
+
+<br/>
 
 ### Third-Party Libraries
 
@@ -420,6 +430,8 @@ Axolotool incorporates the following third-party library:
     </tr>
   </tbody>
 </table>
+
+---
 
 <br/>
 
