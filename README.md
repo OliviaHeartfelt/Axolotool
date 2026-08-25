@@ -107,11 +107,37 @@ You can make your own applications using the built-in node editor with standard 
 
 <br/>
 
+## 📁 Project Structure
+
+```text
+├── .github/
+│   ├── assets/
+├── assets/
+│   ├── tabler/
+├── src/
+│   └── editor/
+│       ├── ANodeEnvironment/
+│       ├── AWindow/
+│       ├── Utility/
+│       ├── CMakeLists.txt
+│       └── main.cpp
+├── .gitattributes
+├── .gitignore
+├── CMakeLists.txt
+├── CMakePresets.json
+├── LICENSE
+└── README.md
+```
+
+See the full [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) for a complete breakdown of all files and subsystems.
+
+---
+
+<br/>
+
 ## ⚡ Features
 
 ### 1. Node Environment
-
-> *Last time updated on: 2026/08/25*
 
 #### Nodes
 
@@ -309,8 +335,6 @@ You can make your own applications using the built-in node editor with standard 
 
 ### Plugin Manager
 
-> *Last time updated on: 2026/08/25*
-
 <table>
   <thead>
     <tr> 
@@ -337,8 +361,6 @@ You can make your own applications using the built-in node editor with standard 
 
 ### Execution Graph
 
-> *Last time updated on: 2026/08/25*
-
 <table>
   <thead>
     <tr> 
@@ -364,8 +386,6 @@ You can make your own applications using the built-in node editor with standard 
 <br/>
 
 ### Data Broker
-
-> *Last time updated on: 2026/08/25*
 
 <table>
   <thead>
