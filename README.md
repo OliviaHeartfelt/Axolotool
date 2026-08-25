@@ -29,6 +29,7 @@ You can make your own applications using the built-in node editor with standard 
 
 * 🛠️ [Tech Stack](#%EF%B8%8F-tech-stack)
 * 🧩 [Main Systems](#-main-systems)
+* 📁 [Project Structure](#-project-structure)
 * ⚡ [Features](#-features)
 * 🎯 [What's Next?](#-whats-next)
 * ⚖️ [License & Compliance](#%EF%B8%8F-license--compliance)
