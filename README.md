@@ -15,7 +15,7 @@
 </p>
 
 
-## Introduction
+## 🚀 Introduction
 
 **Axolotool** is a native (WIP) **Live-App Builder** for real-time desktop applications. 
 
@@ -25,18 +25,18 @@ You can make your own applications using the built-in node editor with standard 
 <br/>
 
 <!-- Table of Contents -->
-## Table of Contents
+## 📑 Table of Contents
 
-* [Tech Stack](#tech-stack)
-* [Main Systems](#main-systems)
-* [Features](#features)
-* [What's Next?](#whats-next)
-* [License & Compliance](#license--compliance)
-* [Author](#author)
+* 🛠️ [Tech Stack]([#%EF%B8%8F-tech-stack)
+* 🧩 [Main Systems](#-main-systems)
+* ⚡ [Features](#-features)
+* 🎯 [What's Next?](#-whats-next)
+* ⚖️ [License & Compliance](#%EF%B8%8F-license--compliance)
+* 👩‍💻 [Author](#%E2%80%8D-author)
 
 <br/>
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 <table>
   <thead>
@@ -69,7 +69,7 @@ You can make your own applications using the built-in node editor with standard 
 
 <br/>
 
-## Main Systems
+## 🧩 Main Systems
 
 <table>
   <thead>
@@ -107,7 +107,7 @@ You can make your own applications using the built-in node editor with standard 
 
 <br/>
 
-## Features
+## ⚡ Features
 
 ### 1. Node Environment
 
@@ -305,7 +305,7 @@ You can make your own applications using the built-in node editor with standard 
 
 <br/>
 
-## What's Next?
+## 🎯 What's Next?
 
 ### Plugin Manager
 
@@ -388,7 +388,7 @@ You can make your own applications using the built-in node editor with standard 
 
 <br/>
 
-## License & Compliance
+## ⚖️ License & Compliance
 
 ### Project License
 
@@ -435,7 +435,7 @@ Axolotool incorporates the following third-party library:
 
 <br/>
 
-## Author
+## 👩‍💻 Author
 
 Olivia Heartfelt
 
