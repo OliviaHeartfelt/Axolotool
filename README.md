@@ -27,7 +27,7 @@ You can make your own applications using the built-in node editor with standard 
 <!-- Table of Contents -->
 ## 📑 Table of Contents
 
-* 🛠️ [Tech Stack]([#%EF%B8%8F-tech-stack)
+* 🛠️ [Tech Stack](#%EF%B8%8F-tech-stack)
 * 🧩 [Main Systems](#-main-systems)
 * ⚡ [Features](#-features)
 * 🎯 [What's Next?](#-whats-next)
