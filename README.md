@@ -111,7 +111,7 @@ You can make your own applications using the built-in node editor with standard 
 
 ### 1. Node Environment
 
-> Last time updated on: 2026/08/25
+> *Last time updated on: 2026/08/25*
 
 #### Nodes
 
@@ -309,6 +309,8 @@ You can make your own applications using the built-in node editor with standard 
 
 ### Plugin Manager
 
+> *Last time updated on: 2026/08/25*
+
 <table>
   <thead>
     <tr> 
@@ -331,11 +333,11 @@ You can make your own applications using the built-in node editor with standard 
   </tbody>
 </table>
 
-> *Last time updated on: 2026/08/25*
-
 <br/>
 
 ### Execution Graph
+
+> *Last time updated on: 2026/08/25*
 
 <table>
   <thead>
@@ -359,11 +361,11 @@ You can make your own applications using the built-in node editor with standard 
   </tbody>
 </table>
 
-> *Last time updated on: 2026/08/25*
-
 <br/>
 
 ### Data Broker
+
+> *Last time updated on: 2026/08/25*
 
 <table>
   <thead>
@@ -381,8 +383,6 @@ You can make your own applications using the built-in node editor with standard 
     </tr>
   </tbody>
 </table>
-
-> *Last time updated on: 2026/08/25*
 
 ---
 
