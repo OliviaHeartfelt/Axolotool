@@ -1,10 +1,4 @@
-# 📁 Axolotool Project Structure & Architecture
-
-> *Last time updated on: 2026/08/25*
-
-<br/>
-
-## 🌳 Root Layout
+## 📁 Axolotool Project Structure & Architecture
 
 ```text
 ├── .github/
@@ -26,17 +20,17 @@
 └── README.md
 ```
 
+### 📑 Table of Contents
+
+* 🧩 [ANodeEnvironment/](#-anodeenvironment)
+* 💻 [AWindow/](#-awindow)
+* ⚙️ [Utility/](#%EF%B8%8F-utility)
+
+---
+
 <br/>
 
-## 📑 Table of Contents
-
-* 🧩 [ANodeEnvironment](#-anodeenvironment)
-* 💻 [AWindow](#-awindow)
-* ⚙️ [Utility](#%EF%B8%8F-utility)
-
-<br/>
-
-## 🧩 ANodeEnvironment/
+### 🧩 ANodeEnvironment/
 
 | Prefix | Meaning | Description |
 |:------:|:--------|:------------|
@@ -231,7 +225,7 @@
 └── ANodeEnvironment.h
 ```
 
-## 💻 AWindow/
+### 💻 AWindow/
 
 ```text
 AWindow/
@@ -240,7 +234,7 @@ AWindow/
 └── MockPlugin.h
 ```
 
-## ⚙️ Utility/
+### ⚙️ Utility/
 
 ```text
 ├── details/
