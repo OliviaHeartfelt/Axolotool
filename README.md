@@ -30,6 +30,7 @@ You can make your own applications using the built-in node editor with standard 
 * 🛠️ [Tech Stack](#%EF%B8%8F-tech-stack)
 * 🧩 [Main Systems](#-main-systems)
 * 📁 [Project Structure](#-project-structure)
+* 📦 [Architecture](#-architecture)
 * ⚡ [Features](#-features)
 * 🎯 [What's Next?](#-whats-next)
 * ⚖️ [License & Compliance](#%EF%B8%8F-license--compliance)
@@ -53,7 +54,7 @@ You can make your own applications using the built-in node editor with standard 
     </tr>
     <tr>
       <td><b>UI Framework</b></td>
-      <td>Qt 6.11.</td>
+      <td>Qt 6.11</td>
     </tr>
     <tr>
       <td><b>Database</b></td>
@@ -89,7 +90,7 @@ You can make your own applications using the built-in node editor with standard 
     <tr> 
       <td><b>Plugin Manager</b></td>   
       <td align="center">$\textsf{\color{#E62E2E}{v0.0}}$</td> 
-      <td>Dynamic loader and lifecycle manager for cross-platform shared libraries (.dll / .dylib / .so).</td> 
+      <td>Dynamic loader and lifecycle manager for cross-platform shared libraries (.dll&nbsp;/&nbsp;.dylib&nbsp;/&nbsp;.so).</td> 
     </tr>
     <tr> 
       <td><b>Execution Graph</b></td>  
@@ -136,11 +137,11 @@ See the full [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) for a 
 
 <br/>
 
-## Database ERD
+## 📦 Architecture
 
-<p align="center">
-  <img src="" alt="Axolotool Banner" width="100%">
-</p>
+> v0.1
+
+![Axolotool Architecture](.github/assets/architecture_v0.1.svg)
 
 ---
 
@@ -149,6 +150,8 @@ See the full [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) for a 
 ## ⚡ Features
 
 ### 1. Node Environment
+
+<br/>
 
 #### Nodes
 
