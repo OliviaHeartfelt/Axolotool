@@ -32,6 +32,7 @@ You can make your own applications using the built-in node editor with standard 
 * 📁 [Project Structure](#-project-structure)
 * 📦 [Architecture](#-architecture)
 * ⚡ [Features](#-features)
+* 🤝 [Contributing](#-contributing)
 * 🎯 [What's Next?](#-whats-next)
 * ⚖️ [License & Compliance](#%EF%B8%8F-license--compliance)
 * 👩‍💻 [Author](#%E2%80%8D-author)
@@ -340,6 +341,21 @@ See the full [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) for a 
     </tr>
   </tbody>
 </table>
+
+---
+
+<br/>
+
+## 🤝 Contributing
+
+![](https://img.shields.io/badge/contributions-paused-red?logo=github)
+
+Thank you for your interest in Axolotool!
+
+Axolotool is currently in early pre-1.0 development with core systems undergoing heavy iteration.  
+**Code contributions (Pull Requests) are temporarily paused** until the core architecture stabilizes.
+
+Check back once v1.0 releases for community contribution guidelines!
 
 ---
 
