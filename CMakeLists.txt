@@ -6,6 +6,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(cmake/Dependencies.cmake)
-
 add_subdirectory(src/editor)

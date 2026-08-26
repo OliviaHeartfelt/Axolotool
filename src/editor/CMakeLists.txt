@@ -348,6 +348,10 @@ target_precompile_headers(axo_editor PRIVATE
     <QScrollBar>
     <QSurfaceFormat>
     <QOpenGLWidget>
+    <QKeyEvent>
+    <QKeySequence>
+    <QGraphicsOpacityEffect>
+    <QPropertyAnimation>
 )
 
 include(FetchContent)
