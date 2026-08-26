@@ -136,6 +136,16 @@ See the full [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) for a 
 
 <br/>
 
+## Database ERD
+
+<p align="center">
+  <img src="" alt="Axolotool Banner" width="100%">
+</p>
+
+---
+
+<br/>
+
 ## ⚡ Features
 
 ### 1. Node Environment
