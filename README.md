@@ -24,6 +24,11 @@ You can make your own applications using the built-in node editor with standard 
 
 <br/>
 
+> [!TIP]
+> 🎬 **Watch the Demo:** [Axolotool v0.1 demo](https://drive.google.com/file/d/1avH0CEg7C-EfxB9lbyyiUPOWbxltmhvb/view?usp=drive_link)
+
+<br/>
+
 <!-- Table of Contents -->
 ## 📑 Table of Contents
 
