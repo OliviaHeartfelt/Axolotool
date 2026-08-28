@@ -145,9 +145,13 @@ See the full [Project Structure Documentation](docs/PROJECT_STRUCTURE.md) for a 
 
 ## 📦 Architecture
 
-> v0.1
+Axolotool is built around a decoupled, thread-safe execution pipeline designed to separate high-frequency background data processing from Qt's main GUI render loop.
 
-![Axolotool Architecture](.github/assets/architecture_v0.1.svg)
+* **Low-Latency Streaming:** Asynchronous producer-consumer pipeline leveraging **C++23 coroutines** (`std::generator`) and static bounded queues for rate limiting.
+* **Transactional Storage:** Embedded SQLite (WAL mode, 4NF schema) with thread-safe connection pooling and RAII transaction helpers.
+* **Decoupled View:** Custom Qt GraphicsView layer isolating visual node rendering from database.
+
+📖 For detailed subsystem breakdowns, dynamic loading mechanisms, and threading models, see the full **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** documentation.
 
 ---
 
