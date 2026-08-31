@@ -39,6 +39,7 @@ You can make your own applications using the built-in node editor with standard 
 * ⚡ [Features](#-features)
 * 🤝 [Contributing](#-contributing)
 * 🎯 [What's Next?](#-whats-next)
+* 🤖 [AI-Assisted Development](#-ai-assisted-development)
 * ⚖️ [License & Compliance](#%EF%B8%8F-license--compliance)
 * 👩‍💻 [Author](#%E2%80%8D-author)
 
@@ -447,13 +448,49 @@ Check back once v1.0 releases for community contribution guidelines!
 
 <br/>
 
+## 🤖 AI-Assisted Development
+
+> [!NOTE]
+> This section describes author’s use of AI in this project.
+
+AI tools are used as part of author’s development workflow, primarily as a learning resource (including but not limited to helping with searching in Qt documentation), and code review tool.
+
+### Usage
+
+AI is primarily used for:
+* Learning Qt
+* Code review
+* Technical discussion
+* Proofreading
+* Occasional code generation
+
+Author uses AI conversationally (via chat interface) rather than as an autonomous coding agent or IDE&#8209;integrated assistant. Author does not use GitHub Copilot or similar tools to generate code.
+
+### Architecture
+
+Architectural decisions are entirely made by author based on project’s requirements and constraints. AI was not used to design the system architecture, component structure, database schema, or overall organization. AI may occasionally be used to discuss or review individual implementation details, but it is never used as the source of the architecture.
+
+### Generated Code
+
+The vast majority of the implementation was written manually.  
+
+There have been two occasions where AI generated an entire source file [\[1\]](src/editor/ANodeEnvironment/Storage/NDPool.h) [\[2\]](src/editor/ANodeEnvironment/Streaming/details/BoundedQueue.h), which are disclosed here for full transparency. Smaller AI&#8209;generated snippets and suggestions have also occasionally been incorporated into the project. Any AI&#8209;generated code that becomes part of the project is reviewed, understood, adapted where necessary, and then tested by author. AI output is never treated as authoritative.  
+
+> At the time of writing this section, the project contains approximately 13.2k lines of code across 146 files.
+
+### Responsibility
+
+AI assistance does not replace understanding of the codebase. The author remains fully responsible for the project’s architecture, implementation, testing, maintenance, quality, and compliance.
+
+---
+
+<br/>
+
 ## ⚖️ License & Compliance
 
 ### Project License
 
 This project is under MPL-2.0 License - see [LICENSE](LICENSE) file for details.
-
-<br/>
 
 ### Qt LGPLv3 Compliance
 
@@ -499,13 +536,10 @@ Axolotool incorporates the following third-party library:
 Olivia Heartfelt
 
 <p align="left">
-  <img src="https://img.shields.io/badge/GitHub-@OliviaHeartfelt-181717?style=flat&logo=github">
+  <a href="https://github.com/OliviaHeartfelt"><img src="https://img.shields.io/badge/GitHub-@OliviaHeartfelt-181717?style=flat&logo=github" alt="GitHub"></a>
+  &nbsp;
+  <a href="https://www.linkedin.com/in/olivia-heartfelt"><img src="https://img.shields.io/badge/LinkedIn-@OliviaHeartfelt-181717?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDQ4IiBoZWlnaHQ9IjQ0OCIgdmlld0JveD0iMCAwIDQ0OCA0NDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF80OV81MSkiPgo8cGF0aCBkPSJNNjQgMEMyOC43IDAgMCAyOC43IDAgNjRWMzg0QzAgNDE5LjMgMjguNyA0NDggNjQgNDQ4SDM4NEM0MTkuMyA0NDggNDQ4IDQxOS4zIDQ0OCAzODRWNjRDNDQ4IDI4LjcgNDE5LjMgMCAzODQgMEg2NFpNNjkgMTcwLjJIMTM1LjVWMzg0SDY5VjE3MC4yWk0xNDAuNyAxMDIuNUMxNDAuNyAxMTIuNzExIDEzNi42NDQgMTIyLjUwMyAxMjkuNDI0IDEyOS43MjRDMTIyLjIwMyAxMzYuOTQ0IDExMi40MTEgMTQxIDEwMi4yIDE0MUM5MS45ODkyIDE0MSA4Mi4xOTY1IDEzNi45NDQgNzQuOTc2NCAxMjkuNzI0QzY3Ljc1NjIgMTIyLjUwMyA2My43IDExMi43MTEgNjMuNyAxMDIuNUM2My43IDkyLjI4OTIgNjcuNzU2MiA4Mi40OTY1IDc0Ljk3NjQgNzUuMjc2NEM4Mi4xOTY1IDY4LjA1NjIgOTEuOTg5MiA2NCAxMDIuMiA2NEMxMTIuNDExIDY0IDEyMi4yMDMgNjguMDU2MiAxMjkuNDI0IDc1LjI3NjRDMTM2LjY0NCA4Mi40OTY1IDE0MC43IDkyLjI4OTIgMTQwLjcgMTAyLjVaTTMxNy45IDM4NFYyODBDMzE3LjkgMjU1LjIgMzE3LjQgMjIzLjMgMjgzLjQgMjIzLjNDMjQ4LjggMjIzLjMgMjQzLjUgMjUwLjMgMjQzLjUgMjc4LjJWMzg0SDE3Ny4xVjE3MC4ySDI0MC44VjE5OS40SDI0MS43QzI1MC42IDE4Mi42IDI3Mi4zIDE2NC45IDMwNC42IDE2NC45QzM3MS44IDE2NC45IDM4NC4zIDIwOS4yIDM4NC4zIDI2Ni44VjM4NEgzMTcuOVoiIGZpbGw9IiMwQTY2QzIiLz4KPHBhdGggZD0iTTY5IDE3MC4ySDEzNS41VjM4NEg2OVYxNzAuMlpNMTQwLjcgMTAyLjVDMTQwLjcgMTEyLjcxMSAxMzYuNjQ0IDEyMi41MDMgMTI5LjQyNCAxMjkuNzI0QzEyMi4yMDMgMTM2Ljk0NCAxMTIuNDExIDE0MSAxMDIuMiAxNDFDOTEuOTg5MSAxNDEgODIuMTk2NSAxMzYuOTQ0IDc0Ljk3NjMgMTI5LjcyNEM2Ny43NTYyIDEyMi41MDMgNjMuNyAxMTIuNzExIDYzLjcgMTAyLjVDNjMuNyA5Mi4yODkyIDY3Ljc1NjIgODIuNDk2NSA3NC45NzYzIDc1LjI3NjRDODIuMTk2NSA2OC4wNTYyIDkxLjk4OTEgNjQgMTAyLjIgNjRDMTEyLjQxMSA2NCAxMjIuMjAzIDY4LjA1NjIgMTI5LjQyNCA3NS4yNzY0QzEzNi42NDQgODIuNDk2NSAxNDAuNyA5Mi4yODkyIDE0MC43IDEwMi41Wk0zMTcuOSAzODRWMjgwQzMxNy45IDI1NS4yIDMxNy40IDIyMy4zIDI4My40IDIyMy4zQzI0OC44IDIyMy4zIDI0My41IDI1MC4zIDI0My41IDI3OC4yVjM4NEgxNzcuMVYxNzAuMkgyNDAuOFYxOTkuNEgyNDEuN0MyNTAuNiAxODIuNiAyNzIuMyAxNjQuOSAzMDQuNiAxNjQuOUMzNzEuOCAxNjQuOSAzODQuMyAyMDkuMiAzODQuMyAyNjYuOFYzODRIMzE3LjlaIiBmaWxsPSJ3aGl0ZSIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzQ5XzUxIj4KPHJlY3Qgd2lkdGg9IjQ0OCIgaGVpZ2h0PSI0NDgiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==" alt="LinkedIn"/></a>
 </p>
-
-
-
-
-
 
 
 
