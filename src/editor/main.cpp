@@ -18,6 +18,15 @@ int main(int argc, char* argv[]) {
     initCommonResources(app);
 
     AMainWindow::AMainWindow win;
+
+    win.resize(1280, 720);
+
+    if (auto* screen = QGuiApplication::primaryScreen()) {
+        QRect screenGeo = screen->availableGeometry();
+        int x = screenGeo.x() + (screenGeo.width() - win.width()) / 2;
+        int y = screenGeo.y() + (screenGeo.height() - win.height()) / 2;
+        win.move(x, y);
+    }
     win.show();
 
     return app.exec();
