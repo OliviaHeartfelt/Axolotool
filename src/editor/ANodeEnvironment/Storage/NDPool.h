@@ -17,12 +17,19 @@ namespace NDPool {
     public:
         DatabasePool(const QString& path, const QString& baseName, int size = 4) : databasePath(path), connectionBaseName(baseName) {
             for (int i = 0; i < size; ++i) {
-
                 auto conn = std::make_unique<Connection>();
+                if (!conn) continue;
+
                 QString connName = baseName + QString::number(i);
                 conn->db = QSqlDatabase::addDatabase("QSQLITE", connName);
                 conn->db.setDatabaseName(path);
-                conn->db.open();
+                if (conn->db.open()) {
+                    QSqlQuery query(conn->db);
+                    query.exec("PRAGMA busy_timeout = 5000;");
+                    query.exec("PRAGMA journal_mode = WAL;");
+                    query.exec("PRAGMA synchronous = NORMAL;");
+                    query.exec("PRAGMA foreign_keys = ON;");
+                }
                 connections.push_back(std::move(conn));
             }
         }
@@ -41,6 +48,7 @@ namespace NDPool {
             conn.db.open();
         }
         void grow(int additionalConnections) {
+            std::unique_lock lock(poolMutex);
             for (int i = connections.size(); i < connections.size() + additionalConnections; ++i) {
 
                 auto conn = std::make_unique<Connection>();
@@ -64,8 +72,12 @@ namespace NDPool {
         public:
             Lease(Connection* c, DatabasePool* p) : conn(c), pool(p) {}
             ~Lease() {
-                conn->inUse.store(false, std::memory_order_release);
-                pool->poolCv.notify_one();
+                if (conn) {
+                    conn->inUse.store(false, std::memory_order_release);
+                }
+                if (pool) {
+                    pool->poolCv.notify_one();
+                }
             }
             QSqlDatabase& db() { return conn->db; }
 
