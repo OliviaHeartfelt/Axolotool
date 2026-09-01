@@ -36,7 +36,7 @@
 ### 3. Data Streaming & Processing Pipeline Subsystem [➥](https://github.com/OliviaHeartfelt/Axolotool/tree/master/src/editor/ANodeEnvironment/Streaming)
 
 * **Asynchronous Concurrency:** Lock-free / thread-safe Producer-Consumer processing architecture.
-* **Bidirectional Synchronization:** Low-latency rate-limited pipelines bridging storage persistence and render state (DB $\leftrightarrow$ View).
+* **Bidirectional Synchronization:** rate-limited pipelines bridging storage persistence and render state (DB $\leftrightarrow$ View).
 * **Deterministic Resource Management:** Bounded static-size queue preventing unbounded heap allocations and backpressure starvation.
 * **C++23 Coroutines:** Zero-overhead lazy sequence evaluation via `std::generator<T>`.
 
