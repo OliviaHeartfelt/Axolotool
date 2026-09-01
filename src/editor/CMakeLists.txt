@@ -278,6 +278,8 @@ target_precompile_headers(axo_editor PRIVATE
     <generator>
     <queue>
     <unordered_map>
+    <cstddef>
+    <new>
 
     # Core Qt used everywhere
     <QString>
