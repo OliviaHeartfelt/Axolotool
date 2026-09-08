@@ -23,15 +23,6 @@ namespace ANodeEnvironment {
         std::unique_ptr<ANodeEnvDB::ANodeEnvDB> m_db;
         std::unique_ptr<STStreamingManager::StreamingManager> m_streamingManager;
 
-        std::unique_ptr<STStreamingManager::LoadingNodeStreamer::STLoadingNodeStreamer> m_loadingNodeStreamer;
-        std::unique_ptr<STStreamingManager::LoadingWireStreamer::STLoadingWireStreamer> m_loadingWireStreamer;
-
-        std::unique_ptr<STStreamingManager::LoadingNodeConsumer::STLoadingNodeConsumer> m_loadingNodeConsumer;
-        std::unique_ptr<STStreamingManager::LoadingWireConsumer::STLoadingWireConsumer> m_loadingWireConsumer;
-
-        std::unique_ptr<STStreamingManager::SaveStreamer::STSavingStreamer> m_savingStremer;
-        std::unique_ptr<STStreamingManager::SaveConsumer::STSavingConsumer> m_savingConsumer;
-
     public:
         explicit ANodeEnvironment(QWidget* parentWidget = nullptr, QObject* parent = nullptr)
             : QObject(parent)
@@ -60,35 +51,8 @@ namespace ANodeEnvironment {
                 m_db.reset();
                 return false;
             }
-            
 
-            m_loadingNodeConsumer = std::make_unique<STStreamingManager::LoadingNodeConsumer::STLoadingNodeConsumer>(m_scene, m_db.get(), &m_registry, this);
-            m_loadingWireConsumer = std::make_unique<STStreamingManager::LoadingWireConsumer::STLoadingWireConsumer>(m_scene, m_db.get(), &m_registry, this);
-            m_savingConsumer = std::make_unique<STStreamingManager::SaveConsumer::STSavingConsumer>(m_db.get(), this);
-
-            m_loadingNodeStreamer = std::make_unique<STLoadingNodeStreamer::STLoadingNodeStreamer>(m_db.get(), &m_registry);
-            m_loadingWireStreamer = std::make_unique<STLoadingWireStreamer::STLoadingWireStreamer>(m_db.get(), &m_registry);
-            m_savingStremer = std::make_unique<STStreamingManager::SaveStreamer::STSavingStreamer>(m_db.get(), &m_registry);
-
-            
-            if (!m_loadingNodeConsumer ||
-                !m_loadingNodeStreamer ||
-                !m_loadingWireConsumer ||
-                !m_loadingWireStreamer ||
-                !m_savingConsumer ||
-                !m_savingStremer
-            ) return false;
-
-            m_streamingManager = std::make_unique<STStreamingManager::StreamingManager>(
-                m_db.get(),
-                m_loadingNodeConsumer.get(),
-                m_loadingNodeStreamer.get(),
-                m_loadingWireConsumer.get(),
-                m_loadingWireStreamer.get(),
-                m_savingConsumer.get(),
-                m_savingStremer.get(),
-                this
-            );
+            m_streamingManager = std::make_unique<STStreamingManager::StreamingManager>(m_db.get(), m_scene, m_registry, this);
 
             load();
 
@@ -98,8 +62,6 @@ namespace ANodeEnvironment {
             cancelLoading();
 
             m_streamingManager.reset();
-            m_loadingWireStreamer.reset();
-            m_loadingNodeStreamer.reset();
 
             if (m_db) {
                 m_db->close();
@@ -108,18 +70,18 @@ namespace ANodeEnvironment {
         }
 
         void save() {
-            if (m_streamingManager) {
+            if (m_streamingManager && m_streamingManager->isValid()) {
                 m_streamingManager->save();
             }
         }
         void cancelSaving() {
-            if (m_streamingManager) {
+            if (m_streamingManager && m_streamingManager->isValid()) {
                 m_streamingManager->cancelCurrentSave();
             }
         }
 
         void load(bool clearViewRegisters = true) {
-            if (!m_streamingManager) return;
+            if (!m_streamingManager || !m_streamingManager->isValid()) return;
 
             if (clearViewRegisters) {
                 if (!m_scene) return;
@@ -132,7 +94,7 @@ namespace ANodeEnvironment {
             m_streamingManager->load();
         }
         void cancelLoading() {
-            if (m_streamingManager) {
+            if (m_streamingManager && m_streamingManager->isValid()) {
                 m_streamingManager->cancelCurrentLoad();
             }
         }
