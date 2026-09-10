@@ -87,12 +87,12 @@ namespace VWWireDetails::Helpers {
 
     inline std::optional<muuid::uuid> resolveWireCore(ARegistry::Registry& registry, const muuid::uuid& originTypeId, const muuid::uuid& targetTypeId) {
         if (originTypeId == targetTypeId) {
-            if (auto wireCoreId = registry.wireFunction.symmetricWireMap.at(originTypeId)) {
+            if (auto wireCoreId = registry.wire.symmetricWireMap.at(originTypeId)) {
                 return wireCoreId;
             }
         }
         else {
-            if (auto wireCoreId = registry.wireFunction.asymmetricWireMap.at({ originTypeId, targetTypeId })) {
+            if (auto wireCoreId = registry.wire.asymmetricWireMap.at({ originTypeId, targetTypeId })) {
                 return wireCoreId;
             }
         }

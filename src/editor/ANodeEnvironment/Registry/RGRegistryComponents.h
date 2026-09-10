@@ -58,15 +58,6 @@ namespace RGRegistryComponents {
         RegistryT<ANodeEnvDB::Config::Wire::FullWireCoreRecord> wireCoreRegistry;
         RegistryT<ANodeEnvDB::Config::WireSource::FullWireDataRecord> wireDataRegistry;
         RegistryT<ANodeEnvDB::Config::WireSource::FullWireStyleRecord> wireStyleRegistry;
-    };
-
-    struct WireViewRegisters {
-        RGVisualRegistry::VisualRegistry<QGraphicsItem*> wireViewRegistry;
-    };
-
-    struct WireFunctionRegistry {
-        using WireConfigurator = std::function<bool(QGraphicsItem* wire, VWWireDetails::Context::WireContext wireContext)>;
-        RegistryT<WireConfigurator> wireConfiguratorRegistry;
 
         RGBaseRegistry::BaseRegistry<
             std::pair<muuid::uuid, muuid::uuid>,
@@ -79,5 +70,14 @@ namespace RGRegistryComponents {
             muuid::uuid,
             muuid::uuid
         > symmetricWireMap;
+    };
+
+    struct WireViewRegisters {
+        RGVisualRegistry::VisualRegistry<QGraphicsItem*> wireViewRegistry;
+    };
+
+    struct WireFunctionRegistry {
+        using WireConfigurator = std::function<bool(QGraphicsItem* wire, VWWireDetails::Context::WireContext wireContext)>;
+        RegistryT<WireConfigurator> wireConfiguratorRegistry;
     };
 }

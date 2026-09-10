@@ -1223,43 +1223,43 @@ namespace MockPlugin {
 
             bool symmetricWireMapSuccess = true;
 
-            if (!nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinExecutionTypeID, *createExecutionWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinClassTypeID,     *createClassWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinObjectTypeID,    *createObjectWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinBoolTypeID,      *createBoolWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinByteTypeID,      *createByteWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinIntTypeID,       *createIntWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinInt64TypeID,     *createInt64WireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinFloatTypeID,     *createFloatWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinDoubleTypeID,    *createFloatWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinVectorTypeID,    *createVectorWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinVector2TypeID,   *createVectorWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinVector3TypeID,   *createVectorWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinNameTypeID,      *createNameWireCoreID)  ||
-                !nodeRegistry.wireFunction.symmetricWireMap.insert(*createPinStringTypeID,    *createStringWireCoreID)
+            if (!nodeRegistry.wire.symmetricWireMap.insert(*createPinExecutionTypeID, *createExecutionWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinClassTypeID,     *createClassWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinObjectTypeID,    *createObjectWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinBoolTypeID,      *createBoolWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinByteTypeID,      *createByteWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinIntTypeID,       *createIntWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinInt64TypeID,     *createInt64WireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinFloatTypeID,     *createFloatWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinDoubleTypeID,    *createFloatWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinVectorTypeID,    *createVectorWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinVector2TypeID,   *createVectorWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinVector3TypeID,   *createVectorWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinNameTypeID,      *createNameWireCoreID)  ||
+                !nodeRegistry.wire.symmetricWireMap.insert(*createPinStringTypeID,    *createStringWireCoreID)
             ) symmetricWireMapSuccess = false;
 
             if (!symmetricWireMapSuccess) {
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinExecutionTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinClassTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinObjectTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinBoolTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinByteTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinIntTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinInt64TypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinFloatTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinDoubleTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinVectorTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinVector2TypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinVector3TypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinNameTypeID);
-                nodeRegistry.wireFunction.symmetricWireMap.erase(*createPinStringTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinExecutionTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinClassTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinObjectTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinBoolTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinByteTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinIntTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinInt64TypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinFloatTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinDoubleTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinVectorTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinVector2TypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinVector3TypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinNameTypeID);
+                nodeRegistry.wire.symmetricWireMap.erase(*createPinStringTypeID);
 
                 return false;
             }
 
             /*
-            nodeRegistry.wireFunction.asymmetricWireMap;
+            nodeRegistry.wire.asymmetricWireMap;
             */
             return true;
         });
