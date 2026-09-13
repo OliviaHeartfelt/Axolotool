@@ -112,7 +112,7 @@ namespace NDPin {
                 return NDPinDetails::Read::getContributorPinCores(query, id, continueAtFail);
                 });
         }
-        std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getPigetContributorPinCoresnCore(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
+        std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getContributorPinCores(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
             return NDPinDetails::Read::getContributorPinCores(query, id, continueAtFail);
         }
         std::optional<QList<NDPinDetails::Config::FullPinCoreRecord>> getAllPinCores(const muuid::uuid& id, const bool continueAtFail = false) {
