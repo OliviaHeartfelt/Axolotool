@@ -8,8 +8,8 @@ namespace NDGlobalSourceDetails::Create {
 
     inline bool createGlobalSource(QSqlQuery& query, const NDGlobalSourceDetails::Config::CreateGlobalSourceRecord& newSource) {
         query.prepare(R"(
-            INSERT INTO global_source (id,  name,  dsc)
-            VALUES (                  :id, :name, :dsc);
+            INSERT OR IGNORE INTO global_source (id,  name,  dsc)
+            VALUES (                            :id, :name, :dsc);
         )");
 
         query.bindValue(":id",   Utility::UUID::uuidToBytes(newSource.id));

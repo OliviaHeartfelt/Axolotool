@@ -8,8 +8,8 @@ namespace NDWireDetails::Create {
 
     inline bool createWireCore(QSqlQuery& query, const NDWireDetails::Config::CreateWireCoreRecord& newWireCore) {
         query.prepare(R"(
-            INSERT INTO wire_core (id,  contributor_id,  visual_factory_id,  style_id,  data_id,  name)
-            VALUES (              :id, :contributor_id, :visual_factory_id, :style_id, :data_id, :name);
+            INSERT OR IGNORE INTO wire_core (id,  contributor_id,  visual_factory_id,  style_id,  data_id,  name)
+            VALUES (                        :id, :contributor_id, :visual_factory_id, :style_id, :data_id, :name);
         )");
 
         query.bindValue(":id",                Utility::UUID::uuidToBytes(newWireCore.id));
@@ -27,8 +27,8 @@ namespace NDWireDetails::Create {
     }
     inline bool createWireTemporary(QSqlQuery& query, const NDWireDetails::Config::CreateWireTemporaryRecord & newWireTemporary) {
         query.prepare(R"(
-            INSERT INTO wire_temporary (id,  core_id)
-            VALUES (                   :id, :core_id);
+            INSERT OR IGNORE INTO wire_temporary (id,  core_id)
+            VALUES (                             :id, :core_id);
         )");
 
         query.bindValue(":id",      Utility::UUID::uuidToBytes(newWireTemporary.id));
@@ -42,8 +42,8 @@ namespace NDWireDetails::Create {
     }
     inline bool createWire(QSqlQuery& query, const NDWireDetails::Config::CreateWireRecord& newWirePins) {
         query.prepare(R"(
-            INSERT INTO wire (id,  core_id,  origin_id,  origin_canvas_hint_x,  origin_canvas_hint_y,  target_id,  target_canvas_hint_x,  target_canvas_hint_y,  state)
-            VALUES (         :id, :core_id, :origin_id, :origin_canvas_hint_x, :origin_canvas_hint_y, :target_id, :target_canvas_hint_x, :target_canvas_hint_y, :state);
+            INSERT OR IGNORE INTO wire (id,  core_id,  origin_id,  origin_canvas_hint_x,  origin_canvas_hint_y,  target_id,  target_canvas_hint_x,  target_canvas_hint_y,  state)
+            VALUES (                   :id, :core_id, :origin_id, :origin_canvas_hint_x, :origin_canvas_hint_y, :target_id, :target_canvas_hint_x, :target_canvas_hint_y, :state);
         )");
 
         query.bindValue(":id",      Utility::UUID::uuidToBytes(newWirePins.id));

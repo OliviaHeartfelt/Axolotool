@@ -126,6 +126,7 @@ set(NE_STORAGE_MODULES
     ANodeEnvironment/Storage/NDConcepts.h
     ANodeEnvironment/Storage/NDHelpers.h
     ANodeEnvironment/Storage/NDPool.h
+    ANodeEnvironment/Storage/NDParser.h
 
     # Node
     ANodeEnvironment/Storage/node_source/NDNodeSource.h
@@ -223,7 +224,6 @@ set(NE_STORAGE_MODULES
 set(AWINDOW_MODULES
     AWindow/AMainWindow.h
     AWindow/AWindow.h
-    AWindow/MockPlugin.h
 )
 
 # Utility
@@ -237,6 +237,7 @@ set(UTILITY_MODULES
 
 add_executable(axo_editor 
     main.cpp
+    MockPlugin.h
     ${CMAKE_SOURCE_DIR}/assets/tabler/icons/TablerIconsResources.qrc
     
     ${NE_MODULES}
@@ -248,6 +249,14 @@ add_executable(axo_editor
     ${AWINDOW_MODULES}
     ${ASTYLE_MODULES}
     ${UTILITY_MODULES}
+)
+
+add_custom_command(
+    TARGET axo_editor POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "${CMAKE_CURRENT_SOURCE_DIR}/MockPluginJson.json"
+        "${CMAKE_CURRENT_BINARY_DIR}/plugin/MockPluginJson.json"
+    COMMENT "Copying JSON config to build directory"
 )
 
 target_compile_features(axo_editor PUBLIC cxx_std_23)

@@ -8,8 +8,8 @@ namespace NDNodeSourceDetails::Create {
 
     inline bool createNodeSource(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeSourceRecord& newNodeSource) {
         query.prepare(R"(
-            INSERT INTO node_source (id,  global_source_id,  name)
-            VALUES (                :id, :global_source_id, :name);
+            INSERT OR IGNORE INTO node_source (id,  global_source_id,  name)
+            VALUES (                          :id, :global_source_id, :name);
         )");
 
         query.bindValue(":id",               Utility::UUID::uuidToBytes(newNodeSource.id));
@@ -24,8 +24,8 @@ namespace NDNodeSourceDetails::Create {
     }
     inline bool createNodeContributor(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeContributorRecord& newNodeContributor) {
         query.prepare(R"(
-            INSERT INTO node_contributor (id,  source_id,  name)
-            VALUES (                     :id, :source_id, :name);
+            INSERT OR IGNORE INTO node_contributor (id,  source_id,  name)
+            VALUES (                               :id, :source_id, :name);
         )");
 
         query.bindValue(":id",        Utility::UUID::uuidToBytes(newNodeContributor.id));
@@ -41,8 +41,8 @@ namespace NDNodeSourceDetails::Create {
     }
     inline bool createNodeType(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeTypeRecord& newNodeType) {
         query.prepare(R"(
-            INSERT INTO node_type (id,  contributor_id,  name,  metadata)
-            VALUES (              :id, :contributor_id, :name, :metadata);
+            INSERT OR IGNORE INTO node_type (id,  contributor_id,  name,  metadata)
+            VALUES (                        :id, :contributor_id, :name, :metadata);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newNodeType.id));
@@ -59,8 +59,8 @@ namespace NDNodeSourceDetails::Create {
     }
     inline bool createNodeData(QSqlQuery& query, const NDNodeSourceDetails::Config::CreateNodeDataRecord& newNodeData) {
         query.prepare(R"(
-            INSERT INTO node_data (id,  contributor_id,  name,  data)
-            VALUES (              :id, :contributor_id, :name, :data);
+            INSERT OR IGNORE INTO node_data (id,  contributor_id,  name,  data)
+            VALUES (                        :id, :contributor_id, :name, :data);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newNodeData.id));

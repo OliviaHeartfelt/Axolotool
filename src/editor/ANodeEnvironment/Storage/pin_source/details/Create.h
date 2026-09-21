@@ -8,8 +8,8 @@ namespace NDPinSourceDetails::Create {
     // 0. Source
     inline bool createPinSource(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinSourceRecord& newSource) {
         query.prepare(R"(
-            INSERT INTO pin_source (id,  global_source_id,  name)
-            VALUES (               :id, :global_source_id, :name);
+            INSERT OR IGNORE INTO pin_source (id,  global_source_id,  name)
+            VALUES (                         :id, :global_source_id, :name);
         )");
 
         query.bindValue(":id",               Utility::UUID::uuidToBytes(newSource.id));
@@ -24,8 +24,8 @@ namespace NDPinSourceDetails::Create {
     }
     inline bool createPinContributor(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinContributorRecord& newContributor) {
         query.prepare(R"(
-            INSERT INTO pin_contributor (id,  source_id,  name)
-            VALUES (                    :id, :source_id, :name);
+            INSERT OR IGNORE INTO pin_contributor (id,  source_id,  name)
+            VALUES (                              :id, :source_id, :name);
         )");
 
         query.bindValue(":id",        Utility::UUID::uuidToBytes(newContributor.id));
@@ -42,8 +42,8 @@ namespace NDPinSourceDetails::Create {
     // 1. Flow
     inline bool createPinFlowSource(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinFlowRecord& newFlow) {
         query.prepare(R"(
-            INSERT INTO pin_flow (id,  contributor_id,  name,  degree)
-            VALUES (             :id, :contributor_id, :name, :degree);
+            INSERT OR IGNORE INTO pin_flow (id,  contributor_id,  name,  degree)
+            VALUES (                       :id, :contributor_id, :name, :degree);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newFlow.id));
@@ -61,8 +61,8 @@ namespace NDPinSourceDetails::Create {
     // 2. Type
     inline bool createPinTypeSource(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinTypeRecord& newtype) {
         query.prepare(R"(
-            INSERT INTO pin_type (id,  contributor_id,  name,  bit_size)
-            VALUES (             :id, :contributor_id, :name, :bit_size);
+            INSERT OR IGNORE INTO pin_type (id,  contributor_id,  name,  bit_size)
+            VALUES (                       :id, :contributor_id, :name, :bit_size);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newtype.id));
@@ -80,8 +80,8 @@ namespace NDPinSourceDetails::Create {
     // 3. Style
     inline bool createPinStyleSource(QSqlQuery& query, const NDPinSourceDetails::Config::CreatePinStyleRecord& newStyle) {
         query.prepare(R"(
-            INSERT INTO pin_style (id,  contributor_id,  name,  color,  wire_thickness)
-            VALUES (              :id, :contributor_id, :name, :color, :wire_thickness);
+            INSERT OR IGNORE INTO pin_style (id,  contributor_id,  name,  color,  wire_thickness)
+            VALUES (                        :id, :contributor_id, :name, :color, :wire_thickness);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newStyle.id));

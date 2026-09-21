@@ -8,8 +8,8 @@ namespace NDWidgetDetails::Create {
 
     inline bool createWidgetCore(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetCoreRecord& newWidgetCore) {
         query.prepare(R"(
-            INSERT INTO widget_core (id,  contributor_id,  visual_factory_id,  type_id,  data_id)
-            VALUES (                :id, :contributor_id, :visual_factory_id, :type_id, :data_id);
+            INSERT OR IGNORE INTO widget_core (id,  contributor_id,  visual_factory_id,  type_id,  data_id)
+            VALUES (                          :id, :contributor_id, :visual_factory_id, :type_id, :data_id);
         )");
 
         query.bindValue(":id",                Utility::UUID::uuidToBytes(newWidgetCore.id));
@@ -26,8 +26,8 @@ namespace NDWidgetDetails::Create {
     }
     inline bool createWidget(QSqlQuery& query, const NDWidgetDetails::Config::CreateWidgetRecord& newWidget) {
         query.prepare(R"(
-            INSERT INTO widget (id,  core_id,  state,  w_size,  h_size)
-            VALUES (           :id, :core_id, :state, :w_size, :h_size);
+            INSERT OR IGNORE INTO widget (id,  core_id,  state,  w_size,  h_size)
+            VALUES (                     :id, :core_id, :state, :w_size, :h_size);
         )");
 
         query.bindValue(":id",      Utility::UUID::uuidToBytes(newWidget.id));

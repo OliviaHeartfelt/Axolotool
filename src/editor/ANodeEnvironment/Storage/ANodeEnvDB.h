@@ -15,6 +15,7 @@
 #include "NDConcepts.h"
 #include "NDHelpers.h"
 #include "NDPool.h"
+#include "NDParser.h"
 
 namespace ANodeEnvDB {
 
@@ -35,10 +36,41 @@ namespace ANodeEnvDB {
         namespace Wire {        using namespace ::NDWire::Config; }
     }
 
+    struct ANodeEnvDBVersion {
+        static unsigned int current() {
+            return NDConfig::currentSchemaVersion();
+        }
+        static std::optional<unsigned int> tryReadSchemaVersion(QSqlQuery& query) {
+            if (!query.exec("PRAGMA user_version;")) {
+                qCritical() << "Failed to read database schema version:" << query.lastError().text();
+                return std::nullopt;
+            }
+
+            if (!query.next()) {
+                qCritical() << "Database failed to return user_version row.";
+                return std::nullopt;
+            }
+
+            return query.value(0).toUInt();
+        }
+
+        static bool checkAndRunMigration(QSqlQuery& query) {
+            const auto storedVersion = tryReadSchemaVersion(query);
+            if (!storedVersion) return false;
+
+            if (*storedVersion != current()) {
+                /* migrate logic */
+            }
+
+            return true;
+        }
+    };
+
 	class ANodeEnvDB {
 		QString m_connectionBaseName;
         std::unique_ptr<NDPool::DatabasePool> pool;
-		QString dbPath;
+		QString m_dbPath;
+        QString m_pluginPath;
 
         bool createCoreTables(QSqlDatabase& db) {
             QSqlQuery query(db);
@@ -56,48 +88,60 @@ namespace ANodeEnvDB {
             return true;
         }
 
+        bool importDoc(QSqlQuery& query, const QJsonObject& doc) {
+            
+            if (!globalSource.importGlobalSource(doc, query)) return false;
+
+            if (!nodeSource.importNodeSource(doc, query)) return false;
+            if (!nodeSource.importNodeContributor(doc, query)) return false;
+            if (!nodeSource.importNodeData(doc, query)) return false;
+            if (!nodeSource.importNodeType(doc, query)) return false;
+            if (!node.importNodeCore(doc, query)) return false;
+
+            if (!pinSource.importPinSource(doc, query)) return false;
+            if (!pinSource.importPinContributor(doc, query)) return false;
+            if (!pinSource.importPinFlow(doc, query)) return false;
+            if (!pinSource.importPinType(doc, query)) return false;
+            if (!pinSource.importPinStyle(doc, query)) return false;
+            if (!pin.importPinCore(doc, query)) return false;
+
+            if (!widgetSource.importWidgetSource(doc, query)) return false;
+            if (!widgetSource.importWidgetContributor(doc, query)) return false;
+            if (!widgetSource.importWidgetData(doc, query)) return false;
+            if (!widgetSource.importWidgetType(doc, query)) return false;
+            if (!widget.importWidgetCore(doc, query)) return false;
+
+            if (!wireSource.importWireSource(doc, query)) return false;
+            if (!wireSource.importWireContributor(doc, query)) return false;
+            if (!wireSource.importWireData(doc, query)) return false;
+            if (!wireSource.importWireStyle(doc, query)) return false;
+            if (!wire.importWireCore(doc, query)) return false;
+
+            return true;
+        }
 
     public:
-        struct Version {
-            static unsigned int current() {
-                return NDConfig::currentSchemaVersion();
-            }
-            static std::optional<unsigned int> tryReadSchemaVersion(QSqlQuery& query) {
-                if (!query.exec("PRAGMA user_version;")) {
-                    qCritical() << "Failed to read database schema version:" << query.lastError().text();
-                    return std::nullopt;
-                }
-
-                if (!query.next()) {
-                    qCritical() << "Database failed to return user_version row.";
-                    return std::nullopt;
-                }
-
-                return query.value(0).toUInt();
-            }
-
-            static bool checkAndRunMigration(QSqlQuery& query) {
-                const auto storedVersion = tryReadSchemaVersion(query);
-                if (!storedVersion) return false;
-
-                if (*storedVersion != current()) {
-                    /* migrate logic */
-                }
-
-                return true;
-            }
-        };
-
-		ANodeEnvDB(const QString& dbPath, const QString& connectionBaseName) :
-            dbPath(dbPath), m_connectionBaseName(connectionBaseName),
-            node(this), nodeSource(this), cell(this), pin(this), pinSource(this), widget(this), widgetSource(this), wire(this), wireSource(this), globalSource(this)
-        {}
+		ANodeEnvDB(const QString& dbPath, const QString& connectionBaseName, const QString pluginRelativePath = QStringLiteral("plugin")) :
+            m_connectionBaseName(connectionBaseName),
+            m_dbPath(dbPath),
+            node(this),
+            nodeSource(this),
+            cell(this), 
+            pin(this),
+            pinSource(this), 
+            widget(this),
+            widgetSource(this),
+            wire(this), 
+            wireSource(this), 
+            globalSource(this)
+        {
+            QString appDir = QCoreApplication::applicationDirPath();
+            m_pluginPath = QDir(appDir).filePath(pluginRelativePath);
+        }
 
 		~ANodeEnvDB() {
 			close();
 		}
-
-        NDPool::DatabasePool& getPool() const { return *pool; }
 
         NDNode::Component<ANodeEnvDB>         node;
         NDNodeSource::Component<ANodeEnvDB>   nodeSource;
@@ -110,14 +154,10 @@ namespace ANodeEnvDB {
         NDWireSource::Component<ANodeEnvDB>   wireSource;
         NDGlobalSource::Component<ANodeEnvDB> globalSource;
 
-        bool isOpen() const {
-            return pool != nullptr;
-        }
-
-        bool open(int poolSize = 4) {
+        bool open(int poolSize = 4, bool loadManifets = true) {
             if (pool) return true;
 
-            pool = std::make_unique<NDPool::DatabasePool>(dbPath, m_connectionBaseName, poolSize);
+            pool = std::make_unique<NDPool::DatabasePool>(m_dbPath, m_connectionBaseName, poolSize);
             {
                 auto lease = pool->acquire();
 
@@ -133,11 +173,13 @@ namespace ANodeEnvDB {
                     return false;
                 }
 
-                if (!Version::checkAndRunMigration(query)) {
+                if (!ANodeEnvDBVersion::checkAndRunMigration(query)) {
                     pool.reset();
                     return false;
                 }
             }
+            if (loadManifets) loadAllManifests();
+
             return true;
         }
 
@@ -145,6 +187,68 @@ namespace ANodeEnvDB {
             if (pool) {
                 pool.reset();
             }
+        }
+
+        bool isOpen() const {
+            return pool != nullptr;
+        }
+        NDPool::DatabasePool& getPool() const { return *pool; }
+
+        bool loadManifest(QSqlQuery& query, const QString& fileName) {
+            QString filePath = m_pluginPath + "/" + fileName + ".json";;
+            QFileInfo fileInfo(filePath);
+
+            QString canonicalPath = fileInfo.canonicalFilePath();
+            if (canonicalPath.isEmpty()) return false;
+
+            QString canonicalRoot = QFileInfo(m_pluginPath).canonicalFilePath();
+            if (canonicalRoot.isEmpty() || !canonicalPath.startsWith(canonicalRoot + "/")) {
+                qWarning() << "Rejected manifest outside plugin directory:" << canonicalPath;
+                return false;
+            }
+
+            auto optDoc = NDParser::parseManifest(canonicalPath);
+            if (!optDoc) return false;
+
+            return importDoc(query, *optDoc);
+        }
+        bool loadManifest(const QString& fileName) {
+            return NDHelpers::useTransaction(getPool(), [&](QSqlQuery& query) {
+                return loadManifest(query, fileName);
+            });
+        }
+
+        bool loadAllManifests(QSqlQuery& query) {
+            QDirIterator it(m_pluginPath, QStringList() << "*.json", QDir::Files, QDirIterator::Subdirectories);
+            bool allOk = true;
+            while (it.hasNext()) {
+                it.next();
+                QString canonicalPath = it.fileInfo().canonicalFilePath();
+                if (canonicalPath.isEmpty()) { 
+                    allOk = false;
+                    continue;
+                }
+
+                QString canonicalRoot = QFileInfo(m_pluginPath).canonicalFilePath();
+                if (canonicalRoot.isEmpty() || !canonicalPath.startsWith(canonicalRoot + "/")) {
+                    qWarning() << "Rejected manifest outside plugin directory:" << canonicalPath;
+                    allOk = false;
+                    continue;
+                }
+                
+                auto optDoc = NDParser::parseManifest(canonicalPath);
+                if (!optDoc) { 
+                    allOk = false;
+                    continue; 
+                }
+                if (!importDoc(query, *optDoc)) allOk = false;
+            }
+            return allOk;
+        }
+        bool loadAllManifests() {
+            return NDHelpers::useTransaction(getPool(), [&](QSqlQuery& query) {
+                return loadAllManifests(query);
+            });
         }
 	};
     static_assert(NDConcepts::DatabaseProvider<ANodeEnvDB>);
