@@ -10,8 +10,8 @@ namespace NDPinDetails::Create {
 
     inline bool createPinCore( QSqlQuery& query, const NDPinDetails::Config::CreatePinCoreRecord& newPinCore) {
         query.prepare(R"(
-            INSERT INTO pin_core (id,  visual_factory_id,  contributor_id,  flow_id,  type_id,  style_id)
-            VALUES (             :id, :visual_factory_id, :contributor_id, :flow_id, :type_id, :style_id);
+            INSERT OR IGNORE INTO pin_core (id,  visual_factory_id,  contributor_id,  flow_id,  type_id,  style_id)
+            VALUES (                       :id, :visual_factory_id, :contributor_id, :flow_id, :type_id, :style_id);
         )");
 
         query.bindValue(":id",                Utility::UUID::uuidToBytes(newPinCore.id));
@@ -33,8 +33,8 @@ namespace NDPinDetails::Create {
     }
     inline bool createPin(QSqlQuery& query, const NDPinDetails::Config::CreatePinRecord& newPin) {
         query.prepare(R"(
-            INSERT INTO pin (id,  core_id)
-            VALUES (        :id, :core_id);
+            INSERT OR IGNORE INTO pin (id,  core_id)
+            VALUES (                  :id, :core_id);
         )");
 
         query.bindValue(":id",      Utility::UUID::uuidToBytes(newPin.id));
@@ -49,8 +49,8 @@ namespace NDPinDetails::Create {
     inline bool createAllowFlows(QSqlQuery& query, const muuid::uuid pinId, const QList<muuid::uuid>& newAllowedFlows) {
         if (!newAllowedFlows.isEmpty()) {
             query.prepare(R"(
-                INSERT INTO pin_allow_flow (pin_id,  flow_id)
-                VALUES (                   :pin_id, :flow_id);
+                INSERT OR IGNORE INTO pin_allow_flow (pin_id,  flow_id)
+                VALUES (                             :pin_id, :flow_id);
             )");
 
             const auto pinBytes = Utility::UUID::uuidToBytes(pinId);
@@ -69,8 +69,8 @@ namespace NDPinDetails::Create {
     inline bool createAllowTypes(QSqlQuery& query, const muuid::uuid pinId, const QList<muuid::uuid>& newAllowedTypes) {
         if (!newAllowedTypes.isEmpty()) {
             query.prepare(R"(
-                INSERT INTO pin_allow_type (pin_id, type_id)
-                VALUES (:pin_id, :type_id);
+                INSERT OR IGNORE INTO pin_allow_type (pin_id,  type_id)
+                VALUES (                             :pin_id, :type_id);
             )");
 
             const auto pinBytes = Utility::UUID::uuidToBytes(pinId);

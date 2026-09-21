@@ -45,6 +45,97 @@ namespace NDPinSource {
             });
         }
 
+        bool importPinSource(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("pin_source");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDPinSourceDetails::Config::CreatePinSourceRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDPinSourceDetails::Create::createPinSource(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+        bool importPinContributor(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("pin_contributor");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDPinSourceDetails::Config::CreatePinContributorRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDPinSourceDetails::Create::createPinContributor(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+        bool importPinFlow(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("pin_flow");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDPinSourceDetails::Config::CreatePinFlowRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDPinSourceDetails::Create::createPinFlowSource(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+        bool importPinType(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("pin_type");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDPinSourceDetails::Config::CreatePinTypeRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDPinSourceDetails::Create::createPinTypeSource(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+        bool importPinStyle(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("pin_style");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDPinSourceDetails::Config::CreatePinStyleRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDPinSourceDetails::Create::createPinStyleSource(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+
         // 0. Init
         bool createAllTables() {
             return NDHelpers::useTransaction(pool(), [](QSqlQuery& query) {

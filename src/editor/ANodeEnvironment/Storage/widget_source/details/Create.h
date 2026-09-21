@@ -8,8 +8,8 @@ namespace NDWidgetSourceDetails::Create {
 
     inline bool createWidgetSource(QSqlQuery& query, const NDWidgetSourceDetails::Config::CreateWidgetSourceRecord& newSource) {
         query.prepare(R"(
-            INSERT INTO widget_source (id,  global_source_id,  name)
-            VALUES (                  :id, :global_source_id, :name);
+            INSERT OR IGNORE INTO widget_source (id,  global_source_id,  name)
+            VALUES (                            :id, :global_source_id, :name);
         )");
 
         query.bindValue(":id",               Utility::UUID::uuidToBytes(newSource.id));
@@ -24,8 +24,8 @@ namespace NDWidgetSourceDetails::Create {
     }
     inline bool createWidgetContributor(QSqlQuery& query, const NDWidgetSourceDetails::Config::CreateWidgetContributorRecord& newContributor) {
         query.prepare(R"(
-            INSERT INTO widget_contributor (id,  source_id,  name)
-            VALUES (                       :id, :source_id, :name);
+            INSERT OR IGNORE INTO widget_contributor (id,  source_id,  name)
+            VALUES (                                 :id, :source_id, :name);
         )");
 
         query.bindValue(":id",        Utility::UUID::uuidToBytes(newContributor.id));
@@ -40,8 +40,8 @@ namespace NDWidgetSourceDetails::Create {
     }
     inline bool createWidgetType(QSqlQuery& query, const NDWidgetSourceDetails::Config::CreateWidgetTypeRecord& newType) {
         query.prepare(R"(
-            INSERT INTO widget_type (id,  contributor_id,  name,  metadata)
-            VALUES (                :id, :contributor_id, :name, :metadata);
+            INSERT OR IGNORE INTO widget_type (id,  contributor_id,  name,  metadata)
+            VALUES (                          :id, :contributor_id, :name, :metadata);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newType.id));
@@ -57,8 +57,8 @@ namespace NDWidgetSourceDetails::Create {
     }
     inline bool createWidgetData(QSqlQuery& query, const NDWidgetSourceDetails::Config::CreateWidgetDataRecord& newData) {
         query.prepare(R"(
-            INSERT INTO widget_data (id,  contributor_id,  name,  data)
-            VALUES (                :id, :contributor_id, :name, :data);
+            INSERT OR IGNORE INTO widget_data (id,  contributor_id,  name,  data)
+            VALUES (                          :id, :contributor_id, :name, :data);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newData.id));

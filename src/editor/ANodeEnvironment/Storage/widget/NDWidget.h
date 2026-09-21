@@ -42,6 +42,43 @@ namespace NDWidget {
             });
         }
 
+        bool importWidgetCore(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("widget_core");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDWidgetDetails::Config::CreateWidgetCoreRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDWidgetDetails::Create::createWidgetCore(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+        bool importWidget(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("widget");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDWidgetDetails::Config::CreateWidgetRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDWidgetDetails::Create::createWidget(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+
         // 0. Init
         bool createAllTables() {
             return NDHelpers::useTransaction(pool(), [](QSqlQuery& query) {

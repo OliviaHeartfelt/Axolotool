@@ -8,8 +8,8 @@ namespace NDWireSourceDetails::Create {
 
     inline bool createWireSource(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireSourceRecord& newSource) {
         query.prepare(R"(
-            INSERT INTO wire_source (id,  global_source_id,  name)
-            VALUES (                :id, :global_source_id, :name);
+            INSERT OR IGNORE INTO wire_source (id,  global_source_id,  name)
+            VALUES (                          :id, :global_source_id, :name);
         )");
 
         query.bindValue(":id",               Utility::UUID::uuidToBytes(newSource.id));
@@ -24,8 +24,8 @@ namespace NDWireSourceDetails::Create {
     }
     inline bool createWireContributor(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireContributorRecord& newContributor) {
         query.prepare(R"(
-            INSERT INTO wire_contributor (id,  source_id,  name)
-            VALUES (                     :id, :source_id, :name);
+            INSERT OR IGNORE INTO wire_contributor (id,  source_id,  name)
+            VALUES (                               :id, :source_id, :name);
         )");
 
         query.bindValue(":id",        Utility::UUID::uuidToBytes(newContributor.id));
@@ -40,8 +40,8 @@ namespace NDWireSourceDetails::Create {
     }
     inline bool createWireStyle(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireStyleRecord& newStyle) {
         query.prepare(R"(
-            INSERT INTO wire_style (id,  contributor_id,  name,  color,  wire_thickness,  metadata)
-            VALUES (               :id, :contributor_id, :name, :color, :wire_thickness, :metadata);
+            INSERT OR IGNORE INTO wire_style (id,  contributor_id,  name,  color,  wire_thickness,  metadata)
+            VALUES (                         :id, :contributor_id, :name, :color, :wire_thickness, :metadata);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newStyle.id));
@@ -60,8 +60,8 @@ namespace NDWireSourceDetails::Create {
     }
     inline bool createWireData(QSqlQuery& query, const NDWireSourceDetails::Config::CreateWireDataRecord& newData) {
         query.prepare(R"(
-            INSERT INTO wire_data (id,  contributor_id,  name,  data)
-            VALUES (              :id, :contributor_id, :name, :data);
+            INSERT OR IGNORE INTO wire_data (id,  contributor_id,  name,  data)
+            VALUES (                        :id, :contributor_id, :name, :data);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newData.id));

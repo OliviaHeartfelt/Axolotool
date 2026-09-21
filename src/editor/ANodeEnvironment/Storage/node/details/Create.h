@@ -8,8 +8,8 @@ namespace NDNodeDetails::Create {
 
     inline bool createNodeCore(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeCoreRecord& newNodeCore) {
         query.prepare(R"(
-            INSERT INTO node_core (id,  contributor_id,  type_id,  data_id,  name,  default_row_num,  default_col_num,  default_node_w,  default_node_h,  cell_visual_fallback_id)
-            VALUES (              :id, :contributor_id, :type_id, :data_id, :name, :default_row_num, :default_col_num, :default_node_w, :default_node_h, :cell_visual_fallback_id);
+            INSERT OR IGNORE INTO node_core (id,  contributor_id,  type_id,  data_id,  name,  default_row_num,  default_col_num,  default_node_w,  default_node_h,  cell_visual_fallback_id)
+            VALUES (                        :id, :contributor_id, :type_id, :data_id, :name, :default_row_num, :default_col_num, :default_node_w, :default_node_h, :cell_visual_fallback_id);
         )");
 
         query.bindValue(":id",             Utility::UUID::uuidToBytes(newNodeCore.id));
@@ -35,8 +35,8 @@ namespace NDNodeDetails::Create {
 
     inline bool createNode(QSqlQuery& query, const NDNodeDetails::Config::CreateNodeRecord& newNode) {
         query.prepare(R"(
-        INSERT INTO node (id,  core_id,  name,  row_num,  col_num,  canvas_x,  canvas_y,  node_w,  node_h,  state)
-        VALUES (         :id, :core_id, :name, :row_num, :col_num, :canvas_x, :canvas_y, :node_w, :node_h, :state);
+        INSERT OR IGNORE INTO node (id,  core_id,  name,  row_num,  col_num,  canvas_x,  canvas_y,  node_w,  node_h,  state)
+        VALUES (                   :id, :core_id, :name, :row_num, :col_num, :canvas_x, :canvas_y, :node_w, :node_h, :state);
     )");
 
         query.bindValue(":id",      Utility::UUID::uuidToBytes(newNode.id));

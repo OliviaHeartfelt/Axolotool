@@ -1,0 +1,735 @@
+{
+  "global_source": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-5367f7f33e62",
+      "name": "Standard",
+      "dsc": "standard global source"
+    }
+  ],
+
+  "node_source": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-5432b8b0a8b1",
+      "globalSourceId": "01a0100a-e34c-76f8-8213-5367f7f33e62",
+      "name": "Standard::Source[0]"
+    }
+  ],
+  "node_contributor": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-5b83e08903c2",
+      "sourceId": "01a0100a-e34c-76f8-8213-5432b8b0a8b1",
+      "name": "Standard::Contributor[0]"
+    }
+  ],
+  "node_type": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-5e29b0c58b76",
+      "contributorId": "01a0100a-e34c-76f8-8213-5b83e08903c2",
+      "name": "Standard::Type[0]"
+    }
+  ],
+  "node_data": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-618b39cdf9eb",
+      "contributorId": "01a0100a-e34c-76f8-8213-5b83e08903c2",
+      "name": "Standard::Data[0]"
+    }
+  ],
+
+  "pin_source": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-67a4818eed9d",
+      "globalSourceId": "01a0100a-e34c-76f8-8213-5367f7f33e62",
+      "name": "Standard::Source[0]"
+    }
+  ],
+  "pin_contributor": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "sourceId": "01a0100a-e34c-76f8-8213-67a4818eed9d",
+      "name": "Standard::Contributor[0]"
+    }
+  ],
+  "pin_flow": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Out",
+      "degree": 0.0
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::In",
+      "degree": 180.0
+    }
+  ],
+  "pin_type": [
+    {
+      "id": "019f65ff-1fe9-7f9d-a47e-1d6cceff0eb0",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Execution",
+      "bitSize": 0
+    },
+    {
+      "id": "01a011a9-3ab2-725d-a8df-ef6dc182b916",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Class",
+      "bitSize": 0
+    },
+    {
+      "id": "019f65ff-1fe9-77a7-ba63-dbfd2f8b7a62",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Object",
+      "bitSize": 0
+    },
+    {
+      "id": "019f65ff-1fe9-7391-a581-22392c3e6bb8",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Bool",
+      "bitSize": 1
+    },
+    {
+      "id": "019f65ff-1fe9-78f3-a827-202e61a9028e",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Byte",
+      "bitSize": 8
+    },
+    {
+      "id": "019f65ff-1fe9-782a-84e4-b3e0aa66aaaf",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Int",
+      "bitSize": 32
+    },
+    {
+      "id": "019f65ff-1fe9-75ce-8513-2f9c49ccfdd0",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Int64",
+      "bitSize": 64
+    },
+    {
+      "id": "019f65ff-1fe9-7fcf-ada1-7c80bb07dc44",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Float",
+      "bitSize": 32
+    },
+    {
+      "id": "019f65ff-1fe9-77e4-bf10-7c3bf96f8d75",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Double",
+      "bitSize": 64
+    },
+    {
+      "id": "019f65ff-1fe9-726b-9d16-d0996c448a5a",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Vector2",
+      "bitSize": 128
+    },
+    {
+      "id": "019f65ff-1fe9-70a1-aa07-bc78a953737d",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Vector3",
+      "bitSize": 192
+    },
+    {
+      "id": "019f65ff-1fe9-750a-9772-d732c2d1dba4",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Name",
+      "bitSize": -1
+    },
+    {
+      "id": "019f65ff-1fe9-7b94-ba7c-2adf429f1b53",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::String",
+      "bitSize": -1
+    }
+  ],
+  "pin_style": [
+    {
+      "id": "019f65ff-1fe9-72ce-b064-d16e00ca0b4f",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Execution",
+      "color": "#ffffffff",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-73e9-83d3-d235e9aa8ba3",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Class",
+      "color": "#ff00a6f2",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-72d0-b4c4-1e01db3ec35b",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Object",
+      "color": "#ff00a6f2",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-7ca5-a824-5021a987e625",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Bool",
+      "color": "#ff910000",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-7a49-a6bc-c0c0f21091d5",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Byte",
+      "color": "#ff006d64",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-7df4-9095-76f514383811",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Int",
+      "color": "#ff22e0ac",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-70f3-8742-f51366d1ea06",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Int64",
+      "color": "#ffaae1ad",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-7ee2-bada-895eacc8d346",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Float",
+      "color": "#ff9dfc43",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-7e06-b429-e6c87b23e1fd",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Vector",
+      "color": "#fffbc627",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-70e6-944e-876ed74d148a",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::Name",
+      "color": "#ffca80fb",
+      "wireThickness": 2
+    },
+    {
+      "id": "019f65ff-1fe9-748b-a0d0-267b6f0dc66f",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "name": "Standard::String",
+      "color": "#fffd00d1",
+      "wireThickness": 2
+    }
+  ],
+
+  "widget_source": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-76c066425d99",
+      "globalSourceId": "01a0100a-e34c-76f8-8213-5367f7f33e62",
+      "name": "Standard::Source[0]"
+    }
+  ],
+  "widget_contributor": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-78854d262d95",
+      "sourceId": "01a0100a-e34c-76f8-8213-76c066425d99",
+      "name": "Standard::Contributor[0]"
+    }
+  ],
+  "widget_type": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-7c673c9e4344",
+      "contributorId": "01a0100a-e34c-76f8-8213-78854d262d95",
+      "name": "Standard::Type[0]"
+    }
+  ],
+  "widget_data": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-810fe3244564",
+      "contributorId": "01a0100a-e34c-76f8-8213-78854d262d95",
+      "name": "Standard::Data[0]"
+    }
+  ],
+
+  "wire_source": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-84932e8cd569",
+      "globalSourceId": "01a0100a-e34c-76f8-8213-5367f7f33e62",
+      "name": "Standard::Source[0]"
+    }
+  ],
+  "wire_contributor": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "sourceId": "01a0100a-e34c-76f8-8213-84932e8cd569",
+      "name": "Standard::Contrubutor[0]"
+    }
+  ],
+  "wire_data": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-8c53b4516c09",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Data[0]"
+    }
+  ],
+  "wire_style": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-911157333e59",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Execution",
+      "color": "#ffffffff",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-96c4e9938398",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Class",
+      "color": "#ff00a6f2",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-99f9fc1f99ed",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Object",
+      "color": "#ff00a6f2",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-9cd221f7a17d",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Bool",
+      "color": "#ff910000",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-a3743b00ee5e",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Byte",
+      "color": "#ff006d64",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-a432a121407f",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Int",
+      "color": "#ff22e0ac",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-abcec1393781",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Int64",
+      "color": "#ffaae1ad",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-ace7a8820a7f",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Float",
+      "color": "#ff9dfc43",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-b233a73acbe0",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Vector",
+      "color": "#fffbc627",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-b793238be096",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::Name",
+      "color": "#ffca80fb",
+      "wireThickness": 2
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-ba13c9f67211",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "name": "Standard::String",
+      "color": "#fffd00d1",
+      "wireThickness": 2
+    }
+  ],
+
+  "wire_core": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-bc9a3626fc05",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Execution",
+      "styleId": "01a0100a-e34c-76f8-8213-911157333e59"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-c06dced4d2f0",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Class",
+      "styleId": "01a0100a-e34c-76f8-8213-96c4e9938398"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-c53e1df31757",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Object",
+      "styleId": "01a0100a-e34c-76f8-8213-99f9fc1f99ed"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-c9181ab6857b",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Bool",
+      "styleId": "01a0100a-e34c-76f8-8213-9cd221f7a17d"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-ce5b7d51d367",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Byte",
+      "styleId": "01a0100a-e34c-76f8-8213-a3743b00ee5e"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-d058df6eb2ac",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Int",
+      "styleId": "01a0100a-e34c-76f8-8213-a432a121407f"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-d6b8d63e5176",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Int64",
+      "styleId": "01a0100a-e34c-76f8-8213-abcec1393781"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-da02a04469a5",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Float",
+      "styleId": "01a0100a-e34c-76f8-8213-ace7a8820a7f"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-dc9d6bab10a5",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Vector",
+      "styleId": "01a0100a-e34c-76f8-8213-b233a73acbe0"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-e3af40c63f39",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::Name",
+      "styleId": "01a0100a-e34c-76f8-8213-b793238be096"
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-e624a4ddf755",
+      "contributorId": "01a0100a-e34c-76f8-8213-8964fd612b87",
+      "visualFactoryId": "01a01708-add2-75ac-b870-db4c3ee26920",
+      "name": "Standard::String",
+      "styleId": "01a0100a-e34c-76f8-8213-ba13c9f67211"
+    }
+  ],
+
+  "pin_core": [
+    {
+      "id": "01a0100a-e34c-76f8-8213-ee4bb1cdb136",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-7f9d-a47e-1d6cceff0eb0",
+      "styleId": "019f65ff-1fe9-72ce-b064-d16e00ca0b4f",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-7f9d-a47e-1d6cceff0eb0" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-f0377f85fd63",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-7f9d-a47e-1d6cceff0eb0",
+      "styleId": "019f65ff-1fe9-72ce-b064-d16e00ca0b4f",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-7f9d-a47e-1d6cceff0eb0" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-f662f3449865",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "01a011a9-3ab2-725d-a8df-ef6dc182b916",
+      "styleId": "019f65ff-1fe9-73e9-83d3-d235e9aa8ba3",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "01a011a9-3ab2-725d-a8df-ef6dc182b916" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-fbf20d9084cf",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "01a011a9-3ab2-725d-a8df-ef6dc182b916",
+      "styleId": "019f65ff-1fe9-73e9-83d3-d235e9aa8ba3",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "01a011a9-3ab2-725d-a8df-ef6dc182b916" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8213-fc09c3f92cab",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-77a7-ba63-dbfd2f8b7a62",
+      "styleId": "019f65ff-1fe9-72d0-b4c4-1e01db3ec35b",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-77a7-ba63-dbfd2f8b7a62" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-0370100f4e4f",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-77a7-ba63-dbfd2f8b7a62",
+      "styleId": "019f65ff-1fe9-72d0-b4c4-1e01db3ec35b",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-77a7-ba63-dbfd2f8b7a62" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-0619b71d11da",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-7391-a581-22392c3e6bb8",
+      "styleId": "019f65ff-1fe9-7ca5-a824-5021a987e625",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-7391-a581-22392c3e6bb8" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-0b6289444f45",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-7391-a581-22392c3e6bb8",
+      "styleId": "019f65ff-1fe9-7ca5-a824-5021a987e625",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-7391-a581-22392c3e6bb8" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-0fa291014139",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-78f3-a827-202e61a9028e",
+      "styleId": "019f65ff-1fe9-7a49-a6bc-c0c0f21091d5",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-78f3-a827-202e61a9028e" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-12ab09ab2805",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-78f3-a827-202e61a9028e",
+      "styleId": "019f65ff-1fe9-7a49-a6bc-c0c0f21091d5",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-78f3-a827-202e61a9028e" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-1434f616f62f",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-782a-84e4-b3e0aa66aaaf",
+      "styleId": "019f65ff-1fe9-7df4-9095-76f514383811",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-782a-84e4-b3e0aa66aaaf" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-19435996d0ed",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-782a-84e4-b3e0aa66aaaf",
+      "styleId": "019f65ff-1fe9-7df4-9095-76f514383811",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-782a-84e4-b3e0aa66aaaf" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-1dc21752ca55",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-75ce-8513-2f9c49ccfdd0",
+      "styleId": "019f65ff-1fe9-70f3-8742-f51366d1ea06",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-75ce-8513-2f9c49ccfdd0" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-20c2e7119492",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-75ce-8513-2f9c49ccfdd0",
+      "styleId": "019f65ff-1fe9-70f3-8742-f51366d1ea06",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-75ce-8513-2f9c49ccfdd0" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-2659a7affa11",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-7fcf-ada1-7c80bb07dc44",
+      "styleId": "019f65ff-1fe9-7ee2-bada-895eacc8d346",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-7fcf-ada1-7c80bb07dc44" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-2a88da1418f6",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-7fcf-ada1-7c80bb07dc44",
+      "styleId": "019f65ff-1fe9-7ee2-bada-895eacc8d346",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-7fcf-ada1-7c80bb07dc44" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-2c97ef05f751",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-77e4-bf10-7c3bf96f8d75",
+      "styleId": "019f65ff-1fe9-7ee2-bada-895eacc8d346",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-77e4-bf10-7c3bf96f8d75" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-3169910f3b67",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-77e4-bf10-7c3bf96f8d75",
+      "styleId": "019f65ff-1fe9-7ee2-bada-895eacc8d346",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-77e4-bf10-7c3bf96f8d75" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-36f4ce7439a0",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-726b-9d16-d0996c448a5a",
+      "styleId": "019f65ff-1fe9-7e06-b429-e6c87b23e1fd",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-726b-9d16-d0996c448a5a" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-38bd2199a746",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-726b-9d16-d0996c448a5a",
+      "styleId": "019f65ff-1fe9-7e06-b429-e6c87b23e1fd",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-726b-9d16-d0996c448a5a" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-3f86bcf85023",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-70a1-aa07-bc78a953737d",
+      "styleId": "019f65ff-1fe9-7e06-b429-e6c87b23e1fd",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-70a1-aa07-bc78a953737d" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-43c5a6be4e9a",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-70a1-aa07-bc78a953737d",
+      "styleId": "019f65ff-1fe9-7e06-b429-e6c87b23e1fd",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-70a1-aa07-bc78a953737d" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-4f5a92062224",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-750a-9772-d732c2d1dba4",
+      "styleId": "019f65ff-1fe9-70e6-944e-876ed74d148a",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-750a-9772-d732c2d1dba4" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-5266d5e6454e",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-750a-9772-d732c2d1dba4",
+      "styleId": "019f65ff-1fe9-70e6-944e-876ed74d148a",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-750a-9772-d732c2d1dba4" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-57d76b387d8c",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-6d477e5dbd7d",
+      "typeId": "019f65ff-1fe9-7b94-ba7c-2adf429f1b53",
+      "styleId": "019f65ff-1fe9-748b-a0d0-267b6f0dc66f",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-73302c1d52e7" ],
+      "allowTypeList": [ "019f65ff-1fe9-7b94-ba7c-2adf429f1b53" ]
+    },
+    {
+      "id": "01a0100a-e34c-76f8-8214-5b94c538d9e6",
+      "contributorId": "01a0100a-e34c-76f8-8213-68a2889ac0db",
+      "visualFactoryId": "01a01038-f084-7167-a126-1523448df0b3",
+      "flowId": "01a0100a-e34c-76f8-8213-73302c1d52e7",
+      "typeId": "019f65ff-1fe9-7b94-ba7c-2adf429f1b53",
+      "styleId": "019f65ff-1fe9-748b-a0d0-267b6f0dc66f",
+      "allowFlowList": [ "01a0100a-e34c-76f8-8213-6d477e5dbd7d" ],
+      "allowTypeList": [ "019f65ff-1fe9-7b94-ba7c-2adf429f1b53" ]
+    }
+  ],
+
+  "node_core": [
+    {
+      "id": "01a01024-8932-7727-9b20-30a7f81ad76a",
+      "contributorId": "01a0100a-e34c-76f8-8213-5b83e08903c2",
+      "typeId": "01a0100a-e34c-76f8-8213-5e29b0c58b76",
+      "dataId": "01a0100a-e34c-76f8-8213-618b39cdf9eb",
+      "name": "Node A",
+      "defaultRowNum": 1,
+      "defaultColNum": 1,
+      "defaultNodeWidth": -1.0,
+      "defaultNodeHeight": -1.0
+    },
+    {
+      "id": "01a01029-f8e6-73e9-9db3-926c8ad12f52",
+      "contributorId": "01a0100a-e34c-76f8-8213-5b83e08903c2",
+      "typeId": "01a0100a-e34c-76f8-8213-5e29b0c58b76",
+      "dataId": "01a0100a-e34c-76f8-8213-618b39cdf9eb",
+      "name": "Node B",
+      "defaultRowNum": 1,
+      "defaultColNum": 2,
+      "defaultNodeWidth": -1.0,
+      "defaultNodeHeight": -1.0
+    },
+    {
+      "id": "01a01029-f8e6-73e9-9db3-964174d5c085",
+      "contributorId": "01a0100a-e34c-76f8-8213-5b83e08903c2",
+      "typeId": "01a0100a-e34c-76f8-8213-5e29b0c58b76",
+      "dataId": "01a0100a-e34c-76f8-8213-618b39cdf9eb",
+      "name": "Node C",
+      "defaultRowNum": 1,
+      "defaultColNum": 1,
+      "defaultNodeWidth": -1.0,
+      "defaultNodeHeight": -1.0
+    }
+  ]
+}

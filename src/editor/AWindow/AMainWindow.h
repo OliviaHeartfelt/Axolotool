@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../ANodeEnvironment/ANodeEnvironment.h"
-#include "MockPlugin.h"
+#include "../MockPlugin.h"
 
 namespace AMainWindow {
 
@@ -15,7 +15,6 @@ namespace AMainWindow {
                 qWarning() << "Failed to open project.db! Exiting setup.";
                 return;
             }
-            qDebug() << "nodeEnvironment->isOpen(): " << (nodeEnvironment->isOpen() ? "true" : "false");
 
             if (!nodeEnvironment->canvas()) return;
             nodeEnvironment->canvas()->setStyleSheet(R"(

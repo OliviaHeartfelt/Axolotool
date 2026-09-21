@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../NDParser.h"
 #include "../../NDConcepts.h"
 
 namespace NDWireSourceDetails::Config {
@@ -14,6 +15,23 @@ namespace NDWireSourceDetails::Config {
         muuid::uuid id;
         std::optional<muuid::uuid> globalSourceId = std::nullopt;
         QString name;
+
+        static std::optional<CreateWireSourceRecord> Parse(const QJsonObject& obj) {
+
+            auto optID = NDParser::parse<muuid::uuid>(obj, "id");
+            if (!optID) return std::nullopt;
+
+            auto globalSourceId = NDParser::parse<muuid::uuid>(obj, "globalSourceId", true);
+
+            auto name = NDParser::parse<QString>(obj, "name", true);
+            if (!name) return std::nullopt;
+
+            return CreateWireSourceRecord{
+                .id = *optID,
+                .globalSourceId = globalSourceId,
+                .name = *name
+            };
+        }
     };
     struct UpdateWireSourceRecord {
         std::optional<muuid::uuid> id =             std::nullopt;
@@ -31,6 +49,24 @@ namespace NDWireSourceDetails::Config {
         muuid::uuid id;
         muuid::uuid sourceId;
         QString name;
+
+        static std::optional<CreateWireContributorRecord> Parse(const QJsonObject& obj) {
+
+            auto optID = NDParser::parse<muuid::uuid>(obj, "id");
+            if (!optID) return std::nullopt;
+
+            auto sourceId = NDParser::parse<muuid::uuid>(obj, "sourceId");
+            if (!sourceId) return std::nullopt;
+
+            auto name = NDParser::parse<QString>(obj, "name", true);
+            if (!name) return std::nullopt;
+
+            return CreateWireContributorRecord{
+                .id = *optID,
+                .sourceId = *sourceId,
+                .name = *name
+            };
+        }
     };
     struct UpdateWireContributorRecord {
         std::optional<muuid::uuid> id =       std::nullopt;
@@ -54,6 +90,32 @@ namespace NDWireSourceDetails::Config {
         QColor color = Qt::gray;
         int wireThickness = 2;
         std::optional<std::vector<uint8_t>> metadata = std::nullopt;
+
+        static std::optional<CreateWireStyleRecord> Parse(const QJsonObject& obj) {
+
+            auto optID = NDParser::parse<muuid::uuid>(obj, "id");
+            if (!optID) return std::nullopt;
+
+            auto contributorId = NDParser::parse<muuid::uuid>(obj, "contributorId");
+            if (!contributorId) return std::nullopt;
+
+            auto name = NDParser::parse<QString>(obj, "name", true);
+            if (!name) return std::nullopt;
+
+            auto color = NDParser::parse<QColor>(obj, "color", true);
+            if (!color) return std::nullopt;
+
+            auto wireThickness = NDParser::parse<int>(obj, "wireThickness", true);
+            if (!wireThickness) return std::nullopt;
+
+            return CreateWireStyleRecord{
+                .id = *optID,
+                .contributorId = *contributorId,
+                .name = *name,
+                .color = *color,
+                .wireThickness = *wireThickness
+            };
+        }
     };
     struct UpdateWireStyleRecord {
         std::optional<muuid::uuid> id =            std::nullopt;
@@ -76,6 +138,24 @@ namespace NDWireSourceDetails::Config {
         muuid::uuid contributorId;
         QString name;
         std::optional<std::vector<uint8_t>> data = std::nullopt;
+
+        static std::optional<CreateWireDataRecord> Parse(const QJsonObject& obj) {
+
+            auto optID = NDParser::parse<muuid::uuid>(obj, "id");
+            if (!optID) return std::nullopt;
+
+            auto contributorId = NDParser::parse<muuid::uuid>(obj, "contributorId");
+            if (!contributorId) return std::nullopt;
+
+            auto name = NDParser::parse<QString>(obj, "name", true);
+            if (!name) return std::nullopt;
+
+            return CreateWireDataRecord{
+                .id = *optID,
+                .contributorId = *contributorId,
+                .name = *name,
+            };
+        }
     };
     struct UpdateWireDataRecord {
         std::optional<muuid::uuid> id = std::nullopt;
