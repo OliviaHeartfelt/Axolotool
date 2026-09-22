@@ -61,14 +61,14 @@ namespace RGRegistryComponents {
 
         RGBaseRegistry::BaseRegistry<
             std::pair<muuid::uuid, muuid::uuid>,
-            muuid::uuid,
+            ANodeEnvDB::Config::Wire::FullAsymmetricWireRecord,
             ARegistryDetails::RegistryTraits::WirePairHash,
             ARegistryDetails::RegistryTraits::WirePairEqual
         > asymmetricWireMap;
 
         RGBaseRegistry::BaseRegistry<
             muuid::uuid,
-            muuid::uuid
+            ANodeEnvDB::Config::Wire::FullSymmetricWireRecord
         > symmetricWireMap;
     };
 

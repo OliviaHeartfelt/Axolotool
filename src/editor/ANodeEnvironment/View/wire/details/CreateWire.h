@@ -27,7 +27,7 @@ namespace VWWireDetails::CreateWire {
 
         std::optional<muuid::uuid> coreIdOpt = std::nullopt;
         if (originData->typeId && targetData->typeId) {
-            coreIdOpt = Helpers::resolveWireCore(*registry, *originData->typeId, *targetData->typeId);
+            coreIdOpt = Helpers::resolveWireCore(registry, nodeEnvDB, *originData->typeId, *targetData->typeId);
         }
 
         auto* wire = new WireItem::WireItem(

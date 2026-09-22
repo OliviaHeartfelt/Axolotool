@@ -85,15 +85,31 @@ namespace VWWireDetails::Helpers {
         return wire;
     }
 
-    inline std::optional<muuid::uuid> resolveWireCore(ARegistry::Registry& registry, const muuid::uuid& originTypeId, const muuid::uuid& targetTypeId) {
+    inline std::optional<muuid::uuid> resolveWireCore(ARegistry::Registry* registry, ANodeEnvDB::ANodeEnvDB* nodeEnvDB, const muuid::uuid& originTypeId, const muuid::uuid& targetTypeId) {
+        if (!registry || !nodeEnvDB) return std::nullopt;
+
         if (originTypeId == targetTypeId) {
-            if (auto wireCoreId = registry.wire.symmetricWireMap.at(originTypeId)) {
-                return wireCoreId;
+            if (const auto symetricWire = registry->wire.symmetricWireMap.at(originTypeId)) {
+                return symetricWire->wireCoreId;
+            }
+            else {
+                const auto optSymmetricWire = nodeEnvDB->wire.getSymmetricWire(originTypeId);
+                if (!optSymmetricWire) return std::nullopt;
+
+                registry->wire.symmetricWireMap.insert(originTypeId, *optSymmetricWire);
+                return optSymmetricWire->wireCoreId;
             }
         }
         else {
-            if (auto wireCoreId = registry.wire.asymmetricWireMap.at({ originTypeId, targetTypeId })) {
-                return wireCoreId;
+            if (auto asymetricWire = registry->wire.asymmetricWireMap.at({ originTypeId, targetTypeId })) {
+                return asymetricWire->wireCoreId;
+            }
+            else {
+                const auto optAsymmetricWire = nodeEnvDB->wire.getAsymmetricWire(originTypeId, targetTypeId);
+                if (!optAsymmetricWire) return std::nullopt;
+
+                registry->wire.asymmetricWireMap.insert({ originTypeId, targetTypeId }, *optAsymmetricWire);
+                return optAsymmetricWire->wireCoreId;
             }
         }
         return std::nullopt;
