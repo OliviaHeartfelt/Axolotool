@@ -731,5 +731,60 @@
       "defaultNodeWidth": -1.0,
       "defaultNodeHeight": -1.0
     }
+  ],
+
+  "symmetric_wire_registry": [
+    {
+      "pinTypeId": "019f65ff-1fe9-7f9d-a47e-1d6cceff0eb0",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-bc9a3626fc05"
+    },
+    {
+      "pinTypeId": "01a011a9-3ab2-725d-a8df-ef6dc182b916",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-c06dced4d2f0"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-77a7-ba63-dbfd2f8b7a62",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-c53e1df31757"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-7391-a581-22392c3e6bb8",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-c9181ab6857b"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-78f3-a827-202e61a9028e",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-ce5b7d51d367"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-782a-84e4-b3e0aa66aaaf",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-d058df6eb2ac"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-75ce-8513-2f9c49ccfdd0",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-d6b8d63e5176"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-7fcf-ada1-7c80bb07dc44",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-da02a04469a5"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-77e4-bf10-7c3bf96f8d75",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-da02a04469a5"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-726b-9d16-d0996c448a5a",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-dc9d6bab10a5"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-70a1-aa07-bc78a953737d",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-dc9d6bab10a5"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-750a-9772-d732c2d1dba4",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-e3af40c63f39"
+    },
+    {
+      "pinTypeId": "019f65ff-1fe9-7b94-ba7c-2adf429f1b53",
+      "wireCoreId": "01a0100a-e34c-76f8-8213-e624a4ddf755"
+    }
   ]
 }

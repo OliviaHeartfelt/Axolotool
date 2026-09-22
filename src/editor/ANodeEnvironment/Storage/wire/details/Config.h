@@ -172,4 +172,58 @@ namespace NDWireDetails::Config {
             };
         }
     };
+
+    // 2. Symmetric Wire
+    struct FullSymmetricWireRecord {
+        muuid::uuid pinTypeId;
+        muuid::uuid wireCoreId;
+    };
+    struct CreateSymmetricWireRecord {
+        muuid::uuid pinTypeId;
+        muuid::uuid wireCoreId;
+
+        static std::optional<CreateSymmetricWireRecord> Parse(const QJsonObject& obj) {
+
+            auto optPinTypeID = NDParser::parse<muuid::uuid>(obj, "pinTypeId");
+            if (!optPinTypeID) return std::nullopt;
+
+            auto optWireCoreID = NDParser::parse<muuid::uuid>(obj, "wireCoreId");
+            if (!optWireCoreID) return std::nullopt;
+
+            return CreateSymmetricWireRecord{
+                .pinTypeId = *optPinTypeID,
+                .wireCoreId = *optWireCoreID
+            };
+        }
+    };
+
+    // 2. Asymmetric Wire
+    struct FullAsymmetricWireRecord {
+        muuid::uuid originPinTypeId;
+        muuid::uuid targetPinTypeId;
+        muuid::uuid wireCoreId;
+    };
+    struct CreateAsymmetricWireRecord {
+        muuid::uuid originPinTypeId;
+        muuid::uuid targetPinTypeId;
+        muuid::uuid wireCoreId;
+
+        static std::optional<CreateAsymmetricWireRecord> Parse(const QJsonObject& obj) {
+
+            auto optOriginPinTypeId = NDParser::parse<muuid::uuid>(obj, "originPinTypeId");
+            if (!optOriginPinTypeId) return std::nullopt;
+
+            auto optTargetPinTypeId = NDParser::parse<muuid::uuid>(obj, "targetPinTypeId");
+            if (!optTargetPinTypeId) return std::nullopt;
+
+            auto optWireCoreID = NDParser::parse<muuid::uuid>(obj, "wireCoreId");
+            if (!optWireCoreID) return std::nullopt;
+
+            return CreateAsymmetricWireRecord{
+                .originPinTypeId = *optOriginPinTypeId,
+                .targetPinTypeId = *optTargetPinTypeId,
+                .wireCoreId = *optWireCoreID
+            };
+        }
+    };
 }

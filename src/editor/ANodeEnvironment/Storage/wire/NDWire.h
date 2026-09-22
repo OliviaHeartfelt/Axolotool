@@ -39,6 +39,8 @@ namespace NDWire {
                 if (currentTables.contains("wire_core",      Qt::CaseInsensitive) == value) list.append("wire_core");
                 if (currentTables.contains("wire_temporary", Qt::CaseInsensitive) == value) list.append("wire_temporary");
                 if (currentTables.contains("wire_pins",      Qt::CaseInsensitive) == value) list.append("wire");
+                if (currentTables.contains("symmetric_wire_registry",  Qt::CaseInsensitive) == value) list.append("symmetric_wire_registry");
+                if (currentTables.contains("asymmetric_wire_registry", Qt::CaseInsensitive) == value) list.append("asymmetric_wire_registry");
                 return list;
             });
         }
@@ -97,6 +99,42 @@ namespace NDWire {
             }
             return true;
         }
+        bool importSymmetricWire(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("symmetric_wire_registry");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDWireDetails::Config::CreateSymmetricWireRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDWireDetails::Create::createSymmetricWire(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+        bool importAsymmetricWire(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("asymmetric_wire_registry");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& val : jsonArray) {
+                if (!val.isObject()) {
+                    qWarning() << "Parsing failed: Array element is not a JSON object.";
+                    return false;
+                }
+                auto optNewRecord = NDWireDetails::Config::CreateAsymmetricWireRecord::Parse(val.toObject());
+                if (!optNewRecord) return false;
+
+                if (!NDWireDetails::Create::createAsymmetricWire(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
 
         // 0. INIT
         bool createAllTables() {
@@ -136,6 +174,26 @@ namespace NDWire {
         }
         bool createWire(QSqlQuery& query, const NDWireDetails::Config::CreateWireRecord& newWire) {
             return NDWireDetails::Create::createWire(query, newWire);
+        }
+
+        // 1. Create - Symmetric Wire
+        bool createSymmetricWire(const NDWireDetails::Config::CreateSymmetricWireRecord& newSymmetricWire) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
+                return NDWireDetails::Create::createSymmetricWire(query, newSymmetricWire);
+                });
+        }
+        bool createSymmetricWire(QSqlQuery& query, const NDWireDetails::Config::CreateSymmetricWireRecord& newSymmetricWire) {
+            return NDWireDetails::Create::createSymmetricWire(query, newSymmetricWire);
+        }
+
+        // 1. Create - Asymmetric Wire
+        bool createAsymmetricWire(const NDWireDetails::Config::CreateAsymmetricWireRecord& newAsymmetricWire) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
+                return NDWireDetails::Create::createAsymmetricWire(query, newAsymmetricWire);
+                });
+        }
+        bool createAsymmetricWire(QSqlQuery& query, const NDWireDetails::Config::CreateAsymmetricWireRecord& newAsymmetricWire) {
+            return NDWireDetails::Create::createAsymmetricWire(query, newAsymmetricWire);
         }
 
         // 2. Read - Wire Core
@@ -215,13 +273,33 @@ namespace NDWire {
         std::optional<QList<NDWireDetails::Config::FullWireRecord>> getAllWires(QSqlQuery& query, const muuid::uuid& sourceId, const bool continueAtFail = false) {
             return NDWireDetails::Read::getAllWires(query, sourceId, continueAtFail);
         }
-        inline std::optional<QList<NDWireDetails::Config::FullWireRecord>> getWiresInView(const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::FullWireRecord>> getWiresInView(const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDWireDetails::Read::getWiresInView(query, continueAtFail);
             });
         }
-        inline std::optional<QList<NDWireDetails::Config::FullWireRecord>> getWiresInView(QSqlQuery& query, const bool continueAtFail = false) {
+        std::optional<QList<NDWireDetails::Config::FullWireRecord>> getWiresInView(QSqlQuery& query, const bool continueAtFail = false) {
             return NDWireDetails::Read::getWiresInView(query, continueAtFail);
+        }
+
+        // 2. Read - Symmetric Wire
+        std::optional<NDWireDetails::Config::FullSymmetricWireRecord> getSymmetricWire(const muuid::uuid& pinTypeId) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
+                return NDWireDetails::Read::getSymmetricWire(query, pinTypeId);
+                });
+        }
+        std::optional<NDWireDetails::Config::FullSymmetricWireRecord> getSymmetricWire(QSqlQuery& query, const muuid::uuid& pinTypeId) {
+            return NDWireDetails::Read::getSymmetricWire(query, pinTypeId);
+        }
+
+        // 2. Read - Asymmetric Wire
+        std::optional<NDWireDetails::Config::FullAsymmetricWireRecord> getAsymmetricWire(const muuid::uuid& originPinTypeId, const muuid::uuid& targetPinTypeId) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
+                return NDWireDetails::Read::getAsymmetricWire(query, originPinTypeId, targetPinTypeId);
+                });
+        }
+        std::optional<NDWireDetails::Config::FullAsymmetricWireRecord> getAsymmetricWire(QSqlQuery& query, const muuid::uuid& originPinTypeId, const muuid::uuid& targetPinTypeId) {
+            return NDWireDetails::Read::getAsymmetricWire(query, originPinTypeId, targetPinTypeId);
         }
 
         // 3. Update - Wire Core
@@ -273,6 +351,26 @@ namespace NDWire {
         }
         bool removeWire(QSqlQuery& query, const muuid::uuid& id) {
             return NDWireDetails::Delete::removeWire(query, id);
+        }
+
+        // 4. Delete - Symmetric Wire
+        bool removeSymmetricWire(const muuid::uuid& pinTypeId) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
+                return NDWireDetails::Delete::removeSymmetricWire(query, pinTypeId);
+                });
+        }
+        bool removeSymmetricWire(QSqlQuery& query, const muuid::uuid& pinTypeId) {
+            return NDWireDetails::Delete::removeSymmetricWire(query, pinTypeId);
+        }
+
+        // 4. Delete - Asymmetric Wire
+        bool removeAsymmetricWire(const muuid::uuid& originPinTypeId, const muuid::uuid& tragetPinTypeId) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
+                return NDWireDetails::Delete::removeAsymmetricWire(query, originPinTypeId, tragetPinTypeId);
+                });
+        }
+        bool removeAsymmetricWire(QSqlQuery& query, const muuid::uuid& originPinTypeId, const muuid::uuid& tragetPinTypeId) {
+            return NDWireDetails::Delete::removeAsymmetricWire(query, originPinTypeId, tragetPinTypeId);
         }
     };
 }

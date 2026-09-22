@@ -219,7 +219,7 @@ namespace NDWireDetails::Read {
         return list;
     }
 
-    // 3. Wire Pins
+    // 3. Wire
     inline std::optional<NDWireDetails::Config::FullWireRecord> getWire(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
             SELECT core_id, origin_id, target_id, origin_canvas_hint_x, origin_canvas_hint_y, target_canvas_hint_x, target_canvas_hint_y, state
@@ -335,6 +335,56 @@ namespace NDWireDetails::Read {
             });
         }
         return list;
+    }
+
+    // 4. Symmetric Wire
+    inline std::optional<NDWireDetails::Config::FullSymmetricWireRecord> getSymmetricWire(QSqlQuery& query, const muuid::uuid& pinTypeId) {
+        query.prepare(R"(
+            SELECT wire_core_id
+            FROM symmetric_wire_registry
+            WHERE pin_type_id = :pin_type_id;
+        )");
+        query.bindValue(":pin_type_id", Utility::UUID::uuidToBytes(pinTypeId));
+
+        if (!query.exec()) {
+            qCritical() << "Failed to execute getSymmetricWire query:" << query.lastError().text();
+            return std::nullopt;
+        }
+        if (!query.next()) return std::nullopt;
+
+        const auto optWireCoreId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+        if (!optWireCoreId) return std::nullopt;
+
+        return NDWireDetails::Config::FullSymmetricWireRecord{
+            pinTypeId,
+            *optWireCoreId
+        };
+    }
+
+    // 4. Asymmetric Wire
+    inline std::optional<NDWireDetails::Config::FullAsymmetricWireRecord> getAsymmetricWire(QSqlQuery& query, const muuid::uuid& originPinTypeId, const muuid::uuid& targetPinTypeId) {
+        query.prepare(R"(
+            SELECT wire_core_id
+            FROM asymmetric_wire_registry
+            WHERE origin_pin_type_id = :origin_pin_type_id AND target_pin_type_id = :target_pin_type_id;
+        )");
+        query.bindValue(":origin_pin_type_id", Utility::UUID::uuidToBytes(originPinTypeId));
+        query.bindValue(":target_pin_type_id", Utility::UUID::uuidToBytes(targetPinTypeId));
+
+        if (!query.exec()) {
+            qCritical() << "Failed to execute getAsymmetricWire query:" << query.lastError().text();
+            return std::nullopt;
+        }
+        if (!query.next()) return std::nullopt;
+
+        const auto optWireCoreId = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+        if (!optWireCoreId) return std::nullopt;
+
+        return NDWireDetails::Config::FullAsymmetricWireRecord{
+            originPinTypeId,
+            targetPinTypeId,
+            *optWireCoreId
+        };
     }
 
     inline std::optional<QList<NDWireDetails::Config::FullWireRecord>> getWiresInView(QSqlQuery& query, const bool continueAtFail = false) {
