@@ -29,9 +29,9 @@ FetchContent_MakeAvailable(modern-uuid)
 # ------------------------------------------------------------------------------
 # Source & Header Gathering
 # ------------------------------------------------------------------------------
-file(GLOB_RECURSE NE_MODULES "ANodeEnvironment/*.h")
-file(GLOB_RECURSE AWINDOW_MODULES "AWindow/*.h")
-file(GLOB_RECURSE UTILITY_MODULES "Utility/*.h")
+file(GLOB_RECURSE NE_MODULES CONFIGURE_DEPENDS "ANodeEnvironment/*.h")
+file(GLOB_RECURSE AWINDOW_MODULES CONFIGURE_DEPENDS "AWindow/*.h")
+file(GLOB_RECURSE UTILITY_MODULES CONFIGURE_DEPENDS "Utility/*.h")
 
 add_executable(axo_editor 
     main.cpp
