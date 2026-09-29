@@ -3,13 +3,11 @@
 namespace NDPinDetails::Init {
 
     inline bool createPinCoreTable(QSqlQuery& query);
-    inline bool createPinTable(QSqlQuery& query);
     inline bool createPinAllowFlowTable(QSqlQuery& query);
     inline bool createPinAllowTypeTable(QSqlQuery& query);
 
     inline bool createAllTables(QSqlQuery& query) {
         return createPinCoreTable(query)
-            && createPinTable(query)
             && createPinAllowFlowTable(query)
             && createPinAllowTypeTable(query);
     }
@@ -28,23 +26,6 @@ namespace NDPinDetails::Init {
                 FOREIGN KEY (flow_id)        REFERENCES pin_flow(id)        ON DELETE SET NULL ON UPDATE CASCADE,
                 FOREIGN KEY (type_id)        REFERENCES pin_type(id)        ON DELETE SET NULL ON UPDATE CASCADE,
                 FOREIGN KEY (style_id)       REFERENCES pin_style(id)       ON DELETE SET NULL ON UPDATE CASCADE
-            );
-        )";
-
-        if (!query.exec(createPinTableQuery)) {
-            qCritical() << "Failed to create pin table:" << query.lastError().text();
-            return false;
-        }
-        return true;
-    }
-    inline bool createPinTable(QSqlQuery& query) {
-        QString createPinTableQuery = R"(
-            CREATE TABLE IF NOT EXISTS pin (
-                id      BLOB NOT NULL,
-                core_id BLOB NOT NULL,
-
-                PRIMARY KEY (id),
-                FOREIGN KEY (core_id) REFERENCES pin_core(id) ON DELETE CASCADE ON UPDATE CASCADE
             );
         )";
 

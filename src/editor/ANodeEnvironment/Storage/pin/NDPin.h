@@ -37,7 +37,6 @@ namespace NDPin {
                 QStringList currentTables = driver->tables(QSql::Tables);
 
                 if (currentTables.contains("pin_core",       Qt::CaseInsensitive) == value) list.append("pin_core");
-                if (currentTables.contains("pin",            Qt::CaseInsensitive) == value) list.append("pin");
                 if (currentTables.contains("pin_allow_flow", Qt::CaseInsensitive) == value) list.append("pin_allow_flow");
                 if (currentTables.contains("pin_allow_type", Qt::CaseInsensitive) == value) list.append("pin_allow_type");
                 return list;
@@ -81,14 +80,6 @@ namespace NDPin {
         }
         bool createPinCore(QSqlQuery& query, const NDPinDetails::Config::CreatePinCoreRecord& newPinCore) {
             return NDPinDetails::Create::createPinCore(query, newPinCore);
-        }
-        bool createPin(const NDPinDetails::Config::CreatePinRecord& newPin) {
-            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDPinDetails::Create::createPin(query, newPin);
-                });
-        }
-        bool createPin(QSqlQuery& query, const NDPinDetails::Config::CreatePinRecord& newPin) {
-            return NDPinDetails::Create::createPin(query, newPin);
         }
 
         bool createAllowFlows(const muuid::uuid& pinId, const QList<muuid::uuid>& allowedTypes) {
@@ -143,39 +134,6 @@ namespace NDPin {
             return NDPinDetails::Read::getAllPinCores(query, id, continueAtFail);
         }
 
-        std::optional<NDPinDetails::Config::FullPinRecord> getPin(const muuid::uuid& id) {
-            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDPinDetails::Read::getPin(query, id);
-            });
-        }
-        std::optional<NDPinDetails::Config::FullPinRecord> getPin(QSqlQuery& query, const muuid::uuid& id) {
-            return NDPinDetails::Read::getPin(query, id);
-        }
-        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getCorePins(const muuid::uuid& id, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDPinDetails::Read::getCorePins(query, id);
-                });
-        }
-        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getCorePins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
-            return NDPinDetails::Read::getCorePins(query, id);
-        }
-        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getContributorPins(const muuid::uuid& id, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDPinDetails::Read::getContributorPins(query, id);
-                });
-        }
-        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getContributorPins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
-            return NDPinDetails::Read::getContributorPins(query, id);
-        }
-        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getAllPins(const muuid::uuid& id, const bool continueAtFail = false) {
-            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
-                return NDPinDetails::Read::getAllPins(query, id);
-                });
-        }
-        std::optional<QList<NDPinDetails::Config::FullPinRecord>> getAllPins(QSqlQuery& query, const muuid::uuid& id, const bool continueAtFail = false) {
-            return NDPinDetails::Read::getAllPins(query, id);
-        }
-
         std::optional<QList<muuid::uuid>> getAllowFlows(const muuid::uuid& pinId, const bool continueAtFail = false) {
             return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
                 return NDPinDetails::Read::getAllowFlows(query, pinId, continueAtFail);
@@ -212,14 +170,6 @@ namespace NDPin {
         }
         bool removePinCore(QSqlQuery& query, const muuid::uuid& id) {
             return NDPinDetails::Delete::removePinCore(query, id);
-        }
-        bool removePin(const muuid::uuid& id) {
-            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDPinDetails::Delete::removePin(query, id);
-                });
-        }
-        bool removePin(QSqlQuery& query, const muuid::uuid& id) {
-            return NDPinDetails::Delete::removePin(query, id);
         }
 
         bool removeAllowFlow(const muuid::uuid& pinId) {

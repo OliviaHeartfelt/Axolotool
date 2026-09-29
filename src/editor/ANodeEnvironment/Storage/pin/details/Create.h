@@ -31,21 +31,6 @@ namespace NDPinDetails::Create {
 
         return true;
     }
-    inline bool createPin(QSqlQuery& query, const NDPinDetails::Config::CreatePinRecord& newPin) {
-        query.prepare(R"(
-            INSERT OR IGNORE INTO pin (id,  core_id)
-            VALUES (                  :id, :core_id);
-        )");
-
-        query.bindValue(":id",      Utility::UUID::uuidToBytes(newPin.id));
-        query.bindValue(":core_id", Utility::UUID::uuidToBytes(newPin.coreId));
-
-        if (!query.exec()) {
-            qCritical() << "Failed to insert pin:" << query.lastError().text();
-            return false;
-        }
-        return true;
-    }
     inline bool createAllowFlows(QSqlQuery& query, const muuid::uuid pinId, const QList<muuid::uuid>& newAllowedFlows) {
         if (!newAllowedFlows.isEmpty()) {
             query.prepare(R"(

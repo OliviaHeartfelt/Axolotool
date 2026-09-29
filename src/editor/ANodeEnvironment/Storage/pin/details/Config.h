@@ -73,17 +73,4 @@ namespace NDPinDetails::Config {
 		std::variant<std::monostate, std::optional<muuid::uuid>> typeId = std::monostate{};
 		std::variant<std::monostate, std::optional<muuid::uuid>> styleId = std::monostate{};
 	};
-
-	struct FullPinRecord {
-		muuid::uuid id;
-		muuid::uuid coreId;
-	};
-	struct PinRecord {
-		muuid::uuid id;
-		muuid::uuid coreId;
-	};
-	struct CreatePinRecord {
-		muuid::uuid id;
-		muuid::uuid coreId;
-	};
 }
