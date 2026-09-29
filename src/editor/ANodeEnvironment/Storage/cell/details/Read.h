@@ -8,8 +8,8 @@ namespace NDCellDetails::Read {
 
     inline std::optional<NDCellDetails::Config::FullCellRecord> getCell(QSqlQuery& query, const muuid::uuid& id) {
         query.prepare(R"(
-            SELECT node_id, name, is_out, layout_row, layout_col, layout_row_span, layout_col_span, pin_template_id, pin_instance_id, widget_id
-            FROM node_cells 
+            SELECT node_id, name, layout_row, layout_col, layout_row_span, layout_col_span, pin_core_id, widget_id
+            FROM cell 
             WHERE id = :id;
         )");
         query.bindValue(":id", Utility::UUID::uuidToBytes(id));
@@ -26,35 +26,29 @@ namespace NDCellDetails::Read {
         const NDHelpers::NullableField<QString> name = NDHelpers::parseNullableQstring(query.value(1));
         if (name.isCorrupted()) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> pinTemplateId = NDHelpers::parseNullableUUID(query.value(7));
-        if (pinTemplateId.isCorrupted()) return std::nullopt;
+        const NDHelpers::NullableField<muuid::uuid> pinCoreId = NDHelpers::parseNullableUUID(query.value(6));
+        if (pinCoreId.isCorrupted()) return std::nullopt;
 
-        const NDHelpers::NullableField<muuid::uuid> pinInstanceId = NDHelpers::parseNullableUUID(query.value(8));
-        if (pinInstanceId.isCorrupted()) return std::nullopt;
-
-        const NDHelpers::NullableField<muuid::uuid> widgetId = NDHelpers::parseNullableUUID(query.value(9));
+        const NDHelpers::NullableField<muuid::uuid> widgetId = NDHelpers::parseNullableUUID(query.value(7));
         if (widgetId.isCorrupted()) return std::nullopt;
 
         return NDCellDetails::Config::FullCellRecord{
             id,
             *nodeId,
             name.value,
-            query.value(2).toBool(),
+            static_cast<short>(query.value(2).toInt()),
             static_cast<short>(query.value(3).toInt()),
             static_cast<short>(query.value(4).toInt()),
             static_cast<short>(query.value(5).toInt()),
-            static_cast<short>(query.value(6).toInt()),
-            pinTemplateId.value,
-            pinInstanceId.value,
+            pinCoreId.value,
             widgetId.value
         };
     }
-
-    inline std::optional<QList<Config::FullCellRecord>> getAllCells(QSqlQuery& query, const muuid::uuid& nodeId, const bool continueAtFail = true) {        
+    inline std::optional<QList<Config::FullCellRecord>> getAllCells(QSqlQuery& query, const muuid::uuid& nodeId, const bool continueAtFail = true) {
         QList<Config::FullCellRecord> cells;
         query.prepare(R"(
-            SELECT id, name, is_out, layout_row, layout_col, layout_row_span, layout_col_span, pin_template_id, pin_instance_id, widget_id
-            FROM node_cells 
+            SELECT id, name, layout_row, layout_col, layout_row_span, layout_col_span, pin_core_id, widget_id
+            FROM cell 
             WHERE node_id = :node_id;
         )");
         query.bindValue(":node_id", Utility::UUID::uuidToBytes(nodeId));
@@ -63,14 +57,15 @@ namespace NDCellDetails::Read {
             qWarning() << "Failed to fetch cells for node:" << query.lastError().text();
             return std::nullopt;
         }
+
         while (query.next()) {
             auto cellIdOpt = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
             const NDHelpers::NullableField<QString> name = NDHelpers::parseNullableQstring(query.value(1));
-            const NDHelpers::NullableField<muuid::uuid> pinTemplateId = NDHelpers::parseNullableUUID(query.value(7));
-            const NDHelpers::NullableField<muuid::uuid> pinInstanceId = NDHelpers::parseNullableUUID(query.value(8));
-            const NDHelpers::NullableField<muuid::uuid> widgetId = NDHelpers::parseNullableUUID(query.value(9));
 
-            if (!cellIdOpt || name.isCorrupted() || pinTemplateId.isCorrupted() || pinInstanceId.isCorrupted() || widgetId.isCorrupted()) {
+            const NDHelpers::NullableField<muuid::uuid> pinCoreId = NDHelpers::parseNullableUUID(query.value(6));
+            const NDHelpers::NullableField<muuid::uuid> widgetId = NDHelpers::parseNullableUUID(query.value(7));
+
+            if (!cellIdOpt || name.isCorrupted() || pinCoreId.isCorrupted() || widgetId.isCorrupted()) {
                 if (continueAtFail)
                     continue;
                 else
@@ -81,15 +76,13 @@ namespace NDCellDetails::Read {
                 *cellIdOpt,
                 nodeId,
                 name.value,
-                query.value(2).toBool(),
+                static_cast<short>(query.value(2).toInt()),
                 static_cast<short>(query.value(3).toInt()),
                 static_cast<short>(query.value(4).toInt()),
                 static_cast<short>(query.value(5).toInt()),
-                static_cast<short>(query.value(6).toInt()),
-                pinTemplateId.value,
-                pinInstanceId.value,
+                pinCoreId.value,
                 widgetId.value
-            });
+                });
         }
         return cells;
     }

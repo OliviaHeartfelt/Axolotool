@@ -14,7 +14,7 @@
 namespace NDCell {
 
     namespace Config {
-        using namespace ::NDCellDetails::Config;
+        using namespace NDCellDetails::Config;
     }
 
     template<typename DBContext>
@@ -37,13 +37,13 @@ namespace NDCell {
                 QStringList list;
                 QStringList currentTables = driver->tables(QSql::Tables);
 
-                if (currentTables.contains("node_cells", Qt::CaseInsensitive) == value) list.append("node_cells");
+                if (currentTables.contains("cell", Qt::CaseInsensitive) == value) list.append("cell");
                 return list;
             });
         }
 
-        bool importNodeCore(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
-            QJsonValue jsonValue = doc.value("node_cells");
+        bool importCell(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("cell");
             if (jsonValue.isUndefined()) return isResourceOptional;
             if (!jsonValue.isArray()) return false;
             QJsonArray jsonArray = jsonValue.toArray();
@@ -57,7 +57,7 @@ namespace NDCell {
                 auto optNewRecord = NDCellDetails::Config::CreateCellRecord::Parse(val.toObject());
                 if (!optNewRecord) return false;
 
-                if (!NDCellDetails::Create::create(query, *optNewRecord)) return false;
+                if (!NDCellDetails::Create::createCell(query, *optNewRecord)) return false;
             }
             return true;
         }
@@ -75,11 +75,11 @@ namespace NDCell {
         // 1. Create
         bool createCell(const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDCellDetails::Create::create(query, newCell, overrideOnCollision);
-            });
+                return NDCellDetails::Create::createCell(query, newCell, overrideOnCollision);
+                });
         }
         bool createCell(QSqlQuery& query, const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
-            return NDCellDetails::Create::create(query, newCell, overrideOnCollision);
+            return NDCellDetails::Create::createCell(query, newCell, overrideOnCollision);
         }
 
         // 2. Read
@@ -114,11 +114,11 @@ namespace NDCell {
         // 4. Delete
         bool removeCell(const muuid::uuid& id) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDCellDetails::Delete::remove(query, id);
-            });
+                return NDCellDetails::Delete::removeCell(query, id);
+                });
         }
         bool removeCell(QSqlQuery& query, const muuid::uuid& id) {
-            return NDCellDetails::Delete::remove(query, id);
+            return NDCellDetails::Delete::removeCell(query, id);
         }
     };
 }

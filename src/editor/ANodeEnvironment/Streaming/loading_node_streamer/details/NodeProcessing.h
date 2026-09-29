@@ -72,8 +72,8 @@ namespace STLoadingNodeStreamerDetails::NodeProcessing {
 
 	inline bool processCell(ANodeEnvDB::ANodeEnvDB* nodeEnvDB, ARegistry::Registry& registry, QSqlQuery& query, Config::NodePayload& payload, const ANodeEnvDB::Config::Cell::FullCellRecord& cell) {
 
-		if (cell.pinTemplateId) {
-			return processPinTemplate(nodeEnvDB, registry, query, *cell.pinTemplateId);
+		if (cell.pinCoreId) {
+			return processPinTemplate(nodeEnvDB, registry, query, *cell.pinCoreId);
 		}
 		else if (cell.widgetId) {
 			return processWidget(nodeEnvDB, registry, query, payload, *cell.widgetId);

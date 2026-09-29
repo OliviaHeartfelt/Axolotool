@@ -30,19 +30,19 @@ namespace VWNodeDetails::CreateNode {
         if (!nodeCore) return nullptr;
 
         for (const auto& cell : factoryData.nodeCells) {
-            if (static_cast<bool>(cell.pinTemplateId) + static_cast<bool>(cell.widgetId) > 1) {
+            if (static_cast<bool>(cell.pinCoreId) + static_cast<bool>(cell.widgetId) > 1) {
                 if (continueAtFail) continue;
                 return nullptr;
             }
             VWCell::Context::FactoryData cellData;
 
             cellData.id = isNew ? static_cast<std::optional<muuid::uuid>>(std::nullopt) : cell.id;
-            
+
             cellData.name = cell.name;
 
-            if (cell.pinTemplateId) {
+            if (cell.pinCoreId) {
                 cellData.pin = VWCell::Context::PinFactoryData{
-                    .pinCoreId = *cell.pinTemplateId
+                    .pinCoreId = *cell.pinCoreId
                 };
             }
             else if (cell.widgetId) {
@@ -70,8 +70,8 @@ namespace VWNodeDetails::CreateNode {
             cellItem->nodeId(node->id());
             cellItem->name(cell.name);
             cellItem->cellTransforms(cell.row, cell.col, cell.rowSpan, cell.colSpan);
-            if (cell.pinTemplateId) {
-                cellItem->pinTemplateId(cell.pinTemplateId);
+            if (cell.pinCoreId) {
+                cellItem->pinCoreId(cell.pinCoreId);
             }
             else if (cell.widgetId) {
                 cellItem->widgetId(cell.widgetId);
@@ -89,9 +89,9 @@ namespace VWNodeDetails::CreateNode {
 
     inline NodeItem::Node* createNewNode(
         ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
-        ARegistry::Registry* registry, 
-        QGraphicsItem* parent, 
-        const muuid::uuid& coreId, 
+        ARegistry::Registry* registry,
+        QGraphicsItem* parent,
+        const muuid::uuid& coreId,
         const QPointF pos,
         const bool continueAtFail = false,
         const bool overrideOnCollision = false
@@ -102,7 +102,7 @@ namespace VWNodeDetails::CreateNode {
         if (!coreOpt) {
             ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& query) {
                 coreOpt = nodeEnvDB->node.getNodeCore(query, coreId);
-            });
+                });
 
             if (coreOpt) {
                 registry->node.nodeCoreRegistry.insert(coreId, *coreOpt);
@@ -126,7 +126,7 @@ namespace VWNodeDetails::CreateNode {
 
         const auto cells = (*cellFactory)(node->id());
         for (const auto& cell : cells) {
-            const bool hasPin =    cell.pinCoreId.has_value();
+            const bool hasPin = cell.pinCoreId.has_value();
             const bool hasWidget = cell.widgetCoreId.has_value();
 
             if (hasPin && hasWidget) {
@@ -168,7 +168,7 @@ namespace VWNodeDetails::CreateNode {
             cellItem->cellTransforms(cell.row, cell.col, cell.rowSpan, cell.colSpan);
 
             if (hasPin) {
-                cellItem->pinTemplateId(cell.pinCoreId);
+                cellItem->pinCoreId(cell.pinCoreId);
             }
             else if (hasWidget) {
                 cellItem->widgetId(cell.widgetCoreId);

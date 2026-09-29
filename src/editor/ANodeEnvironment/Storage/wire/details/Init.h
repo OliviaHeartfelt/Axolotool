@@ -75,8 +75,8 @@ namespace NDWireDetails::Init {
                 
                 PRIMARY KEY (id),
                 FOREIGN KEY (core_id)   REFERENCES wire_core(id)  ON DELETE CASCADE ON UPDATE CASCADE,
-                FOREIGN KEY (origin_id) REFERENCES node_cells(id) ON DELETE CASCADE ON UPDATE CASCADE,
-                FOREIGN KEY (target_id) REFERENCES node_cells(id) ON DELETE CASCADE ON UPDATE CASCADE,
+                FOREIGN KEY (origin_id) REFERENCES cell(id) ON DELETE CASCADE ON UPDATE CASCADE,
+                FOREIGN KEY (target_id) REFERENCES cell(id) ON DELETE CASCADE ON UPDATE CASCADE,
 
                 CONSTRAINT chk_no_self_loop CHECK (origin_id != target_id)
             );

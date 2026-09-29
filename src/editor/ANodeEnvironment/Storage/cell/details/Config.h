@@ -14,10 +14,8 @@ namespace NDCellDetails::Config {
         muuid::uuid id;
         muuid::uuid nodeId;
         std::optional<QString> name = std::nullopt;
-        std::optional<muuid::uuid> pinTemplateId = std::nullopt;
-        std::optional<muuid::uuid> pinInstanceId = std::nullopt;
-        std::optional<muuid::uuid> widgetId =      std::nullopt;
-        bool isOut = false;
+        std::optional<muuid::uuid> pinCoreId = std::nullopt;
+        std::optional<muuid::uuid> widgetId = std::nullopt;
         short row = -1;
         short col = -1;
         short rowSpan = 0;
@@ -32,12 +30,8 @@ namespace NDCellDetails::Config {
             if (!nodeId) return std::nullopt;
 
             auto optName = NDParser::parse<QString>(obj, "name", true);
-            auto pinTemplateId = NDParser::parse<muuid::uuid>(obj, "pinTemplateId", true);
-            auto pinInstanceId = NDParser::parse<muuid::uuid>(obj, "pinInstanceId", true);
+            auto optPinCoreId = NDParser::parse<muuid::uuid>(obj, "pinCoreId", true);
             auto widgetId = NDParser::parse<muuid::uuid>(obj, "widgetId", true);
-
-            auto isOut = NDParser::parse<bool>(obj, "isOut");
-            if (!isOut) return std::nullopt;
 
             auto row = NDParser::parse<short>(obj, "row");
             if (!row) return std::nullopt;
@@ -55,10 +49,8 @@ namespace NDCellDetails::Config {
                 .id = *optID,
                 .nodeId = *nodeId,
                 .name = optName,
-                .pinTemplateId = pinTemplateId,
-                .pinInstanceId = pinInstanceId,
+                .pinCoreId = optPinCoreId,
                 .widgetId = widgetId,
-                .isOut = *isOut,
                 .row = *row,
                 .col = *col,
                 .rowSpan = *rowSpan,
@@ -67,42 +59,36 @@ namespace NDCellDetails::Config {
         }
     };
     struct FactoryCellRecord {
+        muuid::uuid id;
         muuid::uuid nodeId;
         std::optional<QString> name = std::nullopt;
-        std::optional<muuid::uuid> pinTemplateId = std::nullopt;
-        std::optional<muuid::uuid> pinInstanceId = std::nullopt;
-        std::optional<muuid::uuid> widgetId = std::nullopt;
-        bool isOut = false;
+        std::optional<muuid::uuid> pinCoreId = std::nullopt;
+        std::optional<muuid::uuid> widgetCoreId = std::nullopt;
         short row = -1;
         short col = -1;
         short rowSpan = 0;
         short colSpan = 0;
     };
     struct UpdateCellRecord {
-        std::optional<muuid::uuid> id     = std::nullopt;
+        std::optional<muuid::uuid> id = std::nullopt;
         std::optional<muuid::uuid> nodeId = std::nullopt;
         std::variant<std::monostate, std::optional<QString>> name = std::monostate{};
-        std::variant<std::monostate, std::optional<muuid::uuid>> pinTemplateId = std::monostate{};
-        std::variant<std::monostate, std::optional<muuid::uuid>> pinInstanceId = std::monostate{};
-        std::variant<std::monostate, std::optional<muuid::uuid>> widgetId =      std::monostate{};
-        std::optional<bool> isOut =    false;
-        std::optional<short> row =     std::nullopt;
-        std::optional<short> col =     std::nullopt;
+        std::variant<std::monostate, std::optional<muuid::uuid>> pinCoreId = std::monostate{};
+        std::variant<std::monostate, std::optional<muuid::uuid>> widgetId = std::monostate{};
+        std::optional<short> row = std::nullopt;
+        std::optional<short> col = std::nullopt;
         std::optional<short> rowSpan = std::nullopt;
         std::optional<short> colSpan = std::nullopt;
     };
-
     struct FullCellRecord {
         muuid::uuid id;
         muuid::uuid nodeId;
         std::optional<QString> name;
-        bool isOut;
         short row;
         short col;
         short rowSpan;
         short colSpan;
-        std::optional<muuid::uuid> pinTemplateId;
-        std::optional<muuid::uuid> pinInstanceId;
+        std::optional<muuid::uuid> pinCoreId;
         std::optional<muuid::uuid> widgetId;
 
         static CreateCellRecord toCreate(const FullCellRecord& fullrecord) {
@@ -110,10 +96,8 @@ namespace NDCellDetails::Config {
                 .id = fullrecord.id,
                 .nodeId = fullrecord.nodeId,
                 .name = fullrecord.name,
-                .pinTemplateId = fullrecord.pinTemplateId,
-                .pinInstanceId = fullrecord.pinInstanceId,
+                .pinCoreId = fullrecord.pinCoreId,
                 .widgetId = fullrecord.widgetId,
-                .isOut = fullrecord.isOut,
                 .row = fullrecord.row,
                 .col = fullrecord.col,
                 .rowSpan = fullrecord.rowSpan,
@@ -125,10 +109,8 @@ namespace NDCellDetails::Config {
                 .id = std::nullopt,
                 .nodeId = std::nullopt,
                 .name = fullrecord.name,
-                .pinTemplateId = fullrecord.pinTemplateId,
-                .pinInstanceId = fullrecord.pinInstanceId,
+                .pinCoreId = fullrecord.pinCoreId,
                 .widgetId = fullrecord.widgetId,
-                .isOut = fullrecord.isOut,
                 .row = fullrecord.row,
                 .col = fullrecord.col,
                 .rowSpan = fullrecord.rowSpan,
