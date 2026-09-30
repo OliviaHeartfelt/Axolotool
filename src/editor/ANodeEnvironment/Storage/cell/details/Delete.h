@@ -23,4 +23,16 @@ namespace NDCellDetails::Delete {
 
         return true;
     }
+    inline bool removeCellOrigin(QSqlQuery& query, const muuid::uuid& id) {
+        const QByteArray cellBytesId = Utility::UUID::uuidToBytes(id);
+
+        query.prepare("DELETE FROM cell_origin WHERE id = :id;");
+        query.bindValue(":id", cellBytesId);
+        if (!query.exec()) {
+            qWarning() << "Failed to remove cell origin:" << query.lastError().text();
+            return false;
+        }
+
+        return true;
+    }
 }

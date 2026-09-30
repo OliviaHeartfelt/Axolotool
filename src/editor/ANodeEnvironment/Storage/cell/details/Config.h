@@ -4,6 +4,8 @@
 
 namespace NDCellDetails::Config {
 
+    // 1. Cell
+
     struct CellInfo {
         short row = -1;
         short col = -1;
@@ -111,6 +113,102 @@ namespace NDCellDetails::Config {
                 .name = fullrecord.name,
                 .pinCoreId = fullrecord.pinCoreId,
                 .widgetId = fullrecord.widgetId,
+                .row = fullrecord.row,
+                .col = fullrecord.col,
+                .rowSpan = fullrecord.rowSpan,
+                .colSpan = fullrecord.colSpan
+            };
+        }
+    };
+
+    // 2. Cell Origin
+
+    struct CreateCellOriginRecord {
+        muuid::uuid id;
+        muuid::uuid nodeCoreId;
+        std::optional<QString> name = std::nullopt;
+        std::optional<muuid::uuid> pinCoreId = std::nullopt;
+        std::optional<muuid::uuid> widgetCoreId = std::nullopt;
+        short row = -1;
+        short col = -1;
+        short rowSpan = 0;
+        short colSpan = 0;
+
+        static std::optional<CreateCellOriginRecord> Parse(const QJsonObject& obj, const muuid::uuid& nodeCoreId) {
+            auto optID = NDParser::parse<muuid::uuid>(obj, "id");
+            if (!optID) return std::nullopt;
+
+            auto optName = NDParser::parse<QString>(obj, "name", true);
+            auto optPinCoreId = NDParser::parse<muuid::uuid>(obj, "pinCoreId", true);
+            auto optWidgetCoreId = NDParser::parse<muuid::uuid>(obj, "widgetCoreId", true);
+
+            auto row = NDParser::parse<short>(obj, "row");
+            if (!row) return std::nullopt;
+
+            auto col = NDParser::parse<short>(obj, "col");
+            if (!col) return std::nullopt;
+
+            auto rowSpan = NDParser::parse<short>(obj, "rowSpan");
+            if (!rowSpan) return std::nullopt;
+
+            auto colSpan = NDParser::parse<short>(obj, "colSpan");
+            if (!colSpan) return std::nullopt;
+
+            return CreateCellOriginRecord{
+                .id = *optID,
+                .nodeCoreId = nodeCoreId,
+                .name = optName,
+                .pinCoreId = optPinCoreId,
+                .widgetCoreId = optWidgetCoreId,
+                .row = *row,
+                .col = *col,
+                .rowSpan = *rowSpan,
+                .colSpan = *colSpan
+            };
+        }
+    };
+    struct UpdateCellOriginRecord {
+        std::optional<muuid::uuid> id = std::nullopt;
+        std::optional<muuid::uuid> nodeCoreId = std::nullopt;
+        std::variant<std::monostate, std::optional<QString>> name = std::monostate{};
+        std::variant<std::monostate, std::optional<muuid::uuid>> pinCoreId = std::monostate{};
+        std::variant<std::monostate, std::optional<muuid::uuid>> widgetCoreId = std::monostate{};
+        std::optional<short> row = std::nullopt;
+        std::optional<short> col = std::nullopt;
+        std::optional<short> rowSpan = std::nullopt;
+        std::optional<short> colSpan = std::nullopt;
+    };
+    struct FullCellOriginRecord {
+        muuid::uuid id;
+        muuid::uuid nodeCoreId;
+        std::optional<QString> name;
+        std::optional<muuid::uuid> pinCoreId;
+        std::optional<muuid::uuid> widgetCoreId;
+        short row = -1;
+        short col = -1;
+        short rowSpan = 0;
+        short colSpan = 0;
+
+        static CreateCellOriginRecord toCreate(const FullCellOriginRecord& fullrecord) {
+            return CreateCellOriginRecord{
+                .id = fullrecord.id,
+                .nodeCoreId = fullrecord.nodeCoreId,
+                .name = fullrecord.name,
+                .pinCoreId = fullrecord.pinCoreId,
+                .widgetCoreId = fullrecord.widgetCoreId,
+                .row = fullrecord.row,
+                .col = fullrecord.col,
+                .rowSpan = fullrecord.rowSpan,
+                .colSpan = fullrecord.colSpan
+            };
+        }
+        static UpdateCellOriginRecord toUpdate(const FullCellOriginRecord& fullrecord) {
+            return UpdateCellOriginRecord{
+                .id = std::nullopt,
+                .nodeCoreId = std::nullopt,
+                .name = fullrecord.name,
+                .pinCoreId = fullrecord.pinCoreId,
+                .widgetCoreId = fullrecord.widgetCoreId,
                 .row = fullrecord.row,
                 .col = fullrecord.col,
                 .rowSpan = fullrecord.rowSpan,

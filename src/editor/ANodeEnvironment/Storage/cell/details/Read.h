@@ -86,4 +86,48 @@ namespace NDCellDetails::Read {
         }
         return cells;
     }
+
+    inline std::optional<QList<Config::FullCellOriginRecord>> getNodeCoreOriginCells(QSqlQuery& query, const muuid::uuid& nodeCoreId, const bool continueAtFail = true) {
+        QList<Config::FullCellOriginRecord> cells;
+
+        query.prepare(R"(
+            SELECT id, node_core_id, name, layout_row, layout_col, layout_row_span, layout_col_span, pin_core_id, widget_core_id
+            FROM cell_origin 
+            WHERE node_core_id = :node_core_id;
+        )");
+        query.bindValue(":node_core_id", Utility::UUID::uuidToBytes(nodeCoreId));
+
+        if (!query.exec()) {
+            qWarning() << "Failed to fetch origin cells:" << query.lastError().text();
+            return std::nullopt;
+        }
+
+        while (query.next()) {
+            auto id = Utility::UUID::bytesToUuid(query.value(0).toByteArray());
+            auto nodeCoreId = Utility::UUID::bytesToUuid(query.value(1).toByteArray());
+            const NDHelpers::NullableField<QString> name = NDHelpers::parseNullableQstring(query.value(2));
+            const NDHelpers::NullableField<muuid::uuid> pinCoreId = NDHelpers::parseNullableUUID(query.value(7));
+            const NDHelpers::NullableField<muuid::uuid> widgetCoreId = NDHelpers::parseNullableUUID(query.value(8));
+
+            if (!id || !nodeCoreId || name.isCorrupted() || pinCoreId.isCorrupted() || widgetCoreId.isCorrupted()) {
+                if (continueAtFail)
+                    continue;
+                else
+                    return std::nullopt;
+            }
+
+            cells.append(Config::FullCellOriginRecord{
+                *id,
+                *nodeCoreId,
+                name.value,
+                pinCoreId.value,
+                widgetCoreId.value,
+                static_cast<short>(query.value(3).toInt()),
+                static_cast<short>(query.value(4).toInt()),
+                static_cast<short>(query.value(5).toInt()),
+                static_cast<short>(query.value(6).toInt())
+                });
+        }
+        return cells;
+    }
 }
