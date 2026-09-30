@@ -10,8 +10,8 @@
   <img src="https://img.shields.io/badge/C%2B%2B-23-blue?logo=cplusplus" alt="C++23">
   <img src="https://img.shields.io/badge/Qt-6.11-3fb950?logo=qt&logoColor=white" alt="Qt6.11">
   <img src="https://img.shields.io/badge/License-MPL--2.0-blue" alt="License">
-  <img src="https://img.shields.io/badge/Version-v0.1-f0883e" alt="Version">
-  <img src="https://img.shields.io/badge/Lines%20of%20code-13.2k-6f42c1" alt="Lines of Code">
+  <img src="https://img.shields.io/badge/Version-v0.1.1-f0883e" alt="Version">
+  <img src="https://img.shields.io/badge/Lines%20of%20code-14.3k-6f42c1" alt="Lines of Code">
 </p>
 
 
@@ -91,7 +91,7 @@ You can make your own applications using the built-in node editor with standard 
   <tbody>
     <tr> 
       <td><b>Node Environment</b></td> 
-      <td align="center">$\textsf{\color{#50E650}{v1.0}}$</td> 
+      <td align="center">$\textsf{\color{#50E650}{v1.1}}$</td> 
       <td>Visual workspace and interactive editor interface for designing node workflows.</td> 
     </tr>
     <tr> 
@@ -129,7 +129,9 @@ You can make your own applications using the built-in node editor with standard 
 │       ├── AWindow/
 │       ├── Utility/
 │       ├── CMakeLists.txt
-│       └── main.cpp
+│       ├── main.cpp
+│       ├── MockPlugin.h
+│       └── MockPluginJson.json
 ├── .gitattributes
 ├── .gitignore
 ├── CMakeLists.txt
