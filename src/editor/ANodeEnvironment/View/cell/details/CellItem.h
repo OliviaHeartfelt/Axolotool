@@ -11,14 +11,12 @@ namespace WVCellDetails::CellItem {
 		std::optional<muuid::uuid> m_nodeId = std::nullopt;
 		std::optional<QString> m_name = std::nullopt;
 
-		bool m_isOut = false;
 		short m_row = -1;
 		short m_col = -1;
 		short m_rowSpan = 0;
 		short m_colSpan = 0;
 
-		std::optional<muuid::uuid> m_pinTemplateId = std::nullopt;
-		std::optional<muuid::uuid> m_pinInstanceId = std::nullopt;
+		std::optional<muuid::uuid> m_pinCoreId = std::nullopt;
 		std::optional<muuid::uuid> m_widgetId = std::nullopt;
 
 		bool m_is_new;
@@ -32,13 +30,11 @@ namespace WVCellDetails::CellItem {
 				.id = cell.m_id,
 				.nodeId = *cell.m_nodeId,
 				.name = cell.m_name,
-				.isOut = cell.m_isOut,
 				.row = cell.m_row,
 				.col = cell.m_col,
 				.rowSpan = cell.m_rowSpan,
 				.colSpan = cell.m_colSpan,
-				.pinTemplateId = cell.m_pinTemplateId,
-				.pinInstanceId = cell.m_pinInstanceId,
+				.pinCoreId = cell.m_pinCoreId,
 				.widgetId = cell.m_widgetId
 			};
 		}
@@ -80,20 +76,14 @@ namespace WVCellDetails::CellItem {
 			m_colSpan = colSpan;
 		}
 
-		bool isOut() const { return m_isOut; }
-		void isOut(bool newValue) { m_isOut = newValue; }
-
-		std::optional<muuid::uuid> pinTemplateId() const { return m_pinTemplateId; }
-		void pinTemplateId(const std::optional<muuid::uuid>& newId) { m_pinTemplateId = newId; }
-
-		std::optional<muuid::uuid> pinInstanceId() const { return m_pinInstanceId; }
-		void pinInstanceId(const std::optional<muuid::uuid>& newId) { m_pinInstanceId = newId; }
+		std::optional<muuid::uuid> pinCoreId() const { return m_pinCoreId; }
+		void pinCoreId(const std::optional<muuid::uuid>& newId) { m_pinCoreId = newId; }
 
 		std::optional<muuid::uuid> widgetId() const { return m_widgetId; }
 		void widgetId(const std::optional<muuid::uuid>& newId) { m_widgetId = newId; }
 
 		bool isContentValid() const {
-			return (static_cast<bool>(m_pinTemplateId) + static_cast<bool>(m_pinInstanceId) + static_cast<bool>(m_widgetId) <= 1);
+			return (static_cast<bool>(m_pinCoreId) + static_cast<bool>(m_widgetId) <= 1);
 		}
 		bool isTransformValid() const {
 			return m_row >= 0 && m_col >=0 && m_rowSpan > 0 && m_colSpan > 0;

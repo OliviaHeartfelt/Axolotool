@@ -36,8 +36,8 @@ namespace NDWireDetails::Config {
             auto name = NDParser::parse<QString>(obj, "name");
             if (!name) return std::nullopt;
 
-            auto styleId = NDParser::parse<muuid::uuid>(obj, "styleId");
-            auto dataId = NDParser::parse<muuid::uuid>(obj, "dataId");
+            auto styleId = NDParser::parse<muuid::uuid>(obj, "styleId", true);
+            auto dataId = NDParser::parse<muuid::uuid>(obj, "dataId", true);
 
             return CreateWireCoreRecord{
                 .id = *optID,

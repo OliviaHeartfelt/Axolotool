@@ -119,6 +119,8 @@ namespace ANodeEnvDB {
             if (!wire.importSymmetricWire(doc, query)) return false;
             if (!wire.importAsymmetricWire(doc, query)) return false;
 
+            if (!cell.importCellOrigin(doc, query)) return false;
+
             return true;
         }
 

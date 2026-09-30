@@ -114,7 +114,7 @@ namespace ANodeEnvironment {
 
             auto* newNode = AView::Node::CreateNode::createNewNode(
                 m_db.get(),
-                &m_registry,
+                m_registry,
                 nullptr,
                 nodeCoreId,
                 view->mapToScene(viewport->rect().center()), 

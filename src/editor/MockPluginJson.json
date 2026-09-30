@@ -786,5 +786,56 @@
       "pinTypeId": "019f65ff-1fe9-7b94-ba7c-2adf429f1b53",
       "wireCoreId": "01a0100a-e34c-76f8-8213-e624a4ddf755"
     }
+  ],
+
+  "cell_origin": [
+    {
+      "01a01024-8932-7727-9b20-30a7f81ad76a": [
+        {
+          "id": "01a0dfc7-68d9-7359-8b1d-639454989cf3",
+          "name": "Node A Out",
+          "pinCoreId": "01a0100a-e34c-76f8-8214-1434f616f62f",
+          "row": 0,
+          "col": 0,
+          "rowSpan": 1,
+          "colSpan": 1
+        }
+      ]
+    },
+    {
+      "01a01029-f8e6-73e9-9db3-926c8ad12f52": [
+        {
+          "id": "01a0dfc7-68d9-7359-8b1d-67be4be6e771",
+          "name": "Node B In",
+          "pinCoreId": "01a0100a-e34c-76f8-8214-19435996d0ed",
+          "row": 0,
+          "col": 0,
+          "rowSpan": 1,
+          "colSpan": 1
+        },
+        {
+          "id": "01a0dfc7-68d9-7359-8b1d-6a3418295816",
+          "name": "Node B Out",
+          "pinCoreId": "01a0100a-e34c-76f8-8214-1434f616f62f",
+          "row": 0,
+          "col": 1,
+          "rowSpan": 1,
+          "colSpan": 1
+        }
+      ]
+    },
+    {
+      "01a01029-f8e6-73e9-9db3-964174d5c085": [
+        {
+          "id": "01a0dfcd-1d2f-7399-88a8-52f8e37c874e",
+          "name": "Node C In",
+          "pinCoreId": "01a0100a-e34c-76f8-8214-19435996d0ed",
+          "row": 0,
+          "col": 0,
+          "rowSpan": 1,
+          "colSpan": 1
+        }
+      ]
+    }
   ]
 }

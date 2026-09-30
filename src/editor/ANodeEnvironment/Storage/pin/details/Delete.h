@@ -17,19 +17,6 @@ namespace NDPinDetails::Delete {
         }
         return true;
     }
-    inline bool removePin(QSqlQuery& query, const muuid::uuid& id) {
-        query.prepare(R"(
-            DELETE FROM pin 
-            WHERE id = :id;
-        )");
-        query.bindValue(":id", Utility::UUID::uuidToBytes(id));
-
-        if (!query.exec()) {
-            qCritical() << "Failed to delete pin:" << query.lastError().text();
-            return false;
-        }
-        return true;
-    }
 
     inline bool removeAllowFlow(QSqlQuery& query, const muuid::uuid& pinId) {
         query.prepare(R"(

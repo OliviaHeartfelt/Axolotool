@@ -295,10 +295,6 @@ namespace VWPinDetails::PinItem {
             }
 
             event->acceptProposedAction();
-            //scene->addItem(wire);
-
-            //originPin->registerWire(wire);
-            //this->registerWire(wire);
 
             VWWire::TemporaryWire::WireTemp::unstuck();
         }

@@ -114,7 +114,7 @@ namespace STSavingStreamer {
         std::generator<StreamedItem<ANodeEnvDB::Config::Wire::FullWireRecord>> streamWires() {
             if (!m_registry) co_return;
 
-            for (const auto& [_, item] : m_registry->nodeView.cellViewRegistry.visible()) {
+            for (const auto& [_, item] : m_registry->nodeView.cellViewRegistry.visible().shared_access()) {
                 AView::Cell::CellItem::CellItem* cellPtr = dynamic_cast<AView::Cell::CellItem::CellItem*>(item);
                 if (!cellPtr) continue;
             }

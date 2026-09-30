@@ -5,6 +5,7 @@
 #include "../../cell/VWCell.h"
 #include "Context.h"
 #include "NodeItem.h"
+#include "Helper.h"
 
 namespace VWNodeDetails::CreateNode {
 
@@ -30,19 +31,19 @@ namespace VWNodeDetails::CreateNode {
         if (!nodeCore) return nullptr;
 
         for (const auto& cell : factoryData.nodeCells) {
-            if (static_cast<bool>(cell.pinTemplateId) + static_cast<bool>(cell.widgetId) > 1) {
+            if (static_cast<bool>(cell.pinCoreId) + static_cast<bool>(cell.widgetId) > 1) {
                 if (continueAtFail) continue;
                 return nullptr;
             }
             VWCell::Context::FactoryData cellData;
 
             cellData.id = isNew ? static_cast<std::optional<muuid::uuid>>(std::nullopt) : cell.id;
-            
+
             cellData.name = cell.name;
 
-            if (cell.pinTemplateId) {
+            if (cell.pinCoreId) {
                 cellData.pin = VWCell::Context::PinFactoryData{
-                    .pinCoreId = *cell.pinTemplateId
+                    .pinCoreId = *cell.pinCoreId
                 };
             }
             else if (cell.widgetId) {
@@ -70,8 +71,8 @@ namespace VWNodeDetails::CreateNode {
             cellItem->nodeId(node->id());
             cellItem->name(cell.name);
             cellItem->cellTransforms(cell.row, cell.col, cell.rowSpan, cell.colSpan);
-            if (cell.pinTemplateId) {
-                cellItem->pinTemplateId(cell.pinTemplateId);
+            if (cell.pinCoreId) {
+                cellItem->pinCoreId(cell.pinCoreId);
             }
             else if (cell.widgetId) {
                 cellItem->widgetId(cell.widgetId);
@@ -89,23 +90,23 @@ namespace VWNodeDetails::CreateNode {
 
     inline NodeItem::Node* createNewNode(
         ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
-        ARegistry::Registry* registry, 
-        QGraphicsItem* parent, 
-        const muuid::uuid& coreId, 
+        ARegistry::Registry& registry,
+        QGraphicsItem* parent,
+        const muuid::uuid& coreId,
         const QPointF pos,
         const bool continueAtFail = false,
         const bool overrideOnCollision = false
     ) {
-        if (!nodeEnvDB || !registry) return nullptr;
+        if (!nodeEnvDB) return nullptr;
 
-        std::optional<ANodeEnvDB::Config::Node::FullNodeCoreRecord> coreOpt = registry->node.nodeCoreRegistry.at(coreId);
+        std::optional<ANodeEnvDB::Config::Node::FullNodeCoreRecord> coreOpt = registry.node.nodeCoreRegistry.at(coreId);
         if (!coreOpt) {
             ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& query) {
                 coreOpt = nodeEnvDB->node.getNodeCore(query, coreId);
-            });
+                });
 
             if (coreOpt) {
-                registry->node.nodeCoreRegistry.insert(coreId, *coreOpt);
+                registry.node.nodeCoreRegistry.insert(coreId, *coreOpt);
             }
         }
         if (!coreOpt) return nullptr;
@@ -121,12 +122,11 @@ namespace VWNodeDetails::CreateNode {
         node->setPos(pos.x(), pos.y());
         node->body->initGrid(coreOpt->defaultRowNum, coreOpt->defaultColNum, false);
 
-        auto cellFactory = registry->nodeFunction.cellFactoryRegistry.at(coreId);
-        if (!cellFactory) return nullptr;
+        const auto cells = VWNodeDetails::Helper::getNewCellData(nodeEnvDB, registry, coreOpt->id, node->id());
+        if (!cells) return nullptr;
 
-        const auto cells = (*cellFactory)(node->id());
-        for (const auto& cell : cells) {
-            const bool hasPin =    cell.pinCoreId.has_value();
+        for (const auto& cell : *cells) {
+            const bool hasPin = cell.pinCoreId.has_value();
             const bool hasWidget = cell.widgetCoreId.has_value();
 
             if (hasPin && hasWidget) {
@@ -134,24 +134,7 @@ namespace VWNodeDetails::CreateNode {
                 return nullptr;
             }
 
-            VWCell::Context::FactoryData cellData;
-            cellData.id = std::nullopt;
-            cellData.name = cell.name;
-
-            if (hasPin) {
-                cellData.pin = VWCell::Context::PinFactoryData{
-                    .pinCoreId = *cell.pinCoreId
-                };
-            }
-            else if (hasWidget) {
-                cellData.widget = VWCell::Context::WidgetFactoryData{
-                    .widgetCoreId = *cell.widgetCoreId,
-                    .widgetId = std::nullopt,
-                    .state = std::nullopt
-                };
-            }
-
-            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createCell(nodeEnvDB, *registry, node.get(), cellData, coreOpt->cellVisualFallbackId));
+            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createNewCell(nodeEnvDB, registry, node.get(), cell, coreOpt->cellVisualFallbackId));
 
             if (!cellItem) {
                 if (continueAtFail) continue;
@@ -168,14 +151,14 @@ namespace VWNodeDetails::CreateNode {
             cellItem->cellTransforms(cell.row, cell.col, cell.rowSpan, cell.colSpan);
 
             if (hasPin) {
-                cellItem->pinTemplateId(cell.pinCoreId);
+                cellItem->pinCoreId(cell.pinCoreId);
             }
             else if (hasWidget) {
                 cellItem->widgetId(cell.widgetCoreId);
             }
 
-            registry->nodeView.cellViewRegistry.addVisible(cellItem->id(), cellItem.get());
-            qDebug() << "> Cell created! #Cells:" << registry->nodeView.cellViewRegistry.sizeVisible() - 1 << "->" << registry->nodeView.cellViewRegistry.sizeVisible();
+            registry.nodeView.cellViewRegistry.addVisible(cellItem->id(), cellItem.get());
+            qDebug() << "> Cell created! #Cells:" << registry.nodeView.cellViewRegistry.sizeVisible() - 1 << "->" << registry.nodeView.cellViewRegistry.sizeVisible();
 
             cellItem.release();
         }

@@ -29,14 +29,10 @@ namespace WVCellDetails::Concepts {
             // --- Metadata & Content Getters/Setters ---
             { constItem.name() } -> std::same_as<std::optional<QString>>;
             { item.name(optString) };
-            { constItem.isOut() } -> std::convertible_to<bool>;
-            { item.isOut(b) };
 
             // --- Slot Reference IDs ---
-            { constItem.pinTemplateId() } -> std::same_as<std::optional<muuid::uuid>>;
-            { item.pinTemplateId(optUuid) };
-            { constItem.pinInstanceId() } -> std::same_as<std::optional<muuid::uuid>>;
-            { item.pinInstanceId(optUuid) };
+            { constItem.pinCoreId() } -> std::same_as<std::optional<muuid::uuid>>;
+            { item.pinCoreId(optUuid) };
             { constItem.widgetId() } -> std::same_as<std::optional<muuid::uuid>>;
             { item.widgetId(optUuid) };
 

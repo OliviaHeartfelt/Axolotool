@@ -14,7 +14,7 @@
 namespace NDCell {
 
     namespace Config {
-        using namespace ::NDCellDetails::Config;
+        using namespace NDCellDetails::Config;
     }
 
     template<typename DBContext>
@@ -37,13 +37,14 @@ namespace NDCell {
                 QStringList list;
                 QStringList currentTables = driver->tables(QSql::Tables);
 
-                if (currentTables.contains("node_cells", Qt::CaseInsensitive) == value) list.append("node_cells");
+                if (currentTables.contains("cell",        Qt::CaseInsensitive) == value) list.append("cell");
+                if (currentTables.contains("cell_origin", Qt::CaseInsensitive) == value) list.append("cell_origin");
                 return list;
             });
         }
 
-        bool importNodeCore(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
-            QJsonValue jsonValue = doc.value("node_cells");
+        bool importCell(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("cell");
             if (jsonValue.isUndefined()) return isResourceOptional;
             if (!jsonValue.isArray()) return false;
             QJsonArray jsonArray = jsonValue.toArray();
@@ -57,7 +58,40 @@ namespace NDCell {
                 auto optNewRecord = NDCellDetails::Config::CreateCellRecord::Parse(val.toObject());
                 if (!optNewRecord) return false;
 
-                if (!NDCellDetails::Create::create(query, *optNewRecord)) return false;
+                if (!NDCellDetails::Create::createCell(query, *optNewRecord)) return false;
+            }
+            return true;
+        }
+        bool importCellOrigin(const QJsonObject& doc, QSqlQuery& query, bool isResourceOptional = true) {
+            QJsonValue jsonValue = doc.value("cell_origin");
+            if (jsonValue.isUndefined()) return isResourceOptional;
+            if (!jsonValue.isArray()) return false;
+            QJsonArray jsonArray = jsonValue.toArray();
+
+            for (const QJsonValue& elementValue : jsonArray) {
+                if (!elementValue.isObject()) continue;
+
+                QJsonObject innerObject = elementValue.toObject();
+                QStringList keys = innerObject.keys();
+
+                if (!keys.isEmpty()) {
+                    auto optNodeCoreID = muuid::uuid::from_chars(keys.first().toStdString());
+                    if (!optNodeCoreID) continue;
+
+                    QJsonArray nestedArray = innerObject.value(keys.first()).toArray();
+
+                    for (const QJsonValue& innerElement : nestedArray) {
+                        if (!innerElement.isObject()) {
+                            qWarning() << "Parsing failed: Array element is not a JSON object.";
+                            return false;
+                        }
+
+                        auto optNewRecord = NDCellDetails::Config::CreateCellOriginRecord::Parse(innerElement.toObject(), *optNodeCoreID);
+                        if (!optNewRecord) return false;
+
+                        if (!NDCellDetails::Create::createCellOrigin(query, *optNewRecord)) return false;
+                    }
+                }
             }
             return true;
         }
@@ -75,11 +109,19 @@ namespace NDCell {
         // 1. Create
         bool createCell(const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDCellDetails::Create::create(query, newCell, overrideOnCollision);
-            });
+                return NDCellDetails::Create::createCell(query, newCell, overrideOnCollision);
+                });
         }
         bool createCell(QSqlQuery& query, const NDCellDetails::Config::CreateCellRecord& newCell, bool overrideOnCollision = false) {
-            return NDCellDetails::Create::create(query, newCell, overrideOnCollision);
+            return NDCellDetails::Create::createCell(query, newCell, overrideOnCollision);
+        }
+        bool createCellOrigin(const NDCellDetails::Config::CreateCellOriginRecord& newCellOrigin, bool overrideOnCollision = false) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
+                return NDCellDetails::Create::createCellOrigin(query, newCellOrigin, overrideOnCollision);
+                });
+        }
+        bool createCellOrigin(QSqlQuery& query, const NDCellDetails::Config::CreateCellOriginRecord& newCellOrigin, bool overrideOnCollision = false) {
+            return NDCellDetails::Create::createCellOrigin(query, newCellOrigin, overrideOnCollision);
         }
 
         // 2. Read
@@ -101,6 +143,15 @@ namespace NDCell {
             return NDCellDetails::Read::getAllCells(query, nodeId, continueAtFail);
         }
 
+        std::optional<QList<Config::FullCellOriginRecord>> getNodeCoreOriginCells(const muuid::uuid& nodeCoreId, const bool continueAtFail = true) {
+            return NDHelpers::useQuery(pool(), [&](QSqlQuery& query) {
+                return NDCellDetails::Read::getNodeCoreOriginCells(query, nodeCoreId, continueAtFail);
+                });
+        }
+        std::optional<QList<Config::FullCellOriginRecord>> getNodeCoreOriginCells(QSqlQuery& query, const muuid::uuid& nodeCoreId, const bool continueAtFail = true) {
+            return NDCellDetails::Read::getNodeCoreOriginCells(query, nodeCoreId, continueAtFail);
+        }
+
         // 3. Update
         bool updateLayout(const muuid::uuid& id, const NDCellDetails::Config::UpdateCellRecord& newCellInfo, const bool overrideOnCollision = false) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
@@ -111,14 +162,32 @@ namespace NDCell {
             return NDCellDetails::Update::updateCell(query, id, newCellInfo, overrideOnCollision);
         }
 
+        bool updateCellOrigin(const muuid::uuid& id, const NDCellDetails::Config::UpdateCellOriginRecord& newCellInfo) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
+                return NDCellDetails::Update::updateCellOrigin(query, id, newCellInfo);
+                });
+        }
+        bool updateCellOrigin(QSqlQuery& query, const muuid::uuid& id, const NDCellDetails::Config::UpdateCellOriginRecord& newCellInfo) {
+            return NDCellDetails::Update::updateCellOrigin(query, id, newCellInfo);
+        }
+
         // 4. Delete
         bool removeCell(const muuid::uuid& id) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDCellDetails::Delete::remove(query, id);
-            });
+                return NDCellDetails::Delete::removeCell(query, id);
+                });
         }
         bool removeCell(QSqlQuery& query, const muuid::uuid& id) {
-            return NDCellDetails::Delete::remove(query, id);
+            return NDCellDetails::Delete::removeCell(query, id);
+        }
+
+        bool removeCellOrigin(const muuid::uuid& id) {
+            return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
+                return NDCellDetails::Delete::removeCellOrigin(query, id);
+                });
+        }
+        bool removeCellOrigin(QSqlQuery& query, const muuid::uuid& id) {
+            return NDCellDetails::Delete::removeCellOrigin(query, id);
         }
     };
 }

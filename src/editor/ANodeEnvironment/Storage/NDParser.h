@@ -45,7 +45,7 @@ namespace NDParser {
 
         QJsonValue jsonValue = obj.value(key);
         if (jsonValue.isUndefined() || !jsonValue.isString()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed:" << key << "missing or is not a string.";
             }
             return std::nullopt;
@@ -55,7 +55,7 @@ namespace NDParser {
 
         auto optID = muuid::uuid::from_chars(rawStr);
         if (!optID) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed: String is not a valid UUID:" << rawStr.c_str();
             }
             return std::nullopt;
@@ -69,7 +69,7 @@ namespace NDParser {
         QJsonValue jsonValue = obj.value(key);
 
         if (jsonValue.isUndefined() || !jsonValue.isArray()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed:" << key << "missing or is not a array.";
             }
             return std::nullopt;
@@ -79,7 +79,7 @@ namespace NDParser {
         for (const QJsonValue& val : jsonArray) {
 
             if (val.isUndefined() || !val.isString()) {
-                if (isOptionalValid) {
+                if (!isOptionalValid) {
                     qWarning() << "Parsing failed:" << key << "missing or is not a string.";
                 }
                 continue;
@@ -89,7 +89,7 @@ namespace NDParser {
 
             auto optID = muuid::uuid::from_chars(rawStr);
             if (!optID) {
-                if (isOptionalValid) {
+                if (!isOptionalValid) {
                     qWarning() << "Parsing failed: String is not a valid UUID:" << rawStr.c_str();
                 }
                 continue;
@@ -105,7 +105,7 @@ namespace NDParser {
         QJsonValue jsonValue = obj.value(key);
 
         if (jsonValue.isUndefined() || !jsonValue.isString()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed:" << key << "missing or is not a string.";
             }
             return std::nullopt;
@@ -119,7 +119,7 @@ namespace NDParser {
         QJsonValue jsonValue = obj.value(key);
 
         if (jsonValue.isUndefined() || !jsonValue.isDouble()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed:" << key << "missing or is not a double.";
             }
             return std::nullopt;
@@ -128,7 +128,7 @@ namespace NDParser {
         int rawInt = jsonValue.toInt();
 
         if (rawInt < std::numeric_limits<short>::min() || rawInt > std::numeric_limits<short>::max()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed: Value" << rawInt << "overflows the boundaries of a 'short'.";
             }
             return std::nullopt;
@@ -142,7 +142,7 @@ namespace NDParser {
         QJsonValue jsonValue = obj.value(key);
 
         if (jsonValue.isUndefined() || !jsonValue.isDouble()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed:" << key << "missing or is not a double.";
             }
             return std::nullopt;
@@ -157,7 +157,7 @@ namespace NDParser {
         QJsonValue jsonValue = obj.value(key);
 
         if (jsonValue.isUndefined() || !jsonValue.isDouble()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed:" << key << "missing or is not a double.";
             }
             return std::nullopt;
@@ -171,7 +171,7 @@ namespace NDParser {
         QJsonValue jsonValue = obj.value(key);
 
         if (jsonValue.isUndefined() || !jsonValue.isBool()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed:" << key << "missing or is not a bool.";
             }
             return std::nullopt;
@@ -185,7 +185,7 @@ namespace NDParser {
         QJsonValue jsonValue = obj.value(key);
 
         if (jsonValue.isUndefined() || !jsonValue.isString()) {
-            if (isOptionalValid) {
+            if (!isOptionalValid) {
                 qWarning() << "Parsing failed:" << key << "missing or is not a string.";
             }
             return std::nullopt;
