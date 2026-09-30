@@ -15,8 +15,8 @@ namespace WVCellDetails::CreateCell {
 		ARegistry::Registry& registry,
 		QGraphicsItem* node,
 		const std::optional<muuid::uuid>& cellId,
-		const std::optional<muuid::uuid>& id,
 		const muuid::uuid& pinCoreId,
+		const std::optional<muuid::uuid>& id,
 		const std::optional<QString>& text = std::nullopt,
 		const std::optional<muuid::uuid>& fallbackFunctionId = std::nullopt
 	) {
@@ -106,14 +106,13 @@ namespace WVCellDetails::CreateCell {
 				registry,
 				node,
 				cellData.id,
-				cellData.pin->id,
 				cellData.pin->pinCoreId,
+				cellData.pin->id,
 				cellData.name,
 				fallbackFunctionId
 			);
 		}
-
-		if (cellData.widget) {
+		else if (cellData.widget) {
 			return createWidgetCell(
 				registry,
 				node,
@@ -125,10 +124,50 @@ namespace WVCellDetails::CreateCell {
 				fallbackFunctionId
 			);
 		}
-
-		return createFallbackCell(
+		else return createFallbackCell(
 			registry,
 			node, 
+			cellData.id,
+			cellData.name,
+			fallbackFunctionId
+		);
+	}
+	inline CellItem::CellItem* createNewCell(
+		ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
+		ARegistry::Registry& registry,
+		QGraphicsItem* node,
+		const ANodeEnvDB::Config::Cell::FactoryCellRecord& cellData,
+		const std::optional<muuid::uuid>& fallbackFunctionId = std::nullopt
+	) {
+		if (!nodeEnvDB) return nullptr;
+
+		if (cellData.pinCoreId) {
+			return createPinCell(
+				nodeEnvDB,
+				registry,
+				node,
+				std::nullopt,
+				*cellData.pinCoreId,
+				std::nullopt,
+				cellData.name,
+				fallbackFunctionId
+			);
+		}
+		else if (cellData.widgetCoreId) {
+			return createWidgetCell(
+				registry,
+				node,
+				std::nullopt,
+				*cellData.widgetCoreId,
+				std::nullopt,
+				cellData.name,
+				std::nullopt,
+				fallbackFunctionId
+			);
+		}
+		else return createFallbackCell(
+			registry,
+			node,
 			cellData.id,
 			cellData.name,
 			fallbackFunctionId

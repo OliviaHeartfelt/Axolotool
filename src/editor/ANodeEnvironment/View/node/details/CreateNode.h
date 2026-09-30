@@ -134,24 +134,7 @@ namespace VWNodeDetails::CreateNode {
                 return nullptr;
             }
 
-            VWCell::Context::FactoryData cellData;
-            cellData.id = std::nullopt;
-            cellData.name = cell.name;
-
-            if (hasPin) {
-                cellData.pin = VWCell::Context::PinFactoryData{
-                    .pinCoreId = *cell.pinCoreId
-                };
-            }
-            else if (hasWidget) {
-                cellData.widget = VWCell::Context::WidgetFactoryData{
-                    .widgetCoreId = *cell.widgetCoreId,
-                    .widgetId = std::nullopt,
-                    .state = std::nullopt
-                };
-            }
-
-            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createCell(nodeEnvDB, registry, node.get(), cellData, coreOpt->cellVisualFallbackId));
+            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createNewCell(nodeEnvDB, registry, node.get(), cell, coreOpt->cellVisualFallbackId));
 
             if (!cellItem) {
                 if (continueAtFail) continue;

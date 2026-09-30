@@ -162,13 +162,13 @@ namespace NDCell {
             return NDCellDetails::Update::updateCell(query, id, newCellInfo, overrideOnCollision);
         }
 
-        bool updateCellOrigin(const muuid::uuid& id, const NDCellDetails::Config::UpdateCellOriginRecord& newCellInfo, const bool overrideOnCollision = false) {
+        bool updateCellOrigin(const muuid::uuid& id, const NDCellDetails::Config::UpdateCellOriginRecord& newCellInfo) {
             return NDHelpers::useTransaction(pool(), [&](QSqlQuery& query) {
-                return NDCellDetails::Update::updateCellOrigin(query, id, newCellInfo, overrideOnCollision);
+                return NDCellDetails::Update::updateCellOrigin(query, id, newCellInfo);
                 });
         }
-        bool updateCellOrigin(QSqlQuery& query, const muuid::uuid& id, const NDCellDetails::Config::UpdateCellOriginRecord& newCellInfo, const bool overrideOnCollision = false) {
-            return NDCellDetails::Update::updateCellOrigin(query, id, newCellInfo, overrideOnCollision);
+        bool updateCellOrigin(QSqlQuery& query, const muuid::uuid& id, const NDCellDetails::Config::UpdateCellOriginRecord& newCellInfo) {
+            return NDCellDetails::Update::updateCellOrigin(query, id, newCellInfo);
         }
 
         // 4. Delete
