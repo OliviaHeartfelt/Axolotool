@@ -1,5 +1,7 @@
 #pragma once
 
+#include "details/Concepts.h"
+
 namespace RGBaseRegistry {
 
     template<typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
@@ -35,6 +37,7 @@ namespace RGBaseRegistry {
 
 
     template<typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
+        requires RGBaseRegistryDetails::Concepts::BaseRegistryConcept<Key, T, Hash, KeyEqual>
     class BaseRegistry {
         mutable std::shared_mutex m_mutex;
         std::unordered_map<Key, T, Hash, KeyEqual> m_registry;
