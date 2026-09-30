@@ -5,6 +5,7 @@
 #include "../../cell/VWCell.h"
 #include "Context.h"
 #include "NodeItem.h"
+#include "Helper.h"
 
 namespace VWNodeDetails::CreateNode {
 
@@ -89,23 +90,23 @@ namespace VWNodeDetails::CreateNode {
 
     inline NodeItem::Node* createNewNode(
         ANodeEnvDB::ANodeEnvDB* nodeEnvDB,
-        ARegistry::Registry* registry,
+        ARegistry::Registry& registry,
         QGraphicsItem* parent,
         const muuid::uuid& coreId,
         const QPointF pos,
         const bool continueAtFail = false,
         const bool overrideOnCollision = false
     ) {
-        if (!nodeEnvDB || !registry) return nullptr;
+        if (!nodeEnvDB) return nullptr;
 
-        std::optional<ANodeEnvDB::Config::Node::FullNodeCoreRecord> coreOpt = registry->node.nodeCoreRegistry.at(coreId);
+        std::optional<ANodeEnvDB::Config::Node::FullNodeCoreRecord> coreOpt = registry.node.nodeCoreRegistry.at(coreId);
         if (!coreOpt) {
             ANodeEnvDB::Helpers::useQuery(nodeEnvDB->getPool(), [&](QSqlQuery& query) {
                 coreOpt = nodeEnvDB->node.getNodeCore(query, coreId);
                 });
 
             if (coreOpt) {
-                registry->node.nodeCoreRegistry.insert(coreId, *coreOpt);
+                registry.node.nodeCoreRegistry.insert(coreId, *coreOpt);
             }
         }
         if (!coreOpt) return nullptr;
@@ -121,11 +122,10 @@ namespace VWNodeDetails::CreateNode {
         node->setPos(pos.x(), pos.y());
         node->body->initGrid(coreOpt->defaultRowNum, coreOpt->defaultColNum, false);
 
-        auto cellFactory = registry->nodeFunction.cellFactoryRegistry.at(coreId);
-        if (!cellFactory) return nullptr;
+        const auto cells = VWNodeDetails::Helper::getNewCellData(nodeEnvDB, registry, coreOpt->id, node->id());
+        if (!cells) return nullptr;
 
-        const auto cells = (*cellFactory)(node->id());
-        for (const auto& cell : cells) {
+        for (const auto& cell : *cells) {
             const bool hasPin = cell.pinCoreId.has_value();
             const bool hasWidget = cell.widgetCoreId.has_value();
 
@@ -151,7 +151,7 @@ namespace VWNodeDetails::CreateNode {
                 };
             }
 
-            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createCell(nodeEnvDB, *registry, node.get(), cellData, coreOpt->cellVisualFallbackId));
+            std::unique_ptr<VWCell::CellItem::CellItem> cellItem(VWCell::createCell(nodeEnvDB, registry, node.get(), cellData, coreOpt->cellVisualFallbackId));
 
             if (!cellItem) {
                 if (continueAtFail) continue;
@@ -174,8 +174,8 @@ namespace VWNodeDetails::CreateNode {
                 cellItem->widgetId(cell.widgetCoreId);
             }
 
-            registry->nodeView.cellViewRegistry.addVisible(cellItem->id(), cellItem.get());
-            qDebug() << "> Cell created! #Cells:" << registry->nodeView.cellViewRegistry.sizeVisible() - 1 << "->" << registry->nodeView.cellViewRegistry.sizeVisible();
+            registry.nodeView.cellViewRegistry.addVisible(cellItem->id(), cellItem.get());
+            qDebug() << "> Cell created! #Cells:" << registry.nodeView.cellViewRegistry.sizeVisible() - 1 << "->" << registry.nodeView.cellViewRegistry.sizeVisible();
 
             cellItem.release();
         }

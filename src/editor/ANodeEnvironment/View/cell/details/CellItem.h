@@ -11,7 +11,6 @@ namespace WVCellDetails::CellItem {
 		std::optional<muuid::uuid> m_nodeId = std::nullopt;
 		std::optional<QString> m_name = std::nullopt;
 
-		bool m_isOut = false;
 		short m_row = -1;
 		short m_col = -1;
 		short m_rowSpan = 0;

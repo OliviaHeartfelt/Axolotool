@@ -27,7 +27,6 @@ namespace VWNodeDetails::Context {
 	struct FactoryData {
 		NodeFactoryData node;
 		std::vector<ANodeEnvDB::Config::Cell::FullCellRecord> nodeCells;
-		std::map<muuid::uuid, ANodeEnvDB::Config::Widget::FullWidgetRecord> pins;
 		std::map<muuid::uuid, ANodeEnvDB::Config::Widget::FullWidgetRecord> widgets;
 	};
 }

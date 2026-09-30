@@ -31,6 +31,8 @@ namespace RGRegistryComponents {
         RegistryT<ANodeEnvDB::Config::Widget::FullWidgetCoreRecord> widgetCoreRegistry;
         RegistryT<ANodeEnvDB::Config::WidgetSource::FullWidgetTypeRecord> widgetTypeRegistry;
         RegistryT<ANodeEnvDB::Config::WidgetSource::FullWidgetDataRecord> widgetDataRegistry;
+
+        RGBaseRegistry::BaseMultimapRegistry<muuid::uuid, ANodeEnvDB::Config::Cell::FullCellOriginRecord> cellOriginRegistry;
     };
 
     struct NodeViewRegisters {
