@@ -35,6 +35,36 @@ namespace RGBaseRegistry {
         size_t size() const { return m_map.size(); }
     };
 
+    template<typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
+    class SharedMultimapAccess {
+        std::shared_lock<std::shared_mutex> m_lock;
+        const std::unordered_multimap<Key, T, Hash, KeyEqual>& m_map;
+
+    public:
+        SharedMultimapAccess(std::shared_mutex& mutex, const std::unordered_multimap<Key, T, Hash, KeyEqual>& map) : m_lock(mutex), m_map(map) {}
+
+        auto begin() const { return m_map.begin(); }
+        auto end()   const { return m_map.end(); }
+
+        size_t size() const { return m_map.size(); }
+    };
+    template<typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
+    class UniqueMultimapAccess {
+        std::unique_lock<std::shared_mutex> m_lock;
+        std::unordered_multimap<Key, T, Hash, KeyEqual>& m_map;
+
+    public:
+        UniqueMultimapAccess(std::shared_mutex& mutex, std::unordered_multimap<Key, T, Hash, KeyEqual>& map) : m_lock(mutex), m_map(map) {}
+
+        auto begin() { return m_map.begin(); }
+        auto end() { return m_map.end(); }
+
+        auto begin() const { return m_map.begin(); }
+        auto end()   const { return m_map.end(); }
+
+        size_t size() const { return m_map.size(); }
+    };
+
 
     template<typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
         requires RGBaseRegistryDetails::Concepts::BaseRegistryConcept<Key, T, Hash, KeyEqual>
@@ -101,6 +131,82 @@ namespace RGBaseRegistry {
         }
         [[nodiscard]] UniqueAccess<Key, T, Hash, KeyEqual> unique_access() {
             return UniqueAccess<Key, T, Hash, KeyEqual>(m_mutex, m_registry);
+        }
+
+        [[nodiscard]] bool contains(const Key& id) const {
+            std::shared_lock guard(m_mutex);
+            return m_registry.contains(id);
+        }
+        [[nodiscard]] size_t size() const {
+            std::shared_lock guard(m_mutex);
+            return m_registry.size();
+        }
+        [[nodiscard]] bool empty() const {
+            std::shared_lock guard(m_mutex);
+            return m_registry.empty();
+        }
+        void clear() {
+            std::unique_lock guard(m_mutex);
+            m_registry.clear();
+        }
+    };
+
+    template<typename Key, typename T, typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>>
+        requires RGBaseRegistryDetails::Concepts::BaseMultimapRegistryConcept<Key, T, Hash, KeyEqual>
+    class BaseMultimapRegistry {
+        mutable std::shared_mutex m_mutex;
+        std::unordered_multimap<Key, T, Hash, KeyEqual> m_registry;
+
+    public:
+        BaseMultimapRegistry() = default;
+
+        auto begin() { return m_registry.begin(); }
+        auto end() { return m_registry.end(); }
+
+        auto begin()  const { return m_registry.cbegin(); }
+        auto end()    const { return m_registry.cend(); }
+
+        auto cbegin() const { return m_registry.cbegin(); }
+        auto cend()   const { return m_registry.cend(); }
+
+        void insert(const Key& id, const T& value) {
+            std::unique_lock guard(m_mutex);
+            m_registry.emplace(id, value);
+        }
+        void insert(const Key& id, T&& value) {
+            std::unique_lock guard(m_mutex);
+            m_registry.emplace(id, std::move(value));
+        }
+
+        bool erase(const Key& id) {
+            std::unique_lock guard(m_mutex);
+            return m_registry.erase(id) > 0;
+        }
+
+        void at(const Key& id, QList<T>& list) const {
+            std::shared_lock guard(m_mutex);
+
+            auto range = m_registry.equal_range(id);
+            for (auto it = range.first; it != range.second; ++it) {
+                list.push_back(it->second);
+            }
+        }
+        [[nodiscard]] std::vector<T> at(const Key& id) const {
+            std::shared_lock guard(m_mutex);
+
+            std::vector<T> vec;
+            auto range = m_registry.equal_range(id);
+            for (auto it = range.first; it != range.second; ++it) {
+                vec.push_back(it->second);
+            }
+            return vec;
+        }
+
+        [[nodiscard]] SharedMultimapAccess<Key, T, Hash, KeyEqual> shared_access() const {
+            return SharedMultimapAccess<Key, T, Hash, KeyEqual>(m_mutex, m_registry);
+        }
+        [[nodiscard]] UniqueMultimapAccess<Key, T, Hash, KeyEqual> unique_access() {
+            return UniqueMultimapAccess<Key, T, Hash, KeyEqual>(m_mutex, m_registry);
         }
 
         [[nodiscard]] bool contains(const Key& id) const {
