@@ -76,15 +76,6 @@ namespace RGBaseRegistry {
     public:
         BaseRegistry() = default;
 
-        auto begin() { return m_registry.begin(); }
-        auto end() { return m_registry.end(); }
-
-        auto begin()  const { return m_registry.cbegin(); }
-        auto end()    const { return m_registry.cend(); }
-
-        auto cbegin() const { return m_registry.cbegin(); }
-        auto cend()   const { return m_registry.cend(); }
-
         bool insert(const Key& id, const T& value) {
             std::unique_lock guard(m_mutex);
             return m_registry.emplace(id, value).second;
@@ -159,15 +150,6 @@ namespace RGBaseRegistry {
 
     public:
         BaseMultimapRegistry() = default;
-
-        auto begin() { return m_registry.begin(); }
-        auto end() { return m_registry.end(); }
-
-        auto begin()  const { return m_registry.cbegin(); }
-        auto end()    const { return m_registry.cend(); }
-
-        auto cbegin() const { return m_registry.cbegin(); }
-        auto cend()   const { return m_registry.cend(); }
 
         void insert(const Key& id, const T& value) {
             std::unique_lock guard(m_mutex);
