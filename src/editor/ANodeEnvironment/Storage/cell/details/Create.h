@@ -43,10 +43,7 @@ namespace NDCellDetails::Create {
     inline bool createCellOrigin(QSqlQuery& query, const Config::CreateCellOriginRecord& newCell) {
         if (newCell.pinCoreId && newCell.widgetCoreId) return false;
 
-        if (!Helper::isCellOriginAvailable(query, newCell.nodeCoreId, newCell.row, newCell.col, newCell.rowSpan, newCell.colSpan)) {
-            qWarning() << "Cell origin insertion rejected: Space is occupied.";
-            return false;
-        }
+        if (!Helper::isCellOriginAvailable(query, newCell.nodeCoreId, newCell.row, newCell.col, newCell.rowSpan, newCell.colSpan)) return true;
 
         query.prepare(R"(
             INSERT OR IGNORE INTO cell_origin (id,  node_core_id,  name,  layout_row,  layout_col,  layout_row_span,  layout_col_span,  pin_core_id,  widget_core_id)
